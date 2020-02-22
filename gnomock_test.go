@@ -18,7 +18,7 @@ func TestGnomock_happyFlow(t *testing.T) {
 
 	opts := gnomock.Options{
 		Image:               "docker.io/jwilder/whoami",
-		Version:             "latest",
+		Tag:                 "latest",
 		Port:                8000,
 		HealthcheckInterval: time.Microsecond * 500,
 		Healthcheck:         healthcheck,

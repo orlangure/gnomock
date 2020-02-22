@@ -26,7 +26,7 @@ func Start(opts Options) (c *Container, err error) {
 		return nil, fmt.Errorf("can't create docker client: %w", err)
 	}
 
-	image := fmt.Sprintf("%s:%s", opts.Image, opts.Version)
+	image := fmt.Sprintf("%s:%s", opts.Image, opts.Tag)
 
 	err = cli.pullImage(startCtx, image)
 	if err != nil {
@@ -79,8 +79,8 @@ func prepareOptions(opts Options) (Options, error) {
 		return opts, ErrImageNotSet
 	}
 
-	if opts.Version == "" {
-		opts.Version = defaultVersion
+	if opts.Tag == "" {
+		opts.Tag = defaultVersion
 	}
 
 	if opts.Port == 0 {

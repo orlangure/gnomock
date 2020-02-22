@@ -6,9 +6,9 @@ import (
 )
 
 type Options struct {
-	Image   string
-	Version string
-	Port    int
+	Image string
+	Tag   string
+	Port  int
 
 	HealthcheckInterval time.Duration
 	Healthcheck         HealthcheckFunc
