@@ -13,22 +13,21 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
+const testImage = "docker.io/jwilder/whoami"
+const testPort = 8000
+
 func TestGnomock_happyFlow(t *testing.T) {
 	t.Parallel()
 
-	opts := gnomock.Options{
-		Image:               "docker.io/jwilder/whoami",
-		Tag:                 "latest",
-		Port:                8000,
-		HealthcheckInterval: time.Microsecond * 500,
-		Healthcheck:         healthcheck,
-		Init:                initf,
-		Ctx:                 context.Background(),
-		StartTimeout:        time.Second * 10,
-		WaitTimeout:         time.Second * 1,
-	}
-
-	container, err := gnomock.Start(opts)
+	container, err := gnomock.Start(
+		testImage, testPort,
+		gnomock.WithHealthCheckInterval(time.Microsecond*500),
+		gnomock.WithHealthCheck(healthcheck),
+		gnomock.WithInit(initf),
+		gnomock.WithContext(context.Background()),
+		gnomock.WithStartTimeout(time.Second*10),
+		gnomock.WithWaitTimeout(time.Second*1),
+	)
 
 	defer func() {
 		require.NoError(t, gnomock.Stop(container))
@@ -51,14 +50,11 @@ func TestGnomock_happyFlow(t *testing.T) {
 func TestGnomock_wrongPort(t *testing.T) {
 	t.Parallel()
 
-	opts := gnomock.Options{
-		Image:       "docker.io/jwilder/whoami",
-		Port:        80,
-		Healthcheck: healthcheck,
-		WaitTimeout: time.Millisecond * 50,
-	}
-
-	container, err := gnomock.Start(opts)
+	container, err := gnomock.Start(
+		testImage, 80,
+		gnomock.WithHealthCheck(healthcheck),
+		gnomock.WithWaitTimeout(time.Millisecond*50),
+	)
 
 	defer func() {
 		require.NoError(t, gnomock.Stop(container))
@@ -72,19 +68,17 @@ func TestGnomock_cancellation(t *testing.T) {
 	t.Parallel()
 
 	ctx, cancel := context.WithCancel(context.Background())
-	opts := gnomock.Options{
-		Image:       "docker.io/jwilder/whoami",
-		Port:        80,
-		Healthcheck: healthcheck,
-		Ctx:         ctx,
-	}
 
 	go func() {
 		time.Sleep(time.Millisecond * 100)
 		cancel()
 	}()
 
-	container, err := gnomock.Start(opts)
+	container, err := gnomock.Start(
+		testImage, 80,
+		gnomock.WithHealthCheck(healthcheck),
+		gnomock.WithContext(ctx),
+	)
 
 	defer func() {
 		require.NoError(t, gnomock.Stop(container))
@@ -96,12 +90,7 @@ func TestGnomock_cancellation(t *testing.T) {
 func TestGnomock_defaultHealthcheck(t *testing.T) {
 	t.Parallel()
 
-	opts := gnomock.Options{
-		Image: "docker.io/jwilder/whoami",
-		Port:  81,
-	}
-
-	container, err := gnomock.Start(opts)
+	container, err := gnomock.Start(testImage, 81)
 
 	defer func() {
 		require.NoError(t, gnomock.Stop(container))
@@ -111,51 +100,18 @@ func TestGnomock_defaultHealthcheck(t *testing.T) {
 	require.NoError(t, err)
 }
 
-func TestGnomock_requiredOptions_port(t *testing.T) {
-	t.Parallel()
-
-	opts := gnomock.Options{
-		Image: "docker.io/jwilder/whoami",
-	}
-
-	container, err := gnomock.Start(opts)
-
-	defer func() {
-		require.NoError(t, gnomock.Stop(container))
-	}()
-
-	require.True(t, errors.Is(err, gnomock.ErrPortNotSet))
-}
-
-func TestGnomock_requiredOptions_image(t *testing.T) {
-	t.Parallel()
-
-	opts := gnomock.Options{
-		Port: 8000,
-	}
-
-	container, err := gnomock.Start(opts)
-
-	defer func() {
-		require.NoError(t, gnomock.Stop(container))
-	}()
-
-	require.True(t, errors.Is(err, gnomock.ErrImageNotSet))
-}
-
 func TestGnomock_initError(t *testing.T) {
 	t.Parallel()
 
 	errNope := fmt.Errorf("nope")
-	opts := gnomock.Options{
-		Image: "docker.io/jwilder/whoami",
-		Port:  8000,
-		Init: func(*gnomock.Container) error {
-			return errNope
-		},
+	initWithErr := func(*gnomock.Container) error {
+		return errNope
 	}
 
-	container, err := gnomock.Start(opts)
+	container, err := gnomock.Start(
+		testImage, testPort,
+		gnomock.WithInit(initWithErr),
+	)
 
 	defer func() {
 		require.NoError(t, gnomock.Stop(container))

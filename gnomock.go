@@ -1,24 +1,30 @@
+// Package gnomock contains a framework to set up temporary docker containers
+// for integration and end-to-end testing of other applications. It handles
+// pulling images, starting containers, waiting for them to become available,
+// setting up their initial state and cleaning up in the end.
+//
+// It can be used either directly, or via already existing implementations of
+// various connectors built by the community.
 package gnomock
 
 import (
 	"context"
 	"fmt"
+	"strings"
 	"time"
 )
 
-const defaultVersion = "latest"
-const defaultStartTimeout = time.Second * 60
-const defaultStopTimeout = time.Second
-const defaultWaitTimeout = time.Second * 10
-const defaultHealthcheckInterval = time.Millisecond * 50
+const defaultTag = "latest"
 
-func Start(opts Options) (c *Container, err error) {
-	opts, err = prepareOptions(opts)
-	if err != nil {
-		return nil, fmt.Errorf("invalid options: %w", err)
-	}
+// Start creates a new container using provided image and binds a random port
+// on the host to the provided port inside the container. Image may include
+// tag, which is set to "latest" by default. Optional configuration is
+// available through Option functions. The returned container must be stopped
+// when no longer needed using its Stop() method
+func Start(image string, port int, opts ...Option) (c *Container, err error) {
+	config, image := buildConfig(opts...), buildImage(image)
 
-	startCtx, cancel := context.WithTimeout(opts.Ctx, opts.StartTimeout)
+	startCtx, cancel := context.WithTimeout(config.ctx, config.startTimeout)
 	defer cancel()
 
 	cli, err := dockerConnect()
@@ -26,27 +32,25 @@ func Start(opts Options) (c *Container, err error) {
 		return nil, fmt.Errorf("can't create docker client: %w", err)
 	}
 
-	image := fmt.Sprintf("%s:%s", opts.Image, opts.Tag)
-
 	err = cli.pullImage(startCtx, image)
 	if err != nil {
 		return nil, fmt.Errorf("can't pull image: %w", err)
 	}
 
-	c, err = cli.startContainer(startCtx, image, opts)
+	c, err = cli.startContainer(startCtx, image, port)
 	if err != nil {
 		return nil, fmt.Errorf("can't start container: %w", err)
 	}
 
-	waitCtx, cancelWait := context.WithTimeout(opts.Ctx, opts.WaitTimeout)
+	waitCtx, cancelWait := context.WithTimeout(config.ctx, config.waitTimeout)
 	defer cancelWait()
 
-	err = wait(waitCtx, c, opts)
+	err = wait(waitCtx, c, config)
 	if err != nil {
 		return c, fmt.Errorf("can't connect to container: %w", err)
 	}
 
-	err = opts.Init(c)
+	err = config.init(c)
 	if err != nil {
 		return c, fmt.Errorf("can't init container: %w", err)
 	}
@@ -54,6 +58,7 @@ func Start(opts Options) (c *Container, err error) {
 	return c, nil
 }
 
+// Stop stops this container and lets docker to remove it from the system
 func Stop(c *Container) error {
 	if c == nil {
 		return nil
@@ -74,48 +79,17 @@ func Stop(c *Container) error {
 	return nil
 }
 
-func prepareOptions(opts Options) (Options, error) {
-	if opts.Image == "" {
-		return opts, ErrImageNotSet
+func buildImage(image string) string {
+	parts := strings.Split(image, ":")
+	if len(parts) == 1 {
+		image = fmt.Sprintf("%s:%s", image, defaultTag)
 	}
 
-	if opts.Tag == "" {
-		opts.Tag = defaultVersion
-	}
-
-	if opts.Port == 0 {
-		return opts, ErrPortNotSet
-	}
-
-	if opts.HealthcheckInterval == 0 {
-		opts.HealthcheckInterval = defaultHealthcheckInterval
-	}
-
-	if opts.Healthcheck == nil {
-		opts.Healthcheck = nopHealthcheck
-	}
-
-	if opts.Init == nil {
-		opts.Init = nopInit
-	}
-
-	if opts.Ctx == nil {
-		opts.Ctx = context.Background()
-	}
-
-	if opts.StartTimeout == 0 {
-		opts.StartTimeout = defaultStartTimeout
-	}
-
-	if opts.WaitTimeout == 0 {
-		opts.WaitTimeout = defaultWaitTimeout
-	}
-
-	return opts, nil
+	return image
 }
 
-func wait(ctx context.Context, c *Container, opts Options) error {
-	delay := time.NewTicker(opts.HealthcheckInterval)
+func wait(ctx context.Context, c *Container, config *options) error {
+	delay := time.NewTicker(config.healthcheckInterval)
 	defer delay.Stop()
 
 	var lastErr error
@@ -125,7 +99,7 @@ func wait(ctx context.Context, c *Container, opts Options) error {
 		case <-ctx.Done():
 			return fmt.Errorf("canceled after error: %w", lastErr)
 		case <-delay.C:
-			err := opts.Healthcheck(c.Host, c.Port)
+			err := config.healthcheck(c.Host, c.Port)
 			if err == nil {
 				return nil
 			}

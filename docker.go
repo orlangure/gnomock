@@ -47,8 +47,8 @@ func (d *docker) pullImage(ctx context.Context, image string) error {
 	return nil
 }
 
-func (d *docker) startContainer(ctx context.Context, image string, opts Options) (*Container, error) {
-	containerPort := nat.Port(fmt.Sprintf("%d/tcp", opts.Port))
+func (d *docker) startContainer(ctx context.Context, image string, port int) (*Container, error) {
+	containerPort := nat.Port(fmt.Sprintf("%d/tcp", port))
 	containerConfig := &container.Config{
 		Image: image,
 		ExposedPorts: nat.PortSet{

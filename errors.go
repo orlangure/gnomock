@@ -2,6 +2,7 @@ package gnomock
 
 import "fmt"
 
-var ErrImageNotSet = fmt.Errorf("image not set")
-var ErrPortNotSet = fmt.Errorf("port not set")
+// ErrEnvClient means that Gnomock can't connect to docker daemon in the
+// testing environment. See https://docs.docker.com/compose/reference/overview/
+// for information on required configuration
 var ErrEnvClient = fmt.Errorf("can't connect to docker host")
