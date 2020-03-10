@@ -58,6 +58,12 @@ func Start(image string, port int, opts ...Option) (c *Container, err error) {
 	return c, nil
 }
 
+// StartPreset creates a container using the provided Preset. For more
+// information, see Start
+func StartPreset(p Preset) (c *Container, err error) {
+	return Start(p.Image(), p.Port(), p.Options()...)
+}
+
 // Stop stops this container and lets docker to remove it from the system
 func Stop(c *Container) error {
 	if c == nil {
