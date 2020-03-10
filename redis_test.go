@@ -18,32 +18,17 @@ func ExampleRedis() {
 	vs["c"] = true
 
 	p := mockredis.Preset(mockredis.WithValues(vs))
+	container, _ := gnomock.StartPreset(p)
 
-	c, err := gnomock.StartPreset(p)
+	defer func() { _ = gnomock.Stop(container) }()
 
-	defer func() {
-		err := gnomock.Stop(c)
-		if err != nil {
-			panic(err)
-		}
-	}()
-
-	if err != nil {
-		panic(err)
-	}
-
-	client := redis.NewClient(&redis.Options{Addr: c.Address()})
-
-	_, err = client.Ping().Result()
-	if err != nil {
-		panic(err)
-	}
+	client := redis.NewClient(&redis.Options{Addr: container.Address()})
 
 	fmt.Println(client.Get("a").Result())
 
 	var number int
 
-	err = client.Get("b").Scan(&number)
+	err := client.Get("b").Scan(&number)
 	fmt.Println(number, err)
 
 	var flag bool
