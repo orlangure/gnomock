@@ -1,4 +1,4 @@
-# Gnomock
+# Gnomock ![Build](https://github.com/orlangure/gnomock/workflows/Build/badge.svg)
 
 Gnomock is a framework to set up temporary docker containers for integration
 and end-to-end testing of other applications. It handles pulling images,
