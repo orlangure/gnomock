@@ -1,4 +1,4 @@
-# Gnomock Redis
+# Gnomock Redis ![Build](https://github.com/orlangure/gnomock-redis/workflows/Build/badge.svg?branch=master)
 
 Gnomock Redis is a [Gnomock](https://github.com/orlangure/gnomock) preset for
 running tests against a real Redis container, without mocks.
