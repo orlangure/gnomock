@@ -25,7 +25,7 @@ func TestGnomock_happyFlow(t *testing.T) {
 		gnomock.WithHealthCheck(healthcheck),
 		gnomock.WithInit(initf),
 		gnomock.WithContext(context.Background()),
-		gnomock.WithStartTimeout(time.Second*10),
+		gnomock.WithStartTimeout(time.Second*30),
 		gnomock.WithWaitTimeout(time.Second*1),
 	)
 
