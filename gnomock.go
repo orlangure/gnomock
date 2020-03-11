@@ -75,9 +75,7 @@ func Stop(c *Container) error {
 		return fmt.Errorf("can't create docker client: %w", err)
 	}
 
-	ctx, timeout := context.Background(), defaultStopTimeout
-
-	err = cli.stopContainer(ctx, c.ID, timeout)
+	err = cli.stopContainer(context.Background(), c.ID)
 	if err != nil {
 		return fmt.Errorf("can't stop container: %w", err)
 	}

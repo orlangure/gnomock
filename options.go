@@ -6,7 +6,6 @@ import (
 )
 
 const defaultStartTimeout = time.Second * 60
-const defaultStopTimeout = time.Second
 const defaultWaitTimeout = time.Second * 10
 const defaultHealthcheckInterval = time.Millisecond * 50
 

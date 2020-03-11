@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 	"io/ioutil"
-	"time"
 
 	"github.com/docker/docker/api/types"
 	"github.com/docker/docker/api/types/container"
@@ -95,8 +94,8 @@ func (d *docker) startContainer(ctx context.Context, image string, port int) (*C
 	return container, nil
 }
 
-func (d *docker) stopContainer(ctx context.Context, id string, timeout time.Duration) error {
-	err := d.client.ContainerStop(ctx, id, &timeout)
+func (d *docker) stopContainer(ctx context.Context, id string) error {
+	err := d.client.ContainerRemove(ctx, id, types.ContainerRemoveOptions{Force: true})
 	if err != nil {
 		return fmt.Errorf("can't stop container %s: %w", id, err)
 	}
