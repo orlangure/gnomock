@@ -16,8 +16,8 @@ import (
 
 const defaultTag = "latest"
 
-// Start creates a new container using provided image and binds a random port
-// on the host to the provided port inside the container. Image may include
+// Start creates a new container using provided image and binds random ports
+// on the host to the provided ports inside the container. Image may include
 // tag, which is set to "latest" by default. Optional configuration is
 // available through Option functions. The returned container must be stopped
 // when no longer needed using its Stop() method
