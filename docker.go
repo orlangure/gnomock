@@ -4,12 +4,15 @@ import (
 	"context"
 	"fmt"
 	"io/ioutil"
+	"strconv"
 
 	"github.com/docker/docker/api/types"
 	"github.com/docker/docker/api/types/container"
 	"github.com/docker/docker/client"
 	"github.com/docker/go-connections/nat"
 )
+
+const localhostAddr = "127.0.0.1"
 
 type docker struct {
 	client *client.Client
@@ -46,23 +49,14 @@ func (d *docker) pullImage(ctx context.Context, image string) error {
 	return nil
 }
 
-func (d *docker) startContainer(ctx context.Context, image string, port int) (*Container, error) {
-	containerPort := nat.Port(fmt.Sprintf("%d/tcp", port))
+func (d *docker) startContainer(ctx context.Context, image string, namedPorts NamedPorts) (*Container, error) {
+	exposedPorts := d.exposedPorts(namedPorts)
 	containerConfig := &container.Config{
-		Image: image,
-		ExposedPorts: nat.PortSet{
-			containerPort: struct{}{},
-		},
+		Image:        image,
+		ExposedPorts: exposedPorts,
 	}
-	hostConfig := &container.HostConfig{
-		PortBindings: nat.PortMap{
-			containerPort: []nat.PortBinding{
-				{
-					HostIP: "127.0.0.1",
-				},
-			},
-		},
-	}
+	portBindings := d.portBindings(exposedPorts)
+	hostConfig := &container.HostConfig{PortBindings: portBindings}
 
 	resp, err := d.client.ContainerCreate(ctx, containerConfig, hostConfig, nil, "")
 	if err != nil {
@@ -74,24 +68,72 @@ func (d *docker) startContainer(ctx context.Context, image string, port int) (*C
 		return nil, fmt.Errorf("can't start container %s: %w", resp.ID, err)
 	}
 
-	json, err := d.client.ContainerInspect(ctx, resp.ID)
+	containerJSON, err := d.client.ContainerInspect(ctx, resp.ID)
 	if err != nil {
 		return nil, fmt.Errorf("can't inspect container %s: %w", resp.ID, err)
 	}
 
-	boundPorts, found := json.NetworkSettings.Ports[containerPort]
-	if !found || len(boundPorts) == 0 {
-		return nil, fmt.Errorf("can't bind port for %s", containerPort)
+	boundNamedPorts, err := d.boundNamedPorts(containerJSON, namedPorts)
+	if err != nil {
+		return nil, fmt.Errorf("can't find bound ports: %w", err)
 	}
 
-	boundPort := boundPorts[0]
 	container := &Container{
-		ID:   json.ID,
-		Host: boundPort.HostIP,
-		Port: boundPort.HostPort,
+		ID:    containerJSON.ID,
+		Host:  localhostAddr,
+		Ports: boundNamedPorts,
 	}
 
 	return container, nil
+}
+
+func (d *docker) exposedPorts(namedPorts NamedPorts) nat.PortSet {
+	exposedPorts := make(nat.PortSet)
+
+	for _, port := range namedPorts {
+		containerPort := fmt.Sprintf("%d/%s", port.Port, port.Protocol)
+		exposedPorts[nat.Port(containerPort)] = struct{}{}
+	}
+
+	return exposedPorts
+}
+
+func (d *docker) portBindings(exposedPorts nat.PortSet) nat.PortMap {
+	portBindings := make(nat.PortMap)
+
+	for port := range exposedPorts {
+		portBindings[port] = []nat.PortBinding{
+			{
+				HostIP: localhostAddr,
+			},
+		}
+	}
+
+	return portBindings
+}
+
+func (d *docker) boundNamedPorts(json types.ContainerJSON, namedPorts NamedPorts) (NamedPorts, error) {
+	boundNamedPorts := make(NamedPorts)
+
+	for containerPort, bindings := range json.NetworkSettings.Ports {
+		if len(bindings) == 0 {
+			continue
+		}
+
+		hostPortNum, err := strconv.Atoi(bindings[0].HostPort)
+		if err != nil {
+			return nil, err
+		}
+
+		portName, err := namedPorts.Find(containerPort.Proto(), containerPort.Int())
+		if err != nil {
+			return nil, err
+		}
+
+		boundNamedPorts[portName] = Port{containerPort.Proto(), hostPortNum}
+	}
+
+	return boundNamedPorts, nil
 }
 
 func (d *docker) stopContainer(ctx context.Context, id string) error {

@@ -74,9 +74,9 @@ func WithWaitTimeout(t time.Duration) Option {
 // ready, or nil when the container can be used. One example of HealthcheckFunc
 // would be an attempt to establish the same connection to the container that
 // the application under test uses
-type HealthcheckFunc func(string, string) error
+type HealthcheckFunc func(*Container) error
 
-func nopHealthcheck(string, string) error {
+func nopHealthcheck(*Container) error {
 	return nil
 }
 

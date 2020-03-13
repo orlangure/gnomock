@@ -5,6 +5,8 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"io"
+	"io/ioutil"
 	"net/http"
 	"testing"
 	"time"
@@ -13,14 +15,20 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-const testImage = "docker.io/jwilder/whoami"
-const testPort = 8000
+const testImage = "docker.io/orlangure/gnomock-test-image"
+const goodPort80 = 80
+const goodPort8080 = 8080
+const badPort = 8000
 
 func TestGnomock_happyFlow(t *testing.T) {
 	t.Parallel()
 
+	namedPorts := gnomock.NamedPorts{
+		"web80":   gnomock.TCP(goodPort80),
+		"web8080": gnomock.TCP(goodPort8080),
+	}
 	container, err := gnomock.Start(
-		testImage, testPort,
+		testImage, namedPorts,
 		gnomock.WithHealthCheckInterval(time.Microsecond*500),
 		gnomock.WithHealthCheck(healthcheck),
 		gnomock.WithInit(initf),
@@ -36,22 +44,38 @@ func TestGnomock_happyFlow(t *testing.T) {
 	require.NoError(t, err)
 	require.NotNil(t, container)
 
-	addr := fmt.Sprintf("http://%s/", container.Address())
-	resp, err := http.Get(addr)
+	addr := fmt.Sprintf("http://%s/", container.Address("web80"))
+	resp, err := http.Get(addr) //nolint:bodyclose
 	require.NoError(t, err)
 
-	defer func() {
-		require.NoError(t, resp.Body.Close())
-	}()
+	defer func(c io.Closer) {
+		require.NoError(t, c.Close())
+	}(resp.Body)
 
 	require.Equal(t, http.StatusOK, resp.StatusCode)
+	body, err := ioutil.ReadAll(resp.Body)
+	require.NoError(t, err)
+	require.Equal(t, "80", string(body))
+
+	addr = fmt.Sprintf("http://%s/", container.Address("web8080"))
+	resp, err = http.Get(addr) //nolint:bodyclose
+	require.NoError(t, err)
+
+	defer func(c io.Closer) {
+		require.NoError(t, c.Close())
+	}(resp.Body)
+
+	require.Equal(t, http.StatusOK, resp.StatusCode)
+	body, err = ioutil.ReadAll(resp.Body)
+	require.NoError(t, err)
+	require.Equal(t, "8080", string(body))
 }
 
 func TestGnomock_wrongPort(t *testing.T) {
 	t.Parallel()
 
 	container, err := gnomock.Start(
-		testImage, 80,
+		testImage, gnomock.DefaultTCP(badPort),
 		gnomock.WithHealthCheck(healthcheck),
 		gnomock.WithWaitTimeout(time.Millisecond*50),
 	)
@@ -75,7 +99,7 @@ func TestGnomock_cancellation(t *testing.T) {
 	}()
 
 	container, err := gnomock.Start(
-		testImage, 80,
+		testImage, gnomock.DefaultTCP(badPort),
 		gnomock.WithHealthCheck(healthcheck),
 		gnomock.WithContext(ctx),
 	)
@@ -90,7 +114,7 @@ func TestGnomock_cancellation(t *testing.T) {
 func TestGnomock_defaultHealthcheck(t *testing.T) {
 	t.Parallel()
 
-	container, err := gnomock.Start(testImage, 81)
+	container, err := gnomock.Start(testImage, gnomock.DefaultTCP(badPort))
 
 	defer func() {
 		require.NoError(t, gnomock.Stop(container))
@@ -109,7 +133,7 @@ func TestGnomock_initError(t *testing.T) {
 	}
 
 	container, err := gnomock.Start(
-		testImage, testPort,
+		testImage, gnomock.DefaultTCP(goodPort80),
 		gnomock.WithInit(initWithErr),
 	)
 
@@ -120,9 +144,21 @@ func TestGnomock_initError(t *testing.T) {
 	require.True(t, errors.Is(err, errNope))
 }
 
-func healthcheck(host, port string) (err error) {
-	addr := fmt.Sprintf("http://%s:%s/", host, port)
+func healthcheck(c *gnomock.Container) error {
+	err := callRoot(fmt.Sprintf("http://%s/", c.Address("web80")))
+	if err != nil {
+		return err
+	}
 
+	err = callRoot(fmt.Sprintf("http://%s/", c.Address("web8080")))
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func callRoot(addr string) error {
 	resp, err := http.Get(addr)
 	if err != nil {
 		return fmt.Errorf("can't GET %s: %w", addr, err)

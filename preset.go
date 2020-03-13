@@ -11,7 +11,7 @@ type Preset interface {
 
 	// Port returns a port number used by the container created with this
 	// Preset
-	Port() int
+	Ports() NamedPorts
 
 	// Options returns a list of Option functions that allow to setup this
 	// Preset implementation

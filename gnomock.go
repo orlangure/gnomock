@@ -21,7 +21,7 @@ const defaultTag = "latest"
 // tag, which is set to "latest" by default. Optional configuration is
 // available through Option functions. The returned container must be stopped
 // when no longer needed using its Stop() method
-func Start(image string, port int, opts ...Option) (c *Container, err error) {
+func Start(image string, ports NamedPorts, opts ...Option) (c *Container, err error) {
 	config, image := buildConfig(opts...), buildImage(image)
 
 	startCtx, cancel := context.WithTimeout(config.ctx, config.startTimeout)
@@ -37,7 +37,7 @@ func Start(image string, port int, opts ...Option) (c *Container, err error) {
 		return nil, fmt.Errorf("can't pull image: %w", err)
 	}
 
-	c, err = cli.startContainer(startCtx, image, port)
+	c, err = cli.startContainer(startCtx, image, ports)
 	if err != nil {
 		return nil, fmt.Errorf("can't start container: %w", err)
 	}
@@ -61,7 +61,7 @@ func Start(image string, port int, opts ...Option) (c *Container, err error) {
 // StartPreset creates a container using the provided Preset. For more
 // information, see Start
 func StartPreset(p Preset) (c *Container, err error) {
-	return Start(p.Image(), p.Port(), p.Options()...)
+	return Start(p.Image(), p.Ports(), p.Options()...)
 }
 
 // Stop stops this container and lets docker to remove it from the system
@@ -103,7 +103,7 @@ func wait(ctx context.Context, c *Container, config *options) error {
 		case <-ctx.Done():
 			return fmt.Errorf("canceled after error: %w", lastErr)
 		case <-delay.C:
-			err := config.healthcheck(c.Host, c.Port)
+			err := config.healthcheck(c)
 			if err == nil {
 				return nil
 			}
