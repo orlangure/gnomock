@@ -31,9 +31,9 @@ func (r *Redis) Image() string {
 	return "docker.io/library/redis"
 }
 
-// Port returns a port that should be used to access this container
-func (r *Redis) Port() int {
-	return 6379
+// Ports returns ports that should be used to access this container
+func (r *Redis) Ports() gnomock.NamedPorts {
+	return gnomock.DefaultTCP(6379)
 }
 
 // Options returns a list of options to configure this container
@@ -44,7 +44,8 @@ func (r *Redis) Options() []gnomock.Option {
 
 	if r.initialValues != nil {
 		initf := func(c *gnomock.Container) error {
-			client := redis.NewClient(&redis.Options{Addr: c.Address()})
+			addr := c.Address(gnomock.DefaultPort)
+			client := redis.NewClient(&redis.Options{Addr: addr})
 
 			for k, v := range r.initialValues {
 				err := client.Set(k, v, 0).Err()
@@ -62,9 +63,8 @@ func (r *Redis) Options() []gnomock.Option {
 	return opts
 }
 
-func healthcheck(host, port string) error {
-	addr := fmt.Sprintf("%s:%s", host, port)
-
+func healthcheck(c *gnomock.Container) error {
+	addr := c.Address(gnomock.DefaultPort)
 	client := redis.NewClient(&redis.Options{Addr: addr})
 	_, err := client.Ping().Result()
 
