@@ -27,7 +27,8 @@ func ExampleRedis() {
 
 	defer func() { _ = gnomock.Stop(container) }()
 
-	client := redis.NewClient(&redis.Options{Addr: container.Address()})
+	addr := container.Address(gnomock.DefaultPort)
+	client := redis.NewClient(&redis.Options{Addr: addr})
 
 	fmt.Println(client.Get("a").Result())
 
