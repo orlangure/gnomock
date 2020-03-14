@@ -5,7 +5,6 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"io"
 	"io/ioutil"
 	"net/http"
 	"testing"
@@ -35,6 +34,8 @@ func TestGnomock_happyFlow(t *testing.T) {
 		gnomock.WithContext(context.Background()),
 		gnomock.WithStartTimeout(time.Second*30),
 		gnomock.WithWaitTimeout(time.Second*1),
+		gnomock.WithEnv("GNOMOCK_TEST_1=foo"),
+		gnomock.WithEnv("GNOMOCK_TEST_2=bar"),
 	)
 
 	defer func() {
@@ -45,30 +46,10 @@ func TestGnomock_happyFlow(t *testing.T) {
 	require.NotNil(t, container)
 
 	addr := fmt.Sprintf("http://%s/", container.Address("web80"))
-	resp, err := http.Get(addr) //nolint:bodyclose
-	require.NoError(t, err)
-
-	defer func(c io.Closer) {
-		require.NoError(t, c.Close())
-	}(resp.Body)
-
-	require.Equal(t, http.StatusOK, resp.StatusCode)
-	body, err := ioutil.ReadAll(resp.Body)
-	require.NoError(t, err)
-	require.Equal(t, "80", string(body))
+	requireResponse(t, addr, "80")
 
 	addr = fmt.Sprintf("http://%s/", container.Address("web8080"))
-	resp, err = http.Get(addr) //nolint:bodyclose
-	require.NoError(t, err)
-
-	defer func(c io.Closer) {
-		require.NoError(t, c.Close())
-	}(resp.Body)
-
-	require.Equal(t, http.StatusOK, resp.StatusCode)
-	body, err = ioutil.ReadAll(resp.Body)
-	require.NoError(t, err)
-	require.Equal(t, "8080", string(body))
+	requireResponse(t, addr, "8080")
 }
 
 func TestGnomock_wrongPort(t *testing.T) {
@@ -181,4 +162,20 @@ func callRoot(addr string) error {
 
 func initf(*gnomock.Container) error {
 	return nil
+}
+
+func requireResponse(t *testing.T, url string, expected string) {
+	resp, err := http.Get(url)
+	require.NoError(t, err)
+
+	defer func() {
+		require.NoError(t, resp.Body.Close())
+	}()
+
+	require.Equal(t, http.StatusOK, resp.StatusCode)
+
+	body, err := ioutil.ReadAll(resp.Body)
+
+	require.NoError(t, err)
+	require.Equal(t, expected, string(body))
 }

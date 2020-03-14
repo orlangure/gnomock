@@ -37,7 +37,7 @@ func Start(image string, ports NamedPorts, opts ...Option) (c *Container, err er
 		return nil, fmt.Errorf("can't pull image: %w", err)
 	}
 
-	c, err = cli.startContainer(startCtx, image, ports)
+	c, err = cli.startContainer(startCtx, image, ports, config)
 	if err != nil {
 		return nil, fmt.Errorf("can't start container: %w", err)
 	}

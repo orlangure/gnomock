@@ -49,11 +49,12 @@ func (d *docker) pullImage(ctx context.Context, image string) error {
 	return nil
 }
 
-func (d *docker) startContainer(ctx context.Context, image string, namedPorts NamedPorts) (*Container, error) {
-	exposedPorts := d.exposedPorts(namedPorts)
+func (d *docker) startContainer(ctx context.Context, image string, ports NamedPorts, cfg *options) (*Container, error) {
+	exposedPorts := d.exposedPorts(ports)
 	containerConfig := &container.Config{
 		Image:        image,
 		ExposedPorts: exposedPorts,
+		Env:          cfg.env,
 	}
 	portBindings := d.portBindings(exposedPorts)
 	hostConfig := &container.HostConfig{PortBindings: portBindings}
@@ -73,7 +74,7 @@ func (d *docker) startContainer(ctx context.Context, image string, namedPorts Na
 		return nil, fmt.Errorf("can't inspect container %s: %w", resp.ID, err)
 	}
 
-	boundNamedPorts, err := d.boundNamedPorts(containerJSON, namedPorts)
+	boundNamedPorts, err := d.boundNamedPorts(containerJSON, ports)
 	if err != nil {
 		return nil, fmt.Errorf("can't find bound ports: %w", err)
 	}
