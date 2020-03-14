@@ -69,6 +69,14 @@ func WithWaitTimeout(t time.Duration) Option {
 	}
 }
 
+// WithEnv adds environment variable to the container. For example,
+// AWS_ACCESS_KEY_ID=FOOBARBAZ
+func WithEnv(env string) Option {
+	return func(o *options) {
+		o.env = append(o.env, env)
+	}
+}
+
 // HealthcheckFunc defines a function to be used to determine container health.
 // It receives a host and a port, and returns an error if the container is not
 // ready, or nil when the container can be used. One example of HealthcheckFunc
@@ -96,6 +104,7 @@ type options struct {
 	healthcheckInterval time.Duration
 	startTimeout        time.Duration
 	waitTimeout         time.Duration
+	env                 []string
 }
 
 func buildConfig(opts ...Option) *options {
