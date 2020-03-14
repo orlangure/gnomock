@@ -51,7 +51,7 @@ func ExampleSplunk() {
 		portNames = append(portNames, portName)
 	}
 
-	sort.Sort(sort.StringSlice(portNames))
+	sort.Strings(portNames)
 	fmt.Println(portNames)
 
 	// Output:
