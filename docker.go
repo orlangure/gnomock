@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"strconv"
+	"time"
 
 	"github.com/docker/docker/api/types"
 	"github.com/docker/docker/api/types/container"
@@ -13,6 +14,7 @@ import (
 )
 
 const localhostAddr = "127.0.0.1"
+const defaultStopTimeout = time.Second * 5
 
 type docker struct {
 	client *client.Client
@@ -57,7 +59,10 @@ func (d *docker) startContainer(ctx context.Context, image string, ports NamedPo
 		Env:          cfg.env,
 	}
 	portBindings := d.portBindings(exposedPorts)
-	hostConfig := &container.HostConfig{PortBindings: portBindings}
+	hostConfig := &container.HostConfig{
+		PortBindings: portBindings,
+		AutoRemove:   true,
+	}
 
 	resp, err := d.client.ContainerCreate(ctx, containerConfig, hostConfig, nil, "")
 	if err != nil {
@@ -138,7 +143,9 @@ func (d *docker) boundNamedPorts(json types.ContainerJSON, namedPorts NamedPorts
 }
 
 func (d *docker) stopContainer(ctx context.Context, id string) error {
-	err := d.client.ContainerRemove(ctx, id, types.ContainerRemoveOptions{Force: true})
+	stopTimeout := defaultStopTimeout
+
+	err := d.client.ContainerStop(ctx, id, &stopTimeout)
 	if err != nil {
 		return fmt.Errorf("can't stop container %s: %w", id, err)
 	}
