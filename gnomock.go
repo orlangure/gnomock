@@ -58,10 +58,24 @@ func Start(image string, ports NamedPorts, opts ...Option) (c *Container, err er
 	return c, nil
 }
 
-// StartPreset creates a container using the provided Preset. For more
-// information, see Start
-func StartPreset(p Preset) (c *Container, err error) {
-	return Start(p.Image(), p.Ports(), p.Options()...)
+// StartPreset creates a container using the provided Preset. The Preset
+// provides its own Options to configure Gnomock container. Usually this is
+// enough, but it is still possible to extend/override Preset options with new
+// values. For example, wait timeout defined in the Preset, if at all, might be
+// not enough for this particular usage, so it can't be changed during this
+// call.
+//
+// All provided Options are applied. First, Preset options are applied. Then,
+// custom Options. If both Preset and custom Options change the same
+// configuration, custom Options are used
+func StartPreset(p Preset, opts ...Option) (*Container, error) {
+	presetOpts := p.Options()
+
+	mergedOpts := make([]Option, 0, len(opts)+len(presetOpts))
+	mergedOpts = append(mergedOpts, presetOpts...)
+	mergedOpts = append(mergedOpts, opts...)
+
+	return Start(p.Image(), p.Ports(), mergedOpts...)
 }
 
 // Stop stops this container and lets docker to remove it from the system
