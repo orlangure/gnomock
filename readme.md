@@ -22,8 +22,8 @@ This project is WIP
 ```go
 // assuming the container exposes 2 ports
 namedPorts := gnomock.NamedPorts{
-    "web80":   gnomock.TCP(goodPort80),
-    "web8080": gnomock.TCP(goodPort8080),
+    "web80":   gnomock.TCP(80),
+    "web8080": gnomock.TCP(8080),
 }
 
 // see docs for option description
