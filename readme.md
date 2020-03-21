@@ -6,16 +6,43 @@ starting containers, waiting for them to become available, setting up their
 initial state and cleaning up in the end.
 
 It can be used either directly, or via already existing implementations of
-various connectors built by the community.
+various connectors built by the community ([Presets](#official-presets)).
 
 [Reference](https://pkg.go.dev/github.com/orlangure/gnomock?tab=doc)
 
 This project is WIP
 
+## Preset usage
+
+Presets allow to easily setup a service that is popular enough to have a public
+Gnomock implementation. Below is a sample
+[Redis](https://github.com/orlangure/gnomock-redis) setup:
+
+```go
+p := mockredis.Preset()
+container, _ := gnomock.StartPreset(p)
+
+defer func() { _ = gnomock.Stop(container) }()
+
+addr := container.Address(gnomock.DefaultPort)
+client := redis.NewClient(&redis.Options{Addr: addr})
+```
+
 ## Official presets
 
-- [Gnomock Redis](https://github.com/orlangure/gnomock-redis)
-- [Gnomock Splunk](https://github.com/orlangure/gnomock-splunk)
+The power of Gnomock is in the Presets developed by the community. Presets,
+both existing and planned, are listed below:
+
+- [Redis](https://github.com/orlangure/gnomock-redis)
+- [Splunk](https://github.com/orlangure/gnomock-splunk)
+- MySQL
+- PostgreSQL
+- Microsoft SQL Server
+- MongoDB
+- Elasticsearch
+- DynamoDB
+- Cassandra
+- MariaDB
 
 ## Usage without presets
 
