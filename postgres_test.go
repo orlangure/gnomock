@@ -1,9 +1,3 @@
-# Gnomock Postgres ![Build](https://github.com/orlangure/gnomock-postgres/workflows/Build/badge.svg?branch=master)
-
-Gnomock Postgres is a [Gnomock](https://github.com/orlangure/gnomock) preset for
-running tests against a real Postgres database, without mocks.
-
-```go
 package postgres_test
 
 import (
@@ -67,4 +61,3 @@ func ExamplePostgres() {
 	// min 1
 	// count 3
 }
-```
