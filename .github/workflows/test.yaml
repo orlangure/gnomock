@@ -1,0 +1,35 @@
+name: Build
+on: [push]
+jobs:
+  test:
+    name: Test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Set up Go 1.14
+        uses: actions/setup-go@v1
+        with:
+          go-version: 1.14
+          id: go
+      - name: Check out code into the Go module directory
+        uses: actions/checkout@v1
+      - name: Get dependencies
+        run: go get -v -t -d ./...
+      - name: Test
+        run: go test -race -cover ./...
+  lint:
+    name: Lint
+    runs-on: ubuntu-latest
+    steps:
+      - name: Set up Go 1.14
+        uses: actions/setup-go@v1
+        with:
+          go-version: 1.14
+          id: go
+      - name: Check out code into the Go module directory
+        uses: actions/checkout@v1
+      - name: Get dependencies
+        run: go get -v -t -d ./...
+      - name: Get golangci-lint
+        run: curl -sfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh| sh -s -- -b $(go env GOPATH)/bin v1.23.8
+      - name: Lint
+        run: $(go env GOPATH)/bin/golangci-lint run --enable-all -D dupl -D gomnd ./...
