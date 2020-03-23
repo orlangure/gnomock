@@ -35,7 +35,7 @@ both existing and planned, are listed below:
 
 - [Redis](https://github.com/orlangure/gnomock-redis)
 - [Splunk](https://github.com/orlangure/gnomock-splunk)
-- MySQL
+- [MySQL](https://github.com/orlangure/gnomock-mysql)
 - [PostgreSQL](https://github.com/orlangure/gnomock-postgres)
 - Microsoft SQL Server
 - MongoDB
