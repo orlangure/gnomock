@@ -79,7 +79,7 @@ Gnomock is being developed at this moment. There are many tasks that need to be
 completed before it can be considered publicly available:
 
 - [ ] Implement [presets](#official-presets). This list is compiled from the
-  most favorite images in Docker Hub. It is a starting point.
+  most popular images in Docker Hub. It is a starting point.
 - [ ] Improve README of Gnomock and all the Presets. These files show usage
   examples, but can be improved without turning into full blown guides. Users
   should be able to get started using only Gnomock and Preset README.
