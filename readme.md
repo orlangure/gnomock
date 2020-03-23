@@ -1,16 +1,15 @@
 # Gnomock ![Build](https://github.com/orlangure/gnomock/workflows/Build/badge.svg)
 
-Gnomock is a framework to set up temporary docker containers for integration
-and end-to-end testing of other applications. It handles pulling images,
-starting containers, waiting for them to become available, setting up their
-initial state and cleaning up in the end.
+[Reference](https://pkg.go.dev/github.com/orlangure/gnomock?tab=doc) |
+[Roadmap](#roadmap)
+
+Gnomock is an integration and end-to-end testing framework for Go applications.
+It uses Docker to create temporary containers for application dependencies,
+setup their initial state and clean them up in the end. Gnomock allows to test
+the code with **no mocks** wherever possible.
 
 It can be used either directly, or via already existing implementations of
 various connectors built by the community ([Presets](#official-presets)).
-
-[Reference](https://pkg.go.dev/github.com/orlangure/gnomock?tab=doc)
-
-This project is WIP
 
 ## Preset usage
 
@@ -73,3 +72,18 @@ defer gnomock.Stop(container)
 addr80 := container.Address("web80")
 addr8080 := container.Address("web8080")
 ```
+
+## Roadmap
+
+Gnomock is being developed at this moment. There are many tasks that need to be
+completed before it can be considered publicly available:
+
+- [ ] Implement [presets](#official-presets). This list is compiled from the
+  most favorite images in Docker Hub. It is a starting point.
+- [ ] Improve README of Gnomock and all the Presets. These files show usage
+  examples, but can be improved without turning into full blown guides. Users
+  should be able to get started using only Gnomock and Preset README.
+- [ ] Prepare contribution guides for Gnomock and Preset repositories. Gnomock
+  should get its power from community-implemented Presets, so it should be very
+  clear how to implement new presets, or contribute to Gnomock itself.
+- [ ] Start spreading the word.
