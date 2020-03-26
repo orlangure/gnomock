@@ -9,6 +9,7 @@ package splunk_test
 import (
 	"fmt"
 	"sort"
+	"time"
 
 	"github.com/orlangure/gnomock"
 	mocksplunk "github.com/orlangure/gnomock-splunk"
@@ -19,13 +20,13 @@ func ExampleSplunk() {
 		{
 			Event:      "action=foo",
 			Index:      "events",
-			Source:     "main",
+			Source:     "app",
 			SourceType: "http",
 		},
 		{
 			Event:      "action=bar",
 			Index:      "events",
-			Source:     "main",
+			Source:     "app",
 			SourceType: "http",
 		},
 	}
@@ -34,6 +35,7 @@ func ExampleSplunk() {
 		mocksplunk.WithLicense(true),
 		mocksplunk.WithPassword("12345678"),
 		mocksplunk.WithValues(events),
+		mocksplunk.WithInitTimeout(time.Second),
 	)
 
 	// created container now includes two events in "events" index

@@ -38,6 +38,7 @@ func Preset(opts ...Option) *Splunk {
 		initialValues: config.values,
 		acceptLicense: config.acceptLicense,
 		adminPassword: config.adminPassword,
+		initTimeout:   config.initTimeout,
 	}
 
 	return s
@@ -48,6 +49,7 @@ type Splunk struct {
 	initialValues []Event
 	acceptLicense bool
 	adminPassword string
+	initTimeout   time.Duration
 }
 
 // Image returns an image that should be pulled to create this container
@@ -81,7 +83,7 @@ func (s *Splunk) Options() []gnomock.Option {
 	}
 
 	if s.initialValues != nil {
-		init := initf(s.adminPassword, s.initialValues)
+		init := initf(s.adminPassword, s.initialValues, s.initTimeout)
 		opts = append(opts, gnomock.WithInit(init))
 	}
 
