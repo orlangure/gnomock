@@ -1,5 +1,9 @@
 package splunk
 
+import "time"
+
+const defaultInitTimeout = time.Second * 5
+
 // Option is an optional configuration of this Gnomock preset. Use available
 // Options to configure the container
 type Option func(*options)
@@ -31,14 +35,26 @@ func WithPassword(pass string) Option {
 	}
 }
 
+// WithInitTimeout sets the duration to wait before giving up on trying to
+// initialize this Splunk container. This option is only useful when WithValues
+// is used. Default value is 5 seconds
+func WithInitTimeout(timeout time.Duration) Option {
+	return func(o *options) {
+		o.initTimeout = timeout
+	}
+}
+
 type options struct {
 	values        []Event
 	acceptLicense bool
 	adminPassword string
+	initTimeout   time.Duration
 }
 
 func buildConfig(opts ...Option) *options {
-	config := &options{}
+	config := &options{
+		initTimeout: defaultInitTimeout,
+	}
 
 	for _, opt := range opts {
 		opt(config)
