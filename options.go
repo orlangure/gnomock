@@ -8,6 +8,14 @@ const defaultInitTimeout = time.Second * 5
 // Options to configure the container
 type Option func(*options)
 
+// WithVersion sets splunk version (see
+// https://hub.docker.com/r/splunk/splunk/tags) for available versions
+func WithVersion(version string) Option {
+	return func(o *options) {
+		o.version = version
+	}
+}
+
 // WithValues initializes Splunk with the provided values as log entries
 func WithValues(vs []Event) Option {
 	return func(o *options) {
@@ -49,11 +57,13 @@ type options struct {
 	acceptLicense bool
 	adminPassword string
 	initTimeout   time.Duration
+	version       string
 }
 
 func buildConfig(opts ...Option) *options {
 	config := &options{
 		initTimeout: defaultInitTimeout,
+		version:     "latest",
 	}
 
 	for _, opt := range opts {
