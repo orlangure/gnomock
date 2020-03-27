@@ -125,6 +125,19 @@ func TestGnomock_initError(t *testing.T) {
 	require.True(t, errors.Is(err, errNope))
 }
 
+func TestGnomock_cantStart(t *testing.T) {
+	t.Parallel()
+
+	container, err := gnomock.Start(
+		"docker.io/orlangure/noimage",
+		gnomock.DefaultTCP(goodPort80),
+	)
+
+	defer func() { require.NoError(t, gnomock.Stop(container)) }()
+
+	require.Error(t, err)
+}
+
 func healthcheck(c *gnomock.Container) error {
 	err := callRoot(fmt.Sprintf("http://%s/", c.Address("web80")))
 	if err != nil {
