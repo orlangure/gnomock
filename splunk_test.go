@@ -26,6 +26,7 @@ func ExampleSplunk() {
 	}
 
 	p := mocksplunk.Preset(
+		mocksplunk.WithVersion("edge"),
 		mocksplunk.WithLicense(true),
 		mocksplunk.WithPassword("12345678"),
 		mocksplunk.WithValues(events),

@@ -39,6 +39,7 @@ func Preset(opts ...Option) *Splunk {
 		acceptLicense: config.acceptLicense,
 		adminPassword: config.adminPassword,
 		initTimeout:   config.initTimeout,
+		version:       config.version,
 	}
 
 	return s
@@ -50,11 +51,12 @@ type Splunk struct {
 	acceptLicense bool
 	adminPassword string
 	initTimeout   time.Duration
+	version       string
 }
 
 // Image returns an image that should be pulled to create this container
 func (s *Splunk) Image() string {
-	return "docker.io/splunk/splunk"
+	return fmt.Sprintf("docker.io/splunk/splunk:%s", s.version)
 }
 
 // Ports returns ports that should be used to access this container
