@@ -11,6 +11,8 @@ type Container struct {
 	ID    string
 	Host  string
 	Ports NamedPorts
+
+	onStop func() error
 }
 
 // Address is a convenience function that returns host:port that can be used to

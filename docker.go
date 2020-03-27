@@ -3,6 +3,7 @@ package gnomock
 import (
 	"context"
 	"fmt"
+	"io"
 	"io/ioutil"
 	"strconv"
 	"time"
@@ -140,6 +141,19 @@ func (d *docker) boundNamedPorts(json types.ContainerJSON, namedPorts NamedPorts
 	}
 
 	return boundNamedPorts, nil
+}
+
+func (d *docker) readLogs(ctx context.Context, id string) (io.ReadCloser, error) {
+	logsOptions := types.ContainerLogsOptions{
+		ShowStderr: true, ShowStdout: true, Follow: true,
+	}
+
+	rc, err := d.client.ContainerLogs(ctx, id, logsOptions)
+	if err != nil {
+		return nil, fmt.Errorf("can't read logs: %w", err)
+	}
+
+	return rc, nil
 }
 
 func (d *docker) stopContainer(ctx context.Context, id string) error {
