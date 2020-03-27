@@ -10,8 +10,12 @@ package gnomock
 import (
 	"context"
 	"fmt"
+	"io"
 	"strings"
 	"time"
+
+	"github.com/docker/docker/pkg/stdcopy"
+	"golang.org/x/sync/errgroup"
 )
 
 const defaultTag = "latest"
@@ -42,6 +46,17 @@ func Start(image string, ports NamedPorts, opts ...Option) (c *Container, err er
 		return nil, fmt.Errorf("can't start container: %w", err)
 	}
 
+	logReader, err := cli.readLogs(context.Background(), c.ID)
+	if err != nil {
+		return nil, fmt.Errorf("can't setup log forwarding: %w", err)
+	}
+
+	g := &errgroup.Group{}
+
+	g.Go(copy(config.logWriter, logReader))
+
+	c.onStop = closeLogReader(logReader, g)
+
 	waitCtx, cancelWait := context.WithTimeout(config.ctx, config.waitTimeout)
 	defer cancelWait()
 
@@ -56,6 +71,33 @@ func Start(image string, ports NamedPorts, opts ...Option) (c *Container, err er
 	}
 
 	return c, nil
+}
+
+func copy(dst io.Writer, src io.Reader) func() error {
+	return func() error {
+		_, err := stdcopy.StdCopy(dst, dst, src)
+		if err != nil && err != io.EOF {
+			return err
+		}
+
+		return nil
+	}
+}
+
+func closeLogReader(logReader io.ReadCloser, g *errgroup.Group) func() error {
+	return func() error {
+		err := logReader.Close()
+		if err != nil {
+			return err
+		}
+
+		err = g.Wait()
+		if err != nil {
+			return err
+		}
+
+		return nil
+	}
 }
 
 // StartPreset creates a container using the provided Preset. The Preset
@@ -92,6 +134,11 @@ func Stop(c *Container) error {
 	err = cli.stopContainer(context.Background(), c.ID)
 	if err != nil {
 		return fmt.Errorf("can't stop container: %w", err)
+	}
+
+	err = c.onStop()
+	if err != nil {
+		return fmt.Errorf("can't perform last cleanup: %w", err)
 	}
 
 	return nil

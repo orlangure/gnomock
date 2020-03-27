@@ -5,6 +5,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"io"
 	"io/ioutil"
 	"net/http"
 	"testing"
@@ -123,6 +124,47 @@ func TestGnomock_initError(t *testing.T) {
 	}()
 
 	require.True(t, errors.Is(err, errNope))
+}
+
+func TestGnomock_cantStart(t *testing.T) {
+	t.Parallel()
+
+	container, err := gnomock.Start(
+		"docker.io/orlangure/noimage",
+		gnomock.DefaultTCP(goodPort80),
+	)
+
+	defer func() { require.NoError(t, gnomock.Stop(container)) }()
+
+	require.Error(t, err)
+}
+
+func TestGnomock_withLogWriter(t *testing.T) {
+	t.Parallel()
+
+	r, w := io.Pipe()
+
+	container, err := gnomock.Start(
+		testImage, gnomock.DefaultTCP(goodPort80),
+		gnomock.WithLogWriter(w),
+	)
+	require.NoError(t, err)
+
+	signal := make(chan struct{})
+
+	go func() {
+		defer close(signal)
+
+		log, err := ioutil.ReadAll(r)
+		require.NoError(t, err)
+		require.Equal(t, "starting with env1 = '', env2 = ''\n", string(log))
+	}()
+
+	require.NoError(t, gnomock.Stop(container))
+
+	require.NoError(t, w.Close())
+	<-signal
+	require.NoError(t, r.Close())
 }
 
 func healthcheck(c *gnomock.Container) error {

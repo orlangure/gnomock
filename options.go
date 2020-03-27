@@ -2,6 +2,8 @@ package gnomock
 
 import (
 	"context"
+	"io"
+	"io/ioutil"
 	"time"
 )
 
@@ -77,6 +79,14 @@ func WithEnv(env string) Option {
 	}
 }
 
+// WithLogWriter sets the target where to write container logs. This can be
+// useful for debugging
+func WithLogWriter(w io.Writer) Option {
+	return func(o *options) {
+		o.logWriter = w
+	}
+}
+
 // HealthcheckFunc defines a function to be used to determine container health.
 // It receives a host and a port, and returns an error if the container is not
 // ready, or nil when the container can be used. One example of HealthcheckFunc
@@ -105,6 +115,7 @@ type options struct {
 	startTimeout        time.Duration
 	waitTimeout         time.Duration
 	env                 []string
+	logWriter           io.Writer
 }
 
 func buildConfig(opts ...Option) *options {
@@ -115,6 +126,7 @@ func buildConfig(opts ...Option) *options {
 		healthcheckInterval: defaultHealthcheckInterval,
 		startTimeout:        defaultStartTimeout,
 		waitTimeout:         defaultWaitTimeout,
+		logWriter:           ioutil.Discard,
 	}
 
 	for _, opt := range opts {
