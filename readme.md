@@ -32,8 +32,9 @@ client := redis.NewClient(&redis.Options{Addr: addr})
 The power of Gnomock is in the Presets developed by the community. Presets,
 both existing and planned, are listed below:
 
-- [Redis](https://github.com/orlangure/gnomock-redis)
+- [Localstack](https://github.com/orlangure/gnomock-localstack)
 - [Splunk](https://github.com/orlangure/gnomock-splunk)
+- [Redis](https://github.com/orlangure/gnomock-redis)
 - [MySQL](https://github.com/orlangure/gnomock-mysql)
 - [PostgreSQL](https://github.com/orlangure/gnomock-postgres)
 - Microsoft SQL Server
