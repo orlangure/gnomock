@@ -27,7 +27,7 @@ func TestGnomock_happyFlow(t *testing.T) {
 		"web80":   gnomock.TCP(goodPort80),
 		"web8080": gnomock.TCP(goodPort8080),
 	}
-	container, err := gnomock.Start(
+	container, err := gnomock.StartCustom(
 		testImage, namedPorts,
 		gnomock.WithHealthCheckInterval(time.Microsecond*500),
 		gnomock.WithHealthCheck(healthcheck),
@@ -56,7 +56,7 @@ func TestGnomock_happyFlow(t *testing.T) {
 func TestGnomock_wrongPort(t *testing.T) {
 	t.Parallel()
 
-	container, err := gnomock.Start(
+	container, err := gnomock.StartCustom(
 		testImage, gnomock.DefaultTCP(badPort),
 		gnomock.WithHealthCheck(healthcheck),
 		gnomock.WithWaitTimeout(time.Millisecond*50),
@@ -80,7 +80,7 @@ func TestGnomock_cancellation(t *testing.T) {
 		cancel()
 	}()
 
-	container, err := gnomock.Start(
+	container, err := gnomock.StartCustom(
 		testImage, gnomock.DefaultTCP(badPort),
 		gnomock.WithHealthCheck(healthcheck),
 		gnomock.WithContext(ctx),
@@ -96,7 +96,7 @@ func TestGnomock_cancellation(t *testing.T) {
 func TestGnomock_defaultHealthcheck(t *testing.T) {
 	t.Parallel()
 
-	container, err := gnomock.Start(testImage, gnomock.DefaultTCP(badPort))
+	container, err := gnomock.StartCustom(testImage, gnomock.DefaultTCP(badPort))
 
 	defer func() {
 		require.NoError(t, gnomock.Stop(container))
@@ -114,7 +114,7 @@ func TestGnomock_initError(t *testing.T) {
 		return errNope
 	}
 
-	container, err := gnomock.Start(
+	container, err := gnomock.StartCustom(
 		testImage, gnomock.DefaultTCP(goodPort80),
 		gnomock.WithInit(initWithErr),
 	)
@@ -129,7 +129,7 @@ func TestGnomock_initError(t *testing.T) {
 func TestGnomock_cantStart(t *testing.T) {
 	t.Parallel()
 
-	container, err := gnomock.Start(
+	container, err := gnomock.StartCustom(
 		"docker.io/orlangure/noimage",
 		gnomock.DefaultTCP(goodPort80),
 	)
@@ -144,7 +144,7 @@ func TestGnomock_withLogWriter(t *testing.T) {
 
 	r, w := io.Pipe()
 
-	container, err := gnomock.Start(
+	container, err := gnomock.StartCustom(
 		testImage, gnomock.DefaultTCP(goodPort80),
 		gnomock.WithLogWriter(w),
 	)

@@ -12,7 +12,7 @@ func TestPreset(t *testing.T) {
 	t.Parallel()
 
 	p := &testPreset{testImage}
-	container, err := gnomock.StartPreset(p)
+	container, err := gnomock.Start(p)
 
 	defer func(c *gnomock.Container) {
 		require.NoError(t, gnomock.Stop(c))
@@ -21,7 +21,7 @@ func TestPreset(t *testing.T) {
 	// by default, testPreset always fails its healthcheck
 	require.Error(t, err)
 
-	container, err = gnomock.StartPreset(p, gnomock.WithHealthCheck(healthcheck))
+	container, err = gnomock.Start(p, gnomock.WithHealthCheck(healthcheck))
 
 	defer func(c *gnomock.Container) {
 		require.NoError(t, gnomock.Stop(c))
@@ -35,7 +35,7 @@ func TestPreset_overrideTag(t *testing.T) {
 	t.Parallel()
 
 	p := &testPreset{testImage + ":latest"}
-	container, err := gnomock.StartPreset(p, gnomock.WithTag("bad"))
+	container, err := gnomock.Start(p, gnomock.WithTag("bad"))
 
 	defer func() {
 		require.NoError(t, gnomock.Stop(container))
