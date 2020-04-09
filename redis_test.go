@@ -18,11 +18,11 @@ func ExampleRedis() {
 	vs["c"] = true
 
 	p := mockredis.Preset(mockredis.WithValues(vs))
-	container, _ := gnomock.StartPreset(p)
+	container, _ := gnomock.Start(p)
 
 	defer func() { _ = gnomock.Stop(container) }()
 
-	addr := container.Address(gnomock.DefaultPort)
+	addr := container.DefaultAddress()
 	client := redis.NewClient(&redis.Options{Addr: addr})
 
 	fmt.Println(client.Get("a").Result())
@@ -47,7 +47,7 @@ func TestRedis_wrongValue(t *testing.T) {
 	vs := map[string]interface{}{"a": []string{"b", "c"}}
 	p := mockredis.Preset(mockredis.WithValues(vs))
 
-	c, err := gnomock.StartPreset(p)
+	c, err := gnomock.Start(p)
 
 	defer func() {
 		err := gnomock.Stop(c)
