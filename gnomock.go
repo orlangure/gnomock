@@ -120,8 +120,23 @@ func Start(p Preset, opts ...Option) (*Container, error) {
 	return StartCustom(p.Image(), p.Ports(), mergedOpts...)
 }
 
-// Stop stops this container and lets docker to remove it from the system
-func Stop(c *Container) error {
+// Stop stops the provided container and lets docker remove them from the
+// system. Stop returns an error if any one of the containers couldn't stop
+func Stop(cs ...*Container) error {
+	var g errgroup.Group
+
+	for _, c := range cs {
+		container := c
+
+		g.Go(func() error {
+			return stop(container)
+		})
+	}
+
+	return g.Wait()
+}
+
+func stop(c *Container) error {
 	if c == nil {
 		return nil
 	}

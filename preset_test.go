@@ -8,6 +8,28 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
+func TestPreset_parallel(t *testing.T) {
+	t.Parallel()
+
+	containers, err := gnomock.InParallel().
+		Start(&testPreset{testImage}, gnomock.WithHealthCheck(healthcheck)).
+		Start(&testPreset{testImage}, gnomock.WithHealthCheck(healthcheck)).
+		Start(&testPreset{testImage}, gnomock.WithHealthCheck(healthcheck)).
+		Start(&testPreset{testImage}, gnomock.WithHealthCheck(healthcheck)).
+		Start(&testPreset{testImage}, gnomock.WithHealthCheck(healthcheck)).
+		Go()
+
+	defer func() { require.NoError(t, gnomock.Stop(containers...)) }()
+
+	require.NoError(t, err)
+	require.Len(t, containers, 5)
+
+	for _, c := range containers {
+		require.NoError(t, callRoot("http://"+c.Address("web80")))
+		require.NoError(t, callRoot("http://"+c.Address("web8080")))
+	}
+}
+
 func TestPreset(t *testing.T) {
 	t.Parallel()
 

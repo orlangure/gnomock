@@ -27,6 +27,22 @@ addr := container.DefaultAddress()
 client := redis.NewClient(&redis.Options{Addr: addr})
 ```
 
+With Gnomock it is easy to setup complex environments using multiple presets.
+It could be done in parallel:
+
+```go
+containers, err := gnomock.InParallel().
+    Start(mockredis.Preset()).
+    Start(mockpostgres.Preset(), mockpostgres.WithUser("user", "pass")).
+    Start(
+            localstack.Preset(),
+            localstack.WithServices(localstack.S3, localstack.SES),
+         ).
+    Go()
+
+defer func() { _ = gnomock.Stop(containers...) }()
+```
+
 ## Official presets
 
 The power of Gnomock is in the Presets developed by the community. Presets,
