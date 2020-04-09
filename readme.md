@@ -23,7 +23,7 @@ func ExampleRedis() {
 	vs["c"] = true
 
 	p := mockredis.Preset(mockredis.WithValues(vs))
-	container, _ := gnomock.StartPreset(p)
+	container, _ := gnomock.Start(p)
 
 	defer func() { _ = gnomock.Stop(container) }()
 
