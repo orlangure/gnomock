@@ -23,3 +23,19 @@ func (c *Container) Address(name string) string {
 	p := c.Ports.Get(name)
 	return fmt.Sprintf("%s:%d", c.Host, p.Port)
 }
+
+// DefaultAddress return Address() with DefaultPort
+func (c *Container) DefaultAddress() string {
+	return c.Address(DefaultPort)
+}
+
+// Port is a convenience function that returns port number with the provided
+// name
+func (c *Container) Port(name string) int {
+	return c.Ports.Get(name).Port
+}
+
+// DefaultPort returns Port() with DefaultPort
+func (c *Container) DefaultPort() int {
+	return c.Port(DefaultPort)
+}

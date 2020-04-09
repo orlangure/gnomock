@@ -19,11 +19,11 @@ Gnomock implementation. Below is a sample
 
 ```go
 p := mockredis.Preset()
-container, _ := gnomock.StartPreset(p)
+container, _ := gnomock.Start(p)
 
 defer func() { _ = gnomock.Stop(container) }()
 
-addr := container.Address(gnomock.DefaultPort)
+addr := container.DefaultAddress()
 client := redis.NewClient(&redis.Options{Addr: addr})
 ```
 
@@ -54,7 +54,7 @@ namedPorts := gnomock.NamedPorts{
 }
 
 // see docs for option description
-container, err := gnomock.Start(
+container, err := gnomock.StartCustom(
     testImage, namedPorts,
     gnomock.WithHealthCheckInterval(time.Microsecond*500),
     gnomock.WithHealthCheck(healthcheck),
