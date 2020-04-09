@@ -4,7 +4,6 @@ package postgres
 import (
 	"database/sql"
 	"fmt"
-	"strings"
 
 	_ "github.com/lib/pq" // postgres driver
 	"github.com/orlangure/gnomock"
@@ -52,9 +51,7 @@ func (p *Postgres) Options() []gnomock.Option {
 }
 
 func (p *Postgres) healthcheck(c *gnomock.Container) error {
-	addr := c.Address(gnomock.DefaultPort)
-
-	db, err := connect(addr, defaultDatabase)
+	db, err := connect(c, defaultDatabase)
 	if err != nil {
 		return err
 	}
@@ -77,10 +74,8 @@ func (p *Postgres) healthcheck(c *gnomock.Container) error {
 
 func (p *Postgres) initf(queries []string) gnomock.InitFunc {
 	return func(c *gnomock.Container) error {
-		addr := c.Address(gnomock.DefaultPort)
-
 		if p.db != defaultDatabase {
-			db, err := connect(addr, defaultDatabase)
+			db, err := connect(c, defaultDatabase)
 			if err != nil {
 				return err
 			}
@@ -91,7 +86,7 @@ func (p *Postgres) initf(queries []string) gnomock.InitFunc {
 			}
 		}
 
-		db, err := connect(addr, p.db)
+		db, err := connect(c, p.db)
 		if err != nil {
 			return err
 		}
@@ -107,17 +102,11 @@ func (p *Postgres) initf(queries []string) gnomock.InitFunc {
 	}
 }
 
-func connect(addr, db string) (*sql.DB, error) {
-	parts := strings.Split(addr, ":")
-	if len(parts) != 2 {
-		return nil, fmt.Errorf("invalid address '%s', must be 'host:port'", addr)
-	}
-
-	host, port := parts[0], parts[1]
-
+func connect(c *gnomock.Container, db string) (*sql.DB, error) {
 	connStr := fmt.Sprintf(
-		"host=%s port=%s user=%s password=%s dbname=%s sslmode=%s",
-		host, port, defaultUser, defaultPassword, db, defaultSSLMode,
+		"host=%s port=%d user=%s password=%s dbname=%s sslmode=%s",
+		c.Host, c.Port(gnomock.DefaultPort),
+		defaultUser, defaultPassword, db, defaultSSLMode,
 	)
 
 	return sql.Open("postgres", connStr)

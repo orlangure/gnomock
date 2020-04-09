@@ -3,37 +3,35 @@ package postgres_test
 import (
 	"database/sql"
 	"fmt"
-	"strings"
 
 	"github.com/orlangure/gnomock"
 	mockpostgres "github.com/orlangure/gnomock-postgres"
 )
 
 func ExamplePostgres() {
-	queries := []string{
-		"create table t(a int)",
-		"insert into t (a) values (1)",
-		"insert into t (a) values (2)",
-		"insert into t (a) values (3)",
-	}
+	queries := `
+		create table t(a int);
+		insert into t (a) values (1);
+		insert into t (a) values (2);
+	`
+	query := `insert into t (a) values (3);`
 	p := mockpostgres.Preset(
 		mockpostgres.WithUser("gnomock", "gnomick"),
 		mockpostgres.WithDatabase("mydb"),
-		mockpostgres.WithQueries(queries),
+		mockpostgres.WithQueries(queries, query),
 	)
 
-	container, err := gnomock.StartPreset(p)
+	container, err := gnomock.Start(p)
 	if err != nil {
 		panic(err)
 	}
 
 	defer func() { _ = gnomock.Stop(container) }()
 
-	addr := container.Address(gnomock.DefaultPort)
-	addrParts := strings.Split(addr, ":")
 	connStr := fmt.Sprintf(
-		"host=%s user=%s password=%s port=%s dbname=%s sslmode=disable",
-		addrParts[0], "gnomock", "gnomick", addrParts[1], "mydb",
+		"host=%s port=%d user=%s password=%s  dbname=%s sslmode=disable",
+		container.Host, container.DefaultPort(),
+		"gnomock", "gnomick", "mydb",
 	)
 
 	db, err := sql.Open("postgres", connStr)
