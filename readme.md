@@ -19,12 +19,28 @@ Gnomock implementation. Below is a sample
 
 ```go
 p := mockredis.Preset()
-container, _ := gnomock.StartPreset(p)
+container, _ := gnomock.Start(p)
 
 defer func() { _ = gnomock.Stop(container) }()
 
-addr := container.Address(gnomock.DefaultPort)
+addr := container.DefaultAddress()
 client := redis.NewClient(&redis.Options{Addr: addr})
+```
+
+With Gnomock it is easy to setup complex environments using multiple presets.
+It could be done in parallel:
+
+```go
+containers, err := gnomock.InParallel().
+    Start(mockredis.Preset()).
+    Start(mockpostgres.Preset(), mockpostgres.WithUser("user", "pass")).
+    Start(
+            localstack.Preset(),
+            localstack.WithServices(localstack.S3, localstack.SES),
+         ).
+    Go()
+
+defer func() { _ = gnomock.Stop(containers...) }()
 ```
 
 ## Official presets
@@ -54,7 +70,7 @@ namedPorts := gnomock.NamedPorts{
 }
 
 // see docs for option description
-container, err := gnomock.Start(
+container, err := gnomock.StartCustom(
     testImage, namedPorts,
     gnomock.WithHealthCheckInterval(time.Microsecond*500),
     gnomock.WithHealthCheck(healthcheck),

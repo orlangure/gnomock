@@ -20,12 +20,12 @@ import (
 
 const defaultTag = "latest"
 
-// Start creates a new container using provided image and binds random ports
-// on the host to the provided ports inside the container. Image may include
-// tag, which is set to "latest" by default. Optional configuration is
+// StartCustom creates a new container using provided image and binds random
+// ports on the host to the provided ports inside the container. Image may
+// include tag, which is set to "latest" by default. Optional configuration is
 // available through Option functions. The returned container must be stopped
 // when no longer needed using its Stop() method
-func Start(image string, ports NamedPorts, opts ...Option) (c *Container, err error) {
+func StartCustom(image string, ports NamedPorts, opts ...Option) (c *Container, err error) {
 	config := buildConfig(opts...)
 	image = buildImage(image, config.tag)
 
@@ -101,28 +101,42 @@ func closeLogReader(logReader io.ReadCloser, g *errgroup.Group) func() error {
 	}
 }
 
-// StartPreset creates a container using the provided Preset. The Preset
-// provides its own Options to configure Gnomock container. Usually this is
-// enough, but it is still possible to extend/override Preset options with new
-// values. For example, wait timeout defined in the Preset, if at all, might be
-// not enough for this particular usage, so it can't be changed during this
-// call.
+// Start creates a container using the provided Preset. The Preset provides its
+// own Options to configure Gnomock container. Usually this is enough, but it
+// is still possible to extend/override Preset options with new values. For
+// example, wait timeout defined in the Preset, if at all, might be not enough
+// for this particular usage, so it can't be changed during this call.
 //
 // All provided Options are applied. First, Preset options are applied. Then,
 // custom Options. If both Preset and custom Options change the same
 // configuration, custom Options are used
-func StartPreset(p Preset, opts ...Option) (*Container, error) {
+func Start(p Preset, opts ...Option) (*Container, error) {
 	presetOpts := p.Options()
 
 	mergedOpts := make([]Option, 0, len(opts)+len(presetOpts))
 	mergedOpts = append(mergedOpts, presetOpts...)
 	mergedOpts = append(mergedOpts, opts...)
 
-	return Start(p.Image(), p.Ports(), mergedOpts...)
+	return StartCustom(p.Image(), p.Ports(), mergedOpts...)
 }
 
-// Stop stops this container and lets docker to remove it from the system
-func Stop(c *Container) error {
+// Stop stops the provided container and lets docker remove them from the
+// system. Stop returns an error if any one of the containers couldn't stop
+func Stop(cs ...*Container) error {
+	var g errgroup.Group
+
+	for _, c := range cs {
+		container := c
+
+		g.Go(func() error {
+			return stop(container)
+		})
+	}
+
+	return g.Wait()
+}
+
+func stop(c *Container) error {
 	if c == nil {
 		return nil
 	}
