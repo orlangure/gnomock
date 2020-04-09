@@ -15,19 +15,19 @@ import (
 )
 
 func ExampleMySQL() {
-	queries := []string{
-		"create table t(a int)",
-		"insert into t (a) values (1)",
-		"insert into t (a) values (2)",
-		"insert into t (a) values (3)",
-	}
+	queries := `
+		create table t(a int);
+		insert into t (a) values (1);
+		insert into t (a) values (2);
+	`
+	query := `insert into t (a) values (3);`
 	p := mockmysql.Preset(
 		mockmysql.WithUser("Sherlock", "Holmes"),
 		mockmysql.WithDatabase("books"),
-		mockmysql.WithQueries(queries),
+		mockmysql.WithQueries(queries, query),
 	)
 
-	container, err := gnomock.StartPreset(p)
+	container, err := gnomock.Start(p)
 
 	defer func() { _ = gnomock.Stop(container) }()
 
@@ -35,8 +35,11 @@ func ExampleMySQL() {
 		panic(err)
 	}
 
-	addr := container.Address(gnomock.DefaultPort)
-	connStr := fmt.Sprintf("%s:%s@tcp(%s)/%s", "Sherlock", "Holmes", addr, "books")
+	addr := container.DefaultAddress()
+	connStr := fmt.Sprintf(
+		"%s:%s@tcp(%s)/%s",
+		"Sherlock", "Holmes", addr, "books",
+	)
 
 	db, err := sql.Open("mysql", connStr)
 	if err != nil {

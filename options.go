@@ -29,7 +29,7 @@ func WithDatabase(db string) Option {
 
 // WithQueries executes the provided queries against the database created with
 // WithDatabase, or against default "mydb" database
-func WithQueries(queries []string) Option {
+func WithQueries(queries ...string) Option {
 	return func(o *options) {
 		o.queries = append(o.queries, queries...)
 	}

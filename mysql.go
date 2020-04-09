@@ -111,7 +111,7 @@ func (p *MySQL) initf(queries []string) gnomock.InitFunc {
 
 func (p *MySQL) connect(addr string) (*sql.DB, error) {
 	connStr := fmt.Sprintf(
-		"%s:%s@tcp(%s)/%s",
+		"%s:%s@tcp(%s)/%s?multiStatements=true",
 		p.user, p.password, addr, p.db,
 	)
 
