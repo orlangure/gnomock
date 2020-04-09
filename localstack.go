@@ -43,7 +43,7 @@ const (
 	StepFunctionsPort    = "stepfunctions"
 )
 
-// Preset creates a new localstack preset to use with gnomock.StartPreset. See
+// Preset creates a new localstack preset to use with gnomock.Start. See
 // package docs for a list of exposed ports and services. It is legal to not
 // provide any services using WithServices options, but in such case a new
 // localstack container will be useless
@@ -106,6 +106,7 @@ func (p *Localstack) Options() []gnomock.Option {
 
 	opts := []gnomock.Option{
 		gnomock.WithHealthCheck(p.healthcheck(p.services)),
+		gnomock.WithStartTimeout(time.Second * 60 * 2),
 		gnomock.WithWaitTimeout(time.Second * 60),
 		gnomock.WithEnv("SERVICES=" + svcEnv),
 	}

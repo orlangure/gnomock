@@ -17,7 +17,7 @@ import (
 
 func ExampleLocalstack_s3() {
 	p := localstack.Preset(localstack.WithServices(localstack.S3))
-	c, _ := gnomock.StartPreset(p)
+	c, _ := gnomock.Start(p)
 
 	defer func() { _ = gnomock.Stop(c) }()
 
@@ -61,7 +61,7 @@ func ExampleLocalstack_sqs_sns() {
 	p := localstack.Preset(
 		localstack.WithServices(localstack.SNS, localstack.SQS),
 	)
-	c, _ := gnomock.StartPreset(p)
+	c, _ := gnomock.Start(p)
 
 	defer func() { _ = gnomock.Stop(c) }()
 
