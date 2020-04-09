@@ -11,7 +11,7 @@ import (
 func TestPreset(t *testing.T) {
 	t.Parallel()
 
-	p := &testPreset{}
+	p := &testPreset{testImage}
 	container, err := gnomock.StartPreset(p)
 
 	defer func(c *gnomock.Container) {
@@ -31,11 +31,26 @@ func TestPreset(t *testing.T) {
 	require.NoError(t, err)
 }
 
-type testPreset struct{}
+func TestPreset_overrideTag(t *testing.T) {
+	t.Parallel()
+
+	p := &testPreset{testImage + ":latest"}
+	container, err := gnomock.StartPreset(p, gnomock.WithTag("bad"))
+
+	defer func() {
+		require.NoError(t, gnomock.Stop(container))
+	}()
+
+	require.Error(t, err)
+}
+
+type testPreset struct {
+	image string
+}
 
 // Image returns a canonical docker image used to setup this Preset
 func (t *testPreset) Image() string {
-	return testImage
+	return t.image
 }
 
 // Ports returns a group of ports exposed by this Preset, where every port
