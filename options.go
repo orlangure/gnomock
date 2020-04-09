@@ -87,6 +87,13 @@ func WithLogWriter(w io.Writer) Option {
 	}
 }
 
+// WithTag overrides docker image tag provided by a preset
+func WithTag(tag string) Option {
+	return func(o *options) {
+		o.tag = tag
+	}
+}
+
 // HealthcheckFunc defines a function to be used to determine container health.
 // It receives a host and a port, and returns an error if the container is not
 // ready, or nil when the container can be used. One example of HealthcheckFunc
@@ -116,6 +123,7 @@ type options struct {
 	waitTimeout         time.Duration
 	env                 []string
 	logWriter           io.Writer
+	tag                 string
 }
 
 func buildConfig(opts ...Option) *options {
@@ -127,6 +135,7 @@ func buildConfig(opts ...Option) *options {
 		startTimeout:        defaultStartTimeout,
 		waitTimeout:         defaultWaitTimeout,
 		logWriter:           ioutil.Discard,
+		tag:                 "",
 	}
 
 	for _, opt := range opts {

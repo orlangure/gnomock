@@ -26,7 +26,8 @@ const defaultTag = "latest"
 // available through Option functions. The returned container must be stopped
 // when no longer needed using its Stop() method
 func Start(image string, ports NamedPorts, opts ...Option) (c *Container, err error) {
-	config, image := buildConfig(opts...), buildImage(image)
+	config := buildConfig(opts...)
+	image = buildImage(image, config.tag)
 
 	startCtx, cancel := context.WithTimeout(config.ctx, config.startTimeout)
 	defer cancel()
@@ -144,10 +145,18 @@ func Stop(c *Container) error {
 	return nil
 }
 
-func buildImage(image string) string {
+func buildImage(image, tag string) string {
 	parts := strings.Split(image, ":")
-	if len(parts) == 1 {
-		image = fmt.Sprintf("%s:%s", image, defaultTag)
+
+	noTagSet := len(parts) == 1
+	if noTagSet {
+		if tag == "" {
+			tag = defaultTag
+		}
+
+		image = fmt.Sprintf("%s:%s", image, tag)
+	} else if tag != "" {
+		image = fmt.Sprintf("%s:%s", parts[0], tag)
 	}
 
 	return image
