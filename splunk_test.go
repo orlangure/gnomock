@@ -34,7 +34,7 @@ func ExampleSplunk() {
 	)
 
 	// created container now includes two events in "events" index
-	container, err := gnomock.StartPreset(p)
+	container, err := gnomock.Start(p)
 	fmt.Println("error:", err)
 	fmt.Println(len(container.Ports), "exposed ports:")
 

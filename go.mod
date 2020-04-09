@@ -2,4 +2,4 @@ module github.com/orlangure/gnomock-splunk
 
 go 1.14
 
-require github.com/orlangure/gnomock v0.2.0
+require github.com/orlangure/gnomock v0.3.0
