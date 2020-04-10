@@ -52,6 +52,7 @@ func Preset(opts ...Option) *Localstack {
 
 	p := &Localstack{
 		services: config.services,
+		s3Path:   config.s3Path,
 	}
 
 	return p
@@ -60,7 +61,9 @@ func Preset(opts ...Option) *Localstack {
 // Localstack is a Gnomock preset that exposes localstack functionality to spin
 // up a number of AWS services locally
 type Localstack struct {
-	services []string
+	services []Service
+
+	s3Path string
 }
 
 // Image returns an image that should be pulled to create this container
@@ -102,13 +105,19 @@ func (p *Localstack) Ports() gnomock.NamedPorts {
 
 // Options returns a list of options to configure this container
 func (p *Localstack) Options() []gnomock.Option {
-	svcEnv := strings.Join(p.services, ",")
+	svcStrings := make([]string, len(p.services))
+	for i, svc := range p.services {
+		svcStrings[i] = string(svc)
+	}
+
+	svcEnv := strings.Join(svcStrings, ",")
 
 	opts := []gnomock.Option{
-		gnomock.WithHealthCheck(p.healthcheck(p.services)),
+		gnomock.WithHealthCheck(p.healthcheck(svcStrings)),
 		gnomock.WithStartTimeout(time.Second * 60 * 2),
 		gnomock.WithWaitTimeout(time.Second * 60),
 		gnomock.WithEnv("SERVICES=" + svcEnv),
+		gnomock.WithInit(p.initf()),
 	}
 
 	return opts
@@ -139,10 +148,10 @@ func (p *Localstack) healthcheck(services []string) gnomock.HealthcheckFunc {
 			return err
 		}
 
-		if len(hr.Services) != len(services) {
+		if len(hr.Services) < len(services) {
 			return fmt.Errorf(
-				"services don't match: want %d got %d",
-				len(services), len(hr.Services),
+				"not enough active services: want %d got %d [%s]",
+				len(services), len(hr.Services), hr.Services,
 			)
 		}
 
@@ -159,4 +168,19 @@ func (p *Localstack) healthcheck(services []string) gnomock.HealthcheckFunc {
 
 type healthResponse struct {
 	Services map[string]string `json:"services"`
+}
+
+func (p *Localstack) initf() gnomock.InitFunc {
+	return func(c *gnomock.Container) error {
+		for _, s := range p.services {
+			if s == S3 {
+				err := p.initS3(c)
+				if err != nil {
+					return fmt.Errorf("can't init s3 storage: %w", err)
+				}
+			}
+		}
+
+		return nil
+	}
 }

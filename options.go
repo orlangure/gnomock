@@ -39,14 +39,14 @@ const (
 // any services, but in such case the container will be useless
 func WithServices(services ...Service) Option {
 	return func(o *options) {
-		for _, service := range services {
-			o.services = append(o.services, string(service))
-		}
+		o.services = append(o.services, services...)
 	}
 }
 
 type options struct {
-	services []string
+	services []Service
+
+	s3Path string
 }
 
 func buildConfig(opts ...Option) *options {
