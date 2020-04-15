@@ -31,10 +31,10 @@ const (
 // Preset creates a new Gnomock Splunk preset. This preset includes a Splunk
 // specific healthcheck function, default Splunk image and ports, and allows to
 // optionally ingest initial logs
-func Preset(opts ...Option) *Splunk {
+func Preset(opts ...Option) gnomock.Preset {
 	config := buildConfig(opts...)
 
-	s := &Splunk{
+	s := &splunk{
 		initialValues: config.values,
 		acceptLicense: config.acceptLicense,
 		adminPassword: config.adminPassword,
@@ -45,8 +45,7 @@ func Preset(opts ...Option) *Splunk {
 	return s
 }
 
-// Splunk is a Gnomock Preset implementation of Splunk Enterprise
-type Splunk struct {
+type splunk struct {
 	initialValues []Event
 	acceptLicense bool
 	adminPassword string
@@ -55,12 +54,12 @@ type Splunk struct {
 }
 
 // Image returns an image that should be pulled to create this container
-func (s *Splunk) Image() string {
+func (s *splunk) Image() string {
 	return fmt.Sprintf("docker.io/splunk/splunk:%s", s.version)
 }
 
 // Ports returns ports that should be used to access this container
-func (s *Splunk) Ports() gnomock.NamedPorts {
+func (s *splunk) Ports() gnomock.NamedPorts {
 	return gnomock.NamedPorts{
 		CollectorPort: gnomock.TCP(8088),
 		APIPort:       gnomock.TCP(8089),
@@ -69,7 +68,7 @@ func (s *Splunk) Ports() gnomock.NamedPorts {
 }
 
 // Options returns a list of options to configure this container
-func (s *Splunk) Options() []gnomock.Option {
+func (s *splunk) Options() []gnomock.Option {
 	opts := []gnomock.Option{
 		gnomock.WithStartTimeout(time.Minute * 5),
 		gnomock.WithWaitTimeout(time.Minute * 1),

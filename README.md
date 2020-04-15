@@ -15,7 +15,7 @@ import (
 	mocksplunk "github.com/orlangure/gnomock-splunk"
 )
 
-func ExampleSplunk() {
+func ExamplePreset() {
 	events := []mocksplunk.Event{
 		{
 			Event:      "action=foo",
