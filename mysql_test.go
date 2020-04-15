@@ -8,7 +8,7 @@ import (
 	mockmysql "github.com/orlangure/gnomock-mysql"
 )
 
-func ExampleMySQL() {
+func ExamplePreset() {
 	queries := `
 		create table t(a int);
 		insert into t (a) values (1);
