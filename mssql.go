@@ -18,10 +18,10 @@ const masterDB = "master"
 // configuration, it uses "mydb" database, and "Gn0m!ck~" administrator
 // password (user: sa). You must accept EULA to use this image (WithLicense
 // option)
-func Preset(opts ...Option) *MSSQL {
+func Preset(opts ...Option) gnomock.Preset {
 	config := buildConfig(opts...)
 
-	p := &MSSQL{
+	p := &mssql{
 		db:       config.db,
 		queries:  config.queries,
 		password: config.password,
@@ -31,8 +31,7 @@ func Preset(opts ...Option) *MSSQL {
 	return p
 }
 
-// MSSQL is a Gnomock Preset implementation for MSSQL database
-type MSSQL struct {
+type mssql struct {
 	db       string
 	password string
 	queries  []string
@@ -40,17 +39,17 @@ type MSSQL struct {
 }
 
 // Image returns an image that should be pulled to create this container
-func (p *MSSQL) Image() string {
+func (p *mssql) Image() string {
 	return "mcr.microsoft.com/mssql/server"
 }
 
 // Ports returns ports that should be used to access this container
-func (p *MSSQL) Ports() gnomock.NamedPorts {
+func (p *mssql) Ports() gnomock.NamedPorts {
 	return gnomock.DefaultTCP(defaultPort)
 }
 
 // Options returns a list of options to configure this container
-func (p *MSSQL) Options() []gnomock.Option {
+func (p *mssql) Options() []gnomock.Option {
 	opts := []gnomock.Option{
 		gnomock.WithHealthCheck(p.healthcheck),
 		gnomock.WithEnv("SA_PASSWORD=" + p.password),
@@ -65,7 +64,7 @@ func (p *MSSQL) Options() []gnomock.Option {
 	return opts
 }
 
-func (p *MSSQL) healthcheck(c *gnomock.Container) error {
+func (p *mssql) healthcheck(c *gnomock.Container) error {
 	addr := c.Address(gnomock.DefaultPort)
 
 	db, err := p.connect(addr, masterDB)
@@ -89,7 +88,7 @@ func (p *MSSQL) healthcheck(c *gnomock.Container) error {
 	return nil
 }
 
-func (p *MSSQL) initf(queries []string) gnomock.InitFunc {
+func (p *mssql) initf(queries []string) gnomock.InitFunc {
 	return func(c *gnomock.Container) error {
 		addr := c.Address(gnomock.DefaultPort)
 
@@ -119,7 +118,7 @@ func (p *MSSQL) initf(queries []string) gnomock.InitFunc {
 	}
 }
 
-func (p *MSSQL) connect(addr, db string) (*sql.DB, error) {
+func (p *mssql) connect(addr, db string) (*sql.DB, error) {
 	connStr := fmt.Sprintf(
 		"sqlserver://sa:%s@%s?database=%s",
 		p.password, addr, db,
