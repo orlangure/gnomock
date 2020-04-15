@@ -26,7 +26,7 @@ import (
 	localstack "github.com/orlangure/gnomock-localstack"
 )
 
-func ExampleLocalstack_s3() {
+func ExamplePreset_s3() {
 	p := localstack.Preset(localstack.WithServices(localstack.S3))
 	c, _ := gnomock.Start(p)
 
@@ -86,7 +86,7 @@ import (
 	localstack "github.com/orlangure/gnomock-localstack"
 )
 
-func ExampleLocalstack_sqs_sns() {
+func ExamplePreset_sqs_sns() {
 	p := localstack.Preset(
 		localstack.WithServices(localstack.SNS, localstack.SQS),
 	)

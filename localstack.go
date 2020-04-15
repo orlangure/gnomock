@@ -47,10 +47,10 @@ const (
 // package docs for a list of exposed ports and services. It is legal to not
 // provide any services using WithServices options, but in such case a new
 // localstack container will be useless
-func Preset(opts ...Option) *Localstack {
+func Preset(opts ...Option) gnomock.Preset {
 	config := buildConfig(opts...)
 
-	p := &Localstack{
+	p := &localstack{
 		services: config.services,
 		s3Path:   config.s3Path,
 	}
@@ -60,19 +60,19 @@ func Preset(opts ...Option) *Localstack {
 
 // Localstack is a Gnomock preset that exposes localstack functionality to spin
 // up a number of AWS services locally
-type Localstack struct {
+type localstack struct {
 	services []Service
 
 	s3Path string
 }
 
 // Image returns an image that should be pulled to create this container
-func (p *Localstack) Image() string {
+func (p *localstack) Image() string {
 	return "docker.io/localstack/localstack"
 }
 
 // Ports returns ports that should be used to access this container
-func (p *Localstack) Ports() gnomock.NamedPorts {
+func (p *localstack) Ports() gnomock.NamedPorts {
 	return gnomock.NamedPorts{
 		webPort: {Protocol: "tcp", Port: 8080},
 
@@ -104,7 +104,7 @@ func (p *Localstack) Ports() gnomock.NamedPorts {
 }
 
 // Options returns a list of options to configure this container
-func (p *Localstack) Options() []gnomock.Option {
+func (p *localstack) Options() []gnomock.Option {
 	svcStrings := make([]string, len(p.services))
 	for i, svc := range p.services {
 		svcStrings[i] = string(svc)
@@ -123,7 +123,7 @@ func (p *Localstack) Options() []gnomock.Option {
 	return opts
 }
 
-func (p *Localstack) healthcheck(services []string) gnomock.HealthcheckFunc {
+func (p *localstack) healthcheck(services []string) gnomock.HealthcheckFunc {
 	return func(c *gnomock.Container) (err error) {
 		addr := fmt.Sprintf("http://%s/health", c.Address(webPort))
 
@@ -170,7 +170,7 @@ type healthResponse struct {
 	Services map[string]string `json:"services"`
 }
 
-func (p *Localstack) initf() gnomock.InitFunc {
+func (p *localstack) initf() gnomock.InitFunc {
 	return func(c *gnomock.Container) error {
 		for _, s := range p.services {
 			if s == S3 {
