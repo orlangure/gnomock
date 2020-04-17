@@ -72,7 +72,7 @@ both existing and planned, are listed below:
 - [MySQL](https://github.com/orlangure/gnomock-mysql)
 - [PostgreSQL](https://github.com/orlangure/gnomock-postgres)
 - [Microsoft SQL Server](https://github.com/orlangure/gnomock-mssql)
-- MongoDB
+- [MongoDB](https://github.com/orlangure/gnomock-mongo)
 - Elasticsearch
 - DynamoDB
 - Cassandra
