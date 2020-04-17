@@ -22,12 +22,9 @@ implementing a specific database, service or other tools. Each preset provides
 ways of setting up its initial state as easily as possible: SQL schema
 creation, test data upload into S3, sending test events to Splunk, etc.
 
-## 
+## Documentation
 
-[Reference](https://pkg.go.dev/github.com/orlangure/gnomock?tab=doc) |
-[Roadmap](#roadmap)
-
-## 
+See package [reference](https://pkg.go.dev/github.com/orlangure/gnomock?tab=doc).
 
 ## Preset usage
 
