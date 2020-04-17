@@ -1,17 +1,33 @@
-# Gnomock
-![Build](https://github.com/orlangure/gnomock/workflows/Build/badge.svg)
-[![Go Report Card](https://goreportcard.com/badge/github.com/orlangure/gnomock)](https://goreportcard.com/report/github.com/orlangure/gnomock)
+# <div align="center">Gnomock – test your Go code without mocks</div>
+
+🏗️ Spin up entire dependency stack
+
+🎁 Setup initial dependency state – easily!
+
+🏭 Test against actual, close to production software
+
+⏳ Spend no time writing mocks
+
+🕹️ Test actual program behavior and side effects
+
+## <div align="center">![Build](https://github.com/orlangure/gnomock/workflows/Build/badge.svg) [![Go Report Card](https://goreportcard.com/badge/github.com/orlangure/gnomock)](https://goreportcard.com/report/github.com/orlangure/gnomock)</div>
+
+Gnomock is an integration and end-to-end testing framework for Go applications.
+It uses Docker to create **temporary containers** for application dependencies,
+**setup** their **initial state** and **clean them up** in the end. Gnomock
+allows to test the code with **no mocks** wherever possible.
+
+The power of Gnomock is in a variety of [Presets](#official-presets), each
+implementing a specific database, service or other tools. Each preset provides
+ways of setting up its initial state as easily as possible: SQL schema
+creation, test data upload into S3, sending test events to Splunk, etc.
+
+## 
 
 [Reference](https://pkg.go.dev/github.com/orlangure/gnomock?tab=doc) |
 [Roadmap](#roadmap)
 
-Gnomock is an integration and end-to-end testing framework for Go applications.
-It uses Docker to create temporary containers for application dependencies,
-setup their initial state and clean them up in the end. Gnomock allows to test
-the code with **no mocks** wherever possible.
-
-It can be used either directly, or via already existing implementations of
-various connectors built by the community ([Presets](#official-presets)).
+## 
 
 ## Preset usage
 
