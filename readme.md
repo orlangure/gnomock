@@ -26,6 +26,8 @@ creation, test data upload into S3, sending test events to Splunk, etc.
 
 See package [reference](https://pkg.go.dev/github.com/orlangure/gnomock?tab=doc).
 
+For Preset documentation, refer to [Presets](#official-presets) section.
+
 ## Preset usage
 
 Presets allow to easily setup a service that is popular enough to have a public
@@ -63,17 +65,19 @@ defer func() { _ = gnomock.Stop(containers...) }()
 The power of Gnomock is in the Presets developed by the community. Presets,
 both existing and planned, are listed below:
 
-- [Localstack](https://github.com/orlangure/gnomock-localstack)
-- [Splunk](https://github.com/orlangure/gnomock-splunk)
-- [Redis](https://github.com/orlangure/gnomock-redis)
-- [MySQL](https://github.com/orlangure/gnomock-mysql)
-- [PostgreSQL](https://github.com/orlangure/gnomock-postgres)
-- [Microsoft SQL Server](https://github.com/orlangure/gnomock-mssql)
-- [MongoDB](https://github.com/orlangure/gnomock-mongo)
-- Elasticsearch
-- DynamoDB
-- Cassandra
-- MariaDB
+| Preset | Repository | Reference |
+|--------|------------|-----------|
+Localstack | https://github.com/orlangure/gnomock-localstack | [Reference](https://pkg.go.dev/github.com/orlangure/gnomock-localstack?tab=doc)
+Splunk | https://github.com/orlangure/gnomock-splunk | [Reference](https://pkg.go.dev/github.com/orlangure/gnomock-splunk?tab=doc)
+Redis | https://github.com/orlangure/gnomock-redis | [Reference](https://pkg.go.dev/github.com/orlangure/gnomock-redis?tab=doc)
+MySQL | https://github.com/orlangure/gnomock-mysql | [Reference](https://pkg.go.dev/github.com/orlangure/gnomock-mysql?tab=doc)
+PostgreSQL | https://github.com/orlangure/gnomock-postgres | [Reference](https://pkg.go.dev/github.com/orlangure/gnomock-postgres?tab=doc)
+Microsoft SQL Server | https://github.com/orlangure/gnomock-mssql | [Reference](https://pkg.go.dev/github.com/orlangure/gnomock-mssql?tab=doc)
+MongoDB | https://github.com/orlangure/gnomock-mongo | [Reference](https://pkg.go.dev/github.com/orlangure/gnomock-mongo?tab=doc)
+Elasticsearch | |
+DynamoDB | |
+Cassandra | |
+MariaDB | |
 
 ## Usage without presets
 
