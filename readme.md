@@ -1,4 +1,6 @@
-# Gnomock ![Build](https://github.com/orlangure/gnomock/workflows/Build/badge.svg)
+# Gnomock
+![Build](https://github.com/orlangure/gnomock/workflows/Build/badge.svg)
+[![Go Report Card](https://goreportcard.com/badge/github.com/orlangure/gnomock)](https://goreportcard.com/report/github.com/orlangure/gnomock)
 
 [Reference](https://pkg.go.dev/github.com/orlangure/gnomock?tab=doc) |
 [Roadmap](#roadmap)
