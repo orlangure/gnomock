@@ -1,4 +1,4 @@
-# Gnomock Splunk ![Build](https://github.com/orlangure/gnomock-splunk/workflows/Build/badge.svg?branch=master)
+# Gnomock Splunk ![Build](https://github.com/orlangure/gnomock-splunk/workflows/Build/badge.svg?branch=master) [![Go Report Card](https://goreportcard.com/badge/github.com/orlangure/gnomock-splunk)](https://goreportcard.com/report/github.com/orlangure/gnomock-splunk)
 
 Gnomock Splunk is a [Gnomock](https://github.com/orlangure/gnomock) preset for
 running tests against a real Splunk container, without mocks.
