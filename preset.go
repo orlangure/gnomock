@@ -19,8 +19,8 @@ const defaultPort = 5432
 // specific healthcheck function, default Postgres image and port, and allows to
 // optionally set up initial state
 func Preset(opts ...Option) gnomock.Preset {
-	p := &preset{
-		db: defaultDatabase,
+	p := &P{
+		DB: defaultDatabase,
 	}
 
 	for _, opt := range opts {
@@ -30,44 +30,45 @@ func Preset(opts ...Option) gnomock.Preset {
 	return p
 }
 
-type preset struct {
-	db       string
-	queries  []string
-	user     string
-	password string
+// P is a Gnomock Preset implementation of PostgreSQL database
+type P struct {
+	DB       string
+	Queries  []string
+	User     string
+	Password string
 }
 
 // Image returns an image that should be pulled to create this container
-func (p *preset) Image() string {
+func (p *P) Image() string {
 	return "docker.io/library/postgres"
 }
 
 // Ports returns ports that should be used to access this container
-func (p *preset) Ports() gnomock.NamedPorts {
+func (p *P) Ports() gnomock.NamedPorts {
 	return gnomock.DefaultTCP(defaultPort)
 }
 
 // Options returns a list of options to configure this container
-func (p *preset) Options() []gnomock.Option {
-	if p.user != "" && p.password != "" {
+func (p *P) Options() []gnomock.Option {
+	if p.User != "" && p.Password != "" {
 		q := fmt.Sprintf(
 			`create user %s with superuser password '%s'`,
-			p.user, p.password,
+			p.User, p.Password,
 		)
 
-		p.queries = append(p.queries, q)
+		p.Queries = append(p.Queries, q)
 	}
 
 	opts := []gnomock.Option{
 		gnomock.WithHealthCheck(p.healthcheck),
 		gnomock.WithEnv("POSTGRES_PASSWORD=" + defaultPassword),
-		gnomock.WithInit(p.initf(p.queries)),
+		gnomock.WithInit(p.initf(p.Queries)),
 	}
 
 	return opts
 }
 
-func (p *preset) healthcheck(c *gnomock.Container) error {
+func (p *P) healthcheck(c *gnomock.Container) error {
 	db, err := connect(c, defaultDatabase)
 	if err != nil {
 		return err
@@ -89,21 +90,21 @@ func (p *preset) healthcheck(c *gnomock.Container) error {
 	return nil
 }
 
-func (p *preset) initf(queries []string) gnomock.InitFunc {
+func (p *P) initf(queries []string) gnomock.InitFunc {
 	return func(c *gnomock.Container) error {
-		if p.db != defaultDatabase {
+		if p.DB != defaultDatabase {
 			db, err := connect(c, defaultDatabase)
 			if err != nil {
 				return err
 			}
 
-			_, err = db.Exec("create database " + p.db)
+			_, err = db.Exec("create database " + p.DB)
 			if err != nil {
 				return err
 			}
 		}
 
-		db, err := connect(c, p.db)
+		db, err := connect(c, p.DB)
 		if err != nil {
 			return err
 		}
