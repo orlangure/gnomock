@@ -20,17 +20,17 @@ import (
 // the caller
 type Event struct {
 	// Event is the actual log entry. Can be any format
-	Event string
+	Event string `json:"event"`
 
 	// Index is the name of index to ingest the log into. If the index does not
 	// exist, it will be created
-	Index string
+	Index string `json:"index"`
 
 	// Source will be used as "source" value of this event in Splunk
-	Source string
+	Source string `json:"source"`
 
 	// SourceType will be used as "sourcetype" value of this event in Splunk
-	SourceType string
+	SourceType string `json:"source_type"`
 }
 
 func initf(password string, events []Event, timeout time.Duration) gnomock.InitFunc {

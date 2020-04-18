@@ -35,9 +35,9 @@ const defaultVersion = "latest"
 // specific healthcheck function, default Splunk image and ports, and allows to
 // optionally ingest initial logs
 func Preset(opts ...Option) gnomock.Preset {
-	p := &preset{
-		initTimeout: defaultInitTimeout,
-		version:     defaultVersion,
+	p := &P{
+		InitTimeout: defaultInitTimeout,
+		Version:     defaultVersion,
 	}
 
 	for _, opt := range opts {
@@ -47,21 +47,22 @@ func Preset(opts ...Option) gnomock.Preset {
 	return p
 }
 
-type preset struct {
-	initialValues []Event
-	acceptLicense bool
-	adminPassword string
-	initTimeout   time.Duration
-	version       string
+// P is a Gnomock Preset implementation of Splunk
+type P struct {
+	Values        []Event       `json:"values"`
+	AcceptLicense bool          `json:"accept_license"`
+	AdminPassword string        `json:"admin_password"`
+	InitTimeout   time.Duration `json:"init_timeout"`
+	Version       string        `json:"version"`
 }
 
 // Image returns an image that should be pulled to create this container
-func (s *preset) Image() string {
-	return fmt.Sprintf("docker.io/splunk/splunk:%s", s.version)
+func (s *P) Image() string {
+	return fmt.Sprintf("docker.io/splunk/splunk:%s", s.Version)
 }
 
 // Ports returns ports that should be used to access this container
-func (s *preset) Ports() gnomock.NamedPorts {
+func (s *P) Ports() gnomock.NamedPorts {
 	return gnomock.NamedPorts{
 		CollectorPort: gnomock.TCP(8088),
 		APIPort:       gnomock.TCP(8089),
@@ -70,23 +71,23 @@ func (s *preset) Ports() gnomock.NamedPorts {
 }
 
 // Options returns a list of options to configure this container
-func (s *preset) Options() []gnomock.Option {
+func (s *P) Options() []gnomock.Option {
 	opts := []gnomock.Option{
 		gnomock.WithStartTimeout(time.Minute * 5),
 		gnomock.WithWaitTimeout(time.Minute * 1),
-		gnomock.WithHealthCheck(healthcheck(s.adminPassword)),
-		gnomock.WithEnv("SPLUNK_PASSWORD=" + s.adminPassword),
+		gnomock.WithHealthCheck(healthcheck(s.AdminPassword)),
+		gnomock.WithEnv("SPLUNK_PASSWORD=" + s.AdminPassword),
 	}
 
-	if s.acceptLicense {
+	if s.AcceptLicense {
 		opts = append(
 			opts,
 			gnomock.WithEnv("SPLUNK_START_ARGS=--accept-license"),
 		)
 	}
 
-	if s.initialValues != nil {
-		init := initf(s.adminPassword, s.initialValues, s.initTimeout)
+	if s.Values != nil {
+		init := initf(s.AdminPassword, s.Values, s.InitTimeout)
 		opts = append(opts, gnomock.WithInit(init))
 	}
 

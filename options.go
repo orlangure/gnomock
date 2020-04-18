@@ -4,20 +4,20 @@ import "time"
 
 // Option is an optional configuration of this Gnomock preset. Use available
 // Options to configure the container
-type Option func(*preset)
+type Option func(*P)
 
 // WithVersion sets splunk version (see
 // https://hub.docker.com/r/splunk/splunk/tags) for available versions
 func WithVersion(version string) Option {
-	return func(o *preset) {
-		o.version = version
+	return func(o *P) {
+		o.Version = version
 	}
 }
 
 // WithValues initializes Splunk with the provided values as log entries
 func WithValues(vs []Event) Option {
-	return func(p *preset) {
-		p.initialValues = vs
+	return func(p *P) {
+		p.Values = vs
 	}
 }
 
@@ -25,8 +25,8 @@ func WithValues(vs []Event) Option {
 // (see more at https://hub.docker.com/_/splunk-enterprise). Failure to accept
 // the license will prevent Splunk container from starting
 func WithLicense(accept bool) Option {
-	return func(o *preset) {
-		o.acceptLicense = accept
+	return func(o *P) {
+		o.AcceptLicense = accept
 	}
 }
 
@@ -36,8 +36,8 @@ func WithLicense(accept bool) Option {
 // (see defaults at
 // https://docs.splunk.com/Documentation/Splunk/latest/Security/Configurepasswordsinspecfile)
 func WithPassword(pass string) Option {
-	return func(o *preset) {
-		o.adminPassword = pass
+	return func(o *P) {
+		o.AdminPassword = pass
 	}
 }
 
@@ -45,7 +45,7 @@ func WithPassword(pass string) Option {
 // initialize this Splunk container. This option is only useful when WithValues
 // is used. Default value is 5 seconds
 func WithInitTimeout(timeout time.Duration) Option {
-	return func(o *preset) {
-		o.initTimeout = timeout
+	return func(o *P) {
+		o.InitTimeout = timeout
 	}
 }
