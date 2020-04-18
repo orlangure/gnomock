@@ -22,9 +22,9 @@ const defaultPort = 1433
 // password (user: sa). You must accept EULA to use this image (WithLicense
 // option)
 func Preset(opts ...Option) gnomock.Preset {
-	p := &preset{
-		db:       defaultDatabase,
-		password: defaultPassword,
+	p := &P{
+		DB:       defaultDatabase,
+		Password: defaultPassword,
 	}
 
 	for _, opt := range opts {
@@ -34,40 +34,41 @@ func Preset(opts ...Option) gnomock.Preset {
 	return p
 }
 
-type preset struct {
-	db       string
-	password string
-	queries  []string
-	license  bool
+// P is a Gnomock Preset implementation of Microsoft SQL Server database
+type P struct {
+	DB       string   `json:"db"`
+	Password string   `json:"password"`
+	Queries  []string `json:"queries"`
+	License  bool     `json:"license"`
 }
 
 // Image returns an image that should be pulled to create this container
-func (p *preset) Image() string {
+func (p *P) Image() string {
 	return "mcr.microsoft.com/mssql/server"
 }
 
 // Ports returns ports that should be used to access this container
-func (p *preset) Ports() gnomock.NamedPorts {
+func (p *P) Ports() gnomock.NamedPorts {
 	return gnomock.DefaultTCP(defaultPort)
 }
 
 // Options returns a list of options to configure this container
-func (p *preset) Options() []gnomock.Option {
+func (p *P) Options() []gnomock.Option {
 	opts := []gnomock.Option{
 		gnomock.WithHealthCheck(p.healthcheck),
-		gnomock.WithEnv("SA_PASSWORD=" + p.password),
-		gnomock.WithInit(p.initf(p.queries)),
+		gnomock.WithEnv("SA_PASSWORD=" + p.Password),
+		gnomock.WithInit(p.initf(p.Queries)),
 		gnomock.WithWaitTimeout(time.Second * 30),
 	}
 
-	if p.license {
+	if p.License {
 		opts = append(opts, gnomock.WithEnv("ACCEPT_EULA=Y"))
 	}
 
 	return opts
 }
 
-func (p *preset) healthcheck(c *gnomock.Container) error {
+func (p *P) healthcheck(c *gnomock.Container) error {
 	addr := c.Address(gnomock.DefaultPort)
 
 	db, err := p.connect(addr, masterDB)
@@ -91,7 +92,7 @@ func (p *preset) healthcheck(c *gnomock.Container) error {
 	return nil
 }
 
-func (p *preset) initf(queries []string) gnomock.InitFunc {
+func (p *P) initf(queries []string) gnomock.InitFunc {
 	return func(c *gnomock.Container) error {
 		addr := c.Address(gnomock.DefaultPort)
 
@@ -100,12 +101,12 @@ func (p *preset) initf(queries []string) gnomock.InitFunc {
 			return err
 		}
 
-		_, err = db.Exec("create database " + p.db)
+		_, err = db.Exec("create database " + p.DB)
 		if err != nil {
-			return fmt.Errorf("can't create database '%s': %w", p.db, err)
+			return fmt.Errorf("can't create database '%s': %w", p.DB, err)
 		}
 
-		db, err = p.connect(addr, p.db)
+		db, err = p.connect(addr, p.DB)
 		if err != nil {
 			return err
 		}
@@ -121,10 +122,10 @@ func (p *preset) initf(queries []string) gnomock.InitFunc {
 	}
 }
 
-func (p *preset) connect(addr, db string) (*sql.DB, error) {
+func (p *P) connect(addr, db string) (*sql.DB, error) {
 	connStr := fmt.Sprintf(
 		"sqlserver://sa:%s@%s?database=%s",
-		p.password, addr, db,
+		p.Password, addr, db,
 	)
 
 	return sql.Open("sqlserver", connStr)

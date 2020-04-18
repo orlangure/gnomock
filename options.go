@@ -2,13 +2,13 @@ package mssql
 
 // Option is an optional configuration of this Gnomock preset. Use available
 // Options to configure the container
-type Option func(*preset)
+type Option func(*P)
 
 // WithAdminPassword sets administrator password that can be used to connect
 // (default: Gn0m!ck~)
 func WithAdminPassword(password string) Option {
-	return func(o *preset) {
-		o.password = password
+	return func(o *P) {
+		o.Password = password
 	}
 }
 
@@ -16,16 +16,16 @@ func WithAdminPassword(password string) Option {
 // not provided, "mydb" is used by default.  WithQueries, if provided, runs
 // against the new database
 func WithDatabase(db string) Option {
-	return func(o *preset) {
-		o.db = db
+	return func(o *P) {
+		o.DB = db
 	}
 }
 
 // WithQueries executes the provided queries against the database created with
 // WithDatabase, or against default "mydb" database
 func WithQueries(queries ...string) Option {
-	return func(o *preset) {
-		o.queries = append(o.queries, queries...)
+	return func(o *P) {
+		o.Queries = append(o.Queries, queries...)
 	}
 }
 
@@ -33,7 +33,7 @@ func WithQueries(queries ...string) Option {
 // https://hub.docker.com/_/microsoft-mssql-server?tab=description for more
 // information
 func WithLicense(accept bool) Option {
-	return func(o *preset) {
-		o.license = accept
+	return func(o *P) {
+		o.License = accept
 	}
 }
