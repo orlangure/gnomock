@@ -24,7 +24,7 @@ import (
 // specific healthcheck function, default MongoDB image and port, and allows to
 // optionally set up initial state
 func Preset(opts ...Option) gnomock.Preset {
-	p := &preset{}
+	p := &P{}
 
 	for _, opt := range opts {
 		opt(p)
@@ -33,49 +33,50 @@ func Preset(opts ...Option) gnomock.Preset {
 	return p
 }
 
-type preset struct {
-	dataPath string
-	user     string
-	password string
+// P is a Gnomock Preset implementation of MongoDB
+type P struct {
+	DataPath string `json:"data_path"`
+	User     string `json:"user"`
+	Password string `json:"password"`
 }
 
 // Image returns an image that should be pulled to create this container
-func (p *preset) Image() string {
+func (p *P) Image() string {
 	return "docker.io/library/mongo"
 }
 
 // Ports returns ports that should be used to access this container
-func (p *preset) Ports() gnomock.NamedPorts {
+func (p *P) Ports() gnomock.NamedPorts {
 	return gnomock.DefaultTCP(27017)
 }
 
 // Options returns a list of options to configure this container
-func (p *preset) Options() []gnomock.Option {
+func (p *P) Options() []gnomock.Option {
 	opts := []gnomock.Option{
 		gnomock.WithHealthCheck(healthcheck),
 	}
 
-	if p.dataPath != "" {
+	if p.DataPath != "" {
 		opts = append(opts, gnomock.WithInit(p.initf))
 	}
 
-	if p.user != "" && p.password != "" {
+	if p.User != "" && p.Password != "" {
 		opts = append(
 			opts,
-			gnomock.WithEnv("MONGO_INITDB_ROOT_USERNAME="+p.user),
-			gnomock.WithEnv("MONGO_INITDB_ROOT_PASSWORD="+p.password),
+			gnomock.WithEnv("MONGO_INITDB_ROOT_USERNAME="+p.User),
+			gnomock.WithEnv("MONGO_INITDB_ROOT_PASSWORD="+p.Password),
 		)
 	}
 
 	return opts
 }
 
-func (p *preset) initf(c *gnomock.Container) error {
+func (p *P) initf(c *gnomock.Container) error {
 	addr := c.Address(gnomock.DefaultPort)
 	uri := "mongodb://" + addr
 
 	if p.useCustomUser() {
-		uri = fmt.Sprintf("mongodb://%s:%s@%s", p.user, p.password, addr)
+		uri = fmt.Sprintf("mongodb://%s:%s@%s", p.User, p.Password, addr)
 	}
 
 	clientOptions := mongooptions.Client().ApplyURI(uri)
@@ -90,7 +91,7 @@ func (p *preset) initf(c *gnomock.Container) error {
 		return fmt.Errorf("can't connect: %w", err)
 	}
 
-	topLevelDirs, err := ioutil.ReadDir(p.dataPath)
+	topLevelDirs, err := ioutil.ReadDir(p.DataPath)
 	if err != nil {
 		return fmt.Errorf("can't read test data path: %w", err)
 	}
@@ -109,12 +110,12 @@ func (p *preset) initf(c *gnomock.Container) error {
 	return nil
 }
 
-func (p *preset) useCustomUser() bool {
-	return p.user != "" && p.password != ""
+func (p *P) useCustomUser() bool {
+	return p.User != "" && p.Password != ""
 }
 
-func (p *preset) setupDB(client *mongodb.Client, dirName string) error {
-	dataFiles, err := ioutil.ReadDir(path.Join(p.dataPath, dirName))
+func (p *P) setupDB(client *mongodb.Client, dirName string) error {
+	dataFiles, err := ioutil.ReadDir(path.Join(p.DataPath, dirName))
 	if err != nil {
 		return fmt.Errorf("can't read test data sub path '%s', %w", dirName, err)
 	}
@@ -135,10 +136,10 @@ func (p *preset) setupDB(client *mongodb.Client, dirName string) error {
 	return nil
 }
 
-func (p *preset) setupCollection(client *mongodb.Client, dirName, dataFileName string) error {
+func (p *P) setupCollection(client *mongodb.Client, dirName, dataFileName string) error {
 	collectionName := strings.TrimSuffix(dataFileName, path.Ext(dataFileName))
 
-	file, err := os.Open(path.Join(p.dataPath, dirName, dataFileName)) //nolint:gosec
+	file, err := os.Open(path.Join(p.DataPath, dirName, dataFileName)) //nolint:gosec
 	if err != nil {
 		return fmt.Errorf("can't open file '%s': %w", dataFileName, err)
 	}
