@@ -1,4 +1,4 @@
-# Gnomock Postgres ![Build](https://github.com/orlangure/gnomock-postgres/workflows/Build/badge.svg?branch=master)
+# Gnomock Postgres ![Build](https://github.com/orlangure/gnomock-postgres/workflows/Build/badge.svg?branch=master) [![Go Report Card](https://goreportcard.com/badge/github.com/orlangure/gnomock-postgres)](https://goreportcard.com/report/github.com/orlangure/gnomock-postgres)
 
 Gnomock Postgres is a [Gnomock](https://github.com/orlangure/gnomock) preset for
 running tests against a real Postgres database, without mocks.
