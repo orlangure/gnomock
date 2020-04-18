@@ -6,38 +6,38 @@ package redis
 import (
 	"fmt"
 
-	"github.com/go-redis/redis/v7"
+	redisclient "github.com/go-redis/redis/v7"
 	"github.com/orlangure/gnomock"
 )
 
 // Preset creates a new Gmomock Redis preset. This preset includes a Redis
 // specific healthcheck function, default Redis image and port, and allows to
 // optionally set up initial state
-func Preset(opts ...Option) *Redis {
+func Preset(opts ...Option) gnomock.Preset {
 	config := buildConfig(opts...)
 
-	r := &Redis{initialValues: config.values}
+	r := &redis{initialValues: config.values}
 
 	return r
 }
 
-// Redis is a Gnomock Preset implementation for redis storage
-type Redis struct {
+// redis is a Gnomock Preset implementation for redis storage
+type redis struct {
 	initialValues map[string]interface{}
 }
 
 // Image returns an image that should be pulled to create this container
-func (r *Redis) Image() string {
+func (r *redis) Image() string {
 	return "docker.io/library/redis"
 }
 
 // Ports returns ports that should be used to access this container
-func (r *Redis) Ports() gnomock.NamedPorts {
+func (r *redis) Ports() gnomock.NamedPorts {
 	return gnomock.DefaultTCP(6379)
 }
 
 // Options returns a list of options to configure this container
-func (r *Redis) Options() []gnomock.Option {
+func (r *redis) Options() []gnomock.Option {
 	opts := []gnomock.Option{
 		gnomock.WithHealthCheck(healthcheck),
 	}
@@ -45,7 +45,7 @@ func (r *Redis) Options() []gnomock.Option {
 	if r.initialValues != nil {
 		initf := func(c *gnomock.Container) error {
 			addr := c.Address(gnomock.DefaultPort)
-			client := redis.NewClient(&redis.Options{Addr: addr})
+			client := redisclient.NewClient(&redisclient.Options{Addr: addr})
 
 			for k, v := range r.initialValues {
 				err := client.Set(k, v, 0).Err()
@@ -65,7 +65,7 @@ func (r *Redis) Options() []gnomock.Option {
 
 func healthcheck(c *gnomock.Container) error {
 	addr := c.Address(gnomock.DefaultPort)
-	client := redis.NewClient(&redis.Options{Addr: addr})
+	client := redisclient.NewClient(&redisclient.Options{Addr: addr})
 	_, err := client.Ping().Result()
 
 	return err

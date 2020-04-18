@@ -10,7 +10,7 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func ExampleRedis() {
+func ExamplePreset() {
 	vs := make(map[string]interface{})
 
 	vs["a"] = "foo"
