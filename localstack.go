@@ -58,8 +58,6 @@ func Preset(opts ...Option) gnomock.Preset {
 	return p
 }
 
-// Localstack is a Gnomock preset that exposes localstack functionality to spin
-// up a number of AWS services locally
 type localstack struct {
 	services []Service
 
