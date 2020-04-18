@@ -11,6 +11,9 @@ import (
 )
 
 const masterDB = "master"
+const defaultPassword = "Gn0m!ck~"
+const defaultDatabase = "mydb"
+const defaultPort = 1433
 
 // Preset creates a new Gmomock Microsoft SQL Server preset. This preset
 // includes a mssql specific healthcheck function, default mssql image and
@@ -19,19 +22,19 @@ const masterDB = "master"
 // password (user: sa). You must accept EULA to use this image (WithLicense
 // option)
 func Preset(opts ...Option) gnomock.Preset {
-	config := buildConfig(opts...)
+	p := &preset{
+		db:       defaultDatabase,
+		password: defaultPassword,
+	}
 
-	p := &mssql{
-		db:       config.db,
-		queries:  config.queries,
-		password: config.password,
-		license:  config.license,
+	for _, opt := range opts {
+		opt(p)
 	}
 
 	return p
 }
 
-type mssql struct {
+type preset struct {
 	db       string
 	password string
 	queries  []string
@@ -39,17 +42,17 @@ type mssql struct {
 }
 
 // Image returns an image that should be pulled to create this container
-func (p *mssql) Image() string {
+func (p *preset) Image() string {
 	return "mcr.microsoft.com/mssql/server"
 }
 
 // Ports returns ports that should be used to access this container
-func (p *mssql) Ports() gnomock.NamedPorts {
+func (p *preset) Ports() gnomock.NamedPorts {
 	return gnomock.DefaultTCP(defaultPort)
 }
 
 // Options returns a list of options to configure this container
-func (p *mssql) Options() []gnomock.Option {
+func (p *preset) Options() []gnomock.Option {
 	opts := []gnomock.Option{
 		gnomock.WithHealthCheck(p.healthcheck),
 		gnomock.WithEnv("SA_PASSWORD=" + p.password),
@@ -64,7 +67,7 @@ func (p *mssql) Options() []gnomock.Option {
 	return opts
 }
 
-func (p *mssql) healthcheck(c *gnomock.Container) error {
+func (p *preset) healthcheck(c *gnomock.Container) error {
 	addr := c.Address(gnomock.DefaultPort)
 
 	db, err := p.connect(addr, masterDB)
@@ -88,7 +91,7 @@ func (p *mssql) healthcheck(c *gnomock.Container) error {
 	return nil
 }
 
-func (p *mssql) initf(queries []string) gnomock.InitFunc {
+func (p *preset) initf(queries []string) gnomock.InitFunc {
 	return func(c *gnomock.Container) error {
 		addr := c.Address(gnomock.DefaultPort)
 
@@ -118,7 +121,7 @@ func (p *mssql) initf(queries []string) gnomock.InitFunc {
 	}
 }
 
-func (p *mssql) connect(addr, db string) (*sql.DB, error) {
+func (p *preset) connect(addr, db string) (*sql.DB, error) {
 	connStr := fmt.Sprintf(
 		"sqlserver://sa:%s@%s?database=%s",
 		p.password, addr, db,
