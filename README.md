@@ -45,7 +45,8 @@ client := redis.NewClient(&redis.Options{Addr: addr})
 ```
 
 With Gnomock it is easy to setup complex environments using multiple presets.
-It could be done in parallel:
+It could be done in parallel. For example, below is a dependency stack of a Go
+program that uses Postgres database, Redis cache, AWS S3 storage and AWS SES:
 
 ```go
 containers, err := gnomock.InParallel().
@@ -81,6 +82,11 @@ MariaDB | |
 
 ## Usage without presets
 
+Gnomock can be used directly, without Presets. It requires a bit more work
+since every use case needs its own healthcheck and initialization
+implementation, as well as detailed configuration targeted at that particular
+use case:
+
 ```go
 // assuming the container exposes 2 ports
 namedPorts := gnomock.NamedPorts{
@@ -108,6 +114,9 @@ defer gnomock.Stop(container)
 addr80 := container.Address("web80")
 addr8080 := container.Address("web8080")
 ```
+
+To keep test code clean and simple, it is better to wrap custom use cases with
+Preset implementation, that can be contributed back to the community.
 
 ## Roadmap
 
