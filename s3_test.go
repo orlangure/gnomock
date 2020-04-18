@@ -27,7 +27,7 @@ func TestWithS3Files(t *testing.T) {
 
 	require.NoError(t, err)
 
-	s3Endpoint := fmt.Sprintf("http://%s/", c.Address(localstack.S3Port))
+	s3Endpoint := fmt.Sprintf("http://%s/", c.Address(localstack.APIPort))
 	config := &aws.Config{
 		Region:           aws.String("us-east-1"),
 		Endpoint:         aws.String(s3Endpoint),
