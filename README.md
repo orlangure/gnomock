@@ -14,7 +14,7 @@ import (
 	mockpostgres "github.com/orlangure/gnomock-postgres"
 )
 
-func ExamplePostgres() {
+func ExamplePreset() {
 	queries := `
 		create table t(a int);
 		insert into t (a) values (1);

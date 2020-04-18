@@ -12,10 +12,10 @@ import (
 // Preset creates a new Gmomock Postgres preset. This preset includes a Postgres
 // specific healthcheck function, default Postgres image and port, and allows to
 // optionally set up initial state
-func Preset(opts ...Option) *Postgres {
+func Preset(opts ...Option) gnomock.Preset {
 	config := buildConfig(opts...)
 
-	p := &Postgres{
+	p := &postgres{
 		db:      config.db,
 		queries: config.queries,
 	}
@@ -23,24 +23,23 @@ func Preset(opts ...Option) *Postgres {
 	return p
 }
 
-// Postgres is a Gnomock Preset implementation for PostgreSQL database
-type Postgres struct {
+type postgres struct {
 	db      string
 	queries []string
 }
 
 // Image returns an image that should be pulled to create this container
-func (p *Postgres) Image() string {
+func (p *postgres) Image() string {
 	return "docker.io/library/postgres"
 }
 
 // Ports returns ports that should be used to access this container
-func (p *Postgres) Ports() gnomock.NamedPorts {
+func (p *postgres) Ports() gnomock.NamedPorts {
 	return gnomock.DefaultTCP(defaultPort)
 }
 
 // Options returns a list of options to configure this container
-func (p *Postgres) Options() []gnomock.Option {
+func (p *postgres) Options() []gnomock.Option {
 	opts := []gnomock.Option{
 		gnomock.WithHealthCheck(p.healthcheck),
 		gnomock.WithEnv("POSTGRES_PASSWORD=" + defaultPassword),
@@ -50,7 +49,7 @@ func (p *Postgres) Options() []gnomock.Option {
 	return opts
 }
 
-func (p *Postgres) healthcheck(c *gnomock.Container) error {
+func (p *postgres) healthcheck(c *gnomock.Container) error {
 	db, err := connect(c, defaultDatabase)
 	if err != nil {
 		return err
@@ -72,7 +71,7 @@ func (p *Postgres) healthcheck(c *gnomock.Container) error {
 	return nil
 }
 
-func (p *Postgres) initf(queries []string) gnomock.InitFunc {
+func (p *postgres) initf(queries []string) gnomock.InitFunc {
 	return func(c *gnomock.Container) error {
 		if p.db != defaultDatabase {
 			db, err := connect(c, defaultDatabase)
