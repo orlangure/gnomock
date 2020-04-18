@@ -1,4 +1,4 @@
-# Gnomock MySQL ![Build](https://github.com/orlangure/gnomock-mysql/workflows/Build/badge.svg?branch=master)
+# Gnomock MySQL ![Build](https://github.com/orlangure/gnomock-mysql/workflows/Build/badge.svg?branch=master) [![Go Report Card](https://goreportcard.com/badge/github.com/orlangure/gnomock-mysql)](https://goreportcard.com/report/github.com/orlangure/gnomock-mysql)
 
 Gnomock MySQL is a [Gnomock](https://github.com/orlangure/gnomock) preset for
 running tests against a real MySQL database, without mocks.
