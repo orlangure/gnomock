@@ -14,7 +14,7 @@ import (
 // specific healthcheck function, default Redis image and port, and allows to
 // optionally set up initial state
 func Preset(opts ...Option) gnomock.Preset {
-	p := &preset{}
+	p := &P{}
 
 	for _, opt := range opts {
 		opt(p)
@@ -23,33 +23,33 @@ func Preset(opts ...Option) gnomock.Preset {
 	return p
 }
 
-// preset is a Gnomock Preset implementation for preset storage
-type preset struct {
-	initialValues map[string]interface{}
+// P is a Gnomock Preset implementation for Redis storage
+type P struct {
+	Values map[string]interface{} `json:"values"`
 }
 
 // Image returns an image that should be pulled to create this container
-func (r *preset) Image() string {
+func (r *P) Image() string {
 	return "docker.io/library/redis"
 }
 
 // Ports returns ports that should be used to access this container
-func (r *preset) Ports() gnomock.NamedPorts {
+func (r *P) Ports() gnomock.NamedPorts {
 	return gnomock.DefaultTCP(6379)
 }
 
 // Options returns a list of options to configure this container
-func (r *preset) Options() []gnomock.Option {
+func (r *P) Options() []gnomock.Option {
 	opts := []gnomock.Option{
 		gnomock.WithHealthCheck(healthcheck),
 	}
 
-	if r.initialValues != nil {
+	if r.Values != nil {
 		initf := func(c *gnomock.Container) error {
 			addr := c.Address(gnomock.DefaultPort)
 			client := redisclient.NewClient(&redisclient.Options{Addr: addr})
 
-			for k, v := range r.initialValues {
+			for k, v := range r.Values {
 				err := client.Set(k, v, 0).Err()
 				if err != nil {
 					return fmt.Errorf("can't set '%s'='%v': %w", k, v, err)
