@@ -24,60 +24,58 @@ import (
 // specific healthcheck function, default MongoDB image and port, and allows to
 // optionally set up initial state
 func Preset(opts ...Option) gnomock.Preset {
-	config := buildConfig(opts...)
+	p := &preset{}
 
-	r := &mongo{
-		dataPath: config.dataPath,
-		user:     config.user,
-		password: config.password,
+	for _, opt := range opts {
+		opt(p)
 	}
 
-	return r
+	return p
 }
 
-type mongo struct {
+type preset struct {
 	dataPath string
 	user     string
 	password string
 }
 
 // Image returns an image that should be pulled to create this container
-func (m *mongo) Image() string {
+func (p *preset) Image() string {
 	return "docker.io/library/mongo"
 }
 
 // Ports returns ports that should be used to access this container
-func (m *mongo) Ports() gnomock.NamedPorts {
+func (p *preset) Ports() gnomock.NamedPorts {
 	return gnomock.DefaultTCP(27017)
 }
 
 // Options returns a list of options to configure this container
-func (m *mongo) Options() []gnomock.Option {
+func (p *preset) Options() []gnomock.Option {
 	opts := []gnomock.Option{
 		gnomock.WithHealthCheck(healthcheck),
 	}
 
-	if m.dataPath != "" {
-		opts = append(opts, gnomock.WithInit(m.initf))
+	if p.dataPath != "" {
+		opts = append(opts, gnomock.WithInit(p.initf))
 	}
 
-	if m.user != "" && m.password != "" {
+	if p.user != "" && p.password != "" {
 		opts = append(
 			opts,
-			gnomock.WithEnv("MONGO_INITDB_ROOT_USERNAME="+m.user),
-			gnomock.WithEnv("MONGO_INITDB_ROOT_PASSWORD="+m.password),
+			gnomock.WithEnv("MONGO_INITDB_ROOT_USERNAME="+p.user),
+			gnomock.WithEnv("MONGO_INITDB_ROOT_PASSWORD="+p.password),
 		)
 	}
 
 	return opts
 }
 
-func (m *mongo) initf(c *gnomock.Container) error {
+func (p *preset) initf(c *gnomock.Container) error {
 	addr := c.Address(gnomock.DefaultPort)
 	uri := "mongodb://" + addr
 
-	if m.useCustomUser() {
-		uri = fmt.Sprintf("mongodb://%s:%s@%s", m.user, m.password, addr)
+	if p.useCustomUser() {
+		uri = fmt.Sprintf("mongodb://%s:%s@%s", p.user, p.password, addr)
 	}
 
 	clientOptions := mongooptions.Client().ApplyURI(uri)
@@ -92,7 +90,7 @@ func (m *mongo) initf(c *gnomock.Container) error {
 		return fmt.Errorf("can't connect: %w", err)
 	}
 
-	topLevelDirs, err := ioutil.ReadDir(m.dataPath)
+	topLevelDirs, err := ioutil.ReadDir(p.dataPath)
 	if err != nil {
 		return fmt.Errorf("can't read test data path: %w", err)
 	}
@@ -102,7 +100,7 @@ func (m *mongo) initf(c *gnomock.Container) error {
 			continue
 		}
 
-		err = m.setupDB(client, topLevelDir.Name())
+		err = p.setupDB(client, topLevelDir.Name())
 		if err != nil {
 			return err
 		}
@@ -111,12 +109,12 @@ func (m *mongo) initf(c *gnomock.Container) error {
 	return nil
 }
 
-func (m *mongo) useCustomUser() bool {
-	return m.user != "" && m.password != ""
+func (p *preset) useCustomUser() bool {
+	return p.user != "" && p.password != ""
 }
 
-func (m *mongo) setupDB(client *mongodb.Client, dirName string) error {
-	dataFiles, err := ioutil.ReadDir(path.Join(m.dataPath, dirName))
+func (p *preset) setupDB(client *mongodb.Client, dirName string) error {
+	dataFiles, err := ioutil.ReadDir(path.Join(p.dataPath, dirName))
 	if err != nil {
 		return fmt.Errorf("can't read test data sub path '%s', %w", dirName, err)
 	}
@@ -128,7 +126,7 @@ func (m *mongo) setupDB(client *mongodb.Client, dirName string) error {
 
 		fName := dataFile.Name()
 
-		err = m.setupCollection(client, dirName, fName)
+		err = p.setupCollection(client, dirName, fName)
 		if err != nil {
 			return fmt.Errorf("can't setup collection from file '%s': %w", fName, err)
 		}
@@ -137,10 +135,10 @@ func (m *mongo) setupDB(client *mongodb.Client, dirName string) error {
 	return nil
 }
 
-func (m *mongo) setupCollection(client *mongodb.Client, dirName, dataFileName string) error {
+func (p *preset) setupCollection(client *mongodb.Client, dirName, dataFileName string) error {
 	collectionName := strings.TrimSuffix(dataFileName, path.Ext(dataFileName))
 
-	file, err := os.Open(path.Join(m.dataPath, dirName, dataFileName)) //nolint:gosec
+	file, err := os.Open(path.Join(p.dataPath, dirName, dataFileName)) //nolint:gosec
 	if err != nil {
 		return fmt.Errorf("can't open file '%s': %w", dataFileName, err)
 	}
