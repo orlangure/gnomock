@@ -1,4 +1,4 @@
-# Gnomock MSSQL ![Build](https://github.com/orlangure/gnomock-mssql/workflows/Build/badge.svg?branch=master)
+# Gnomock MSSQL ![Build](https://github.com/orlangure/gnomock-mssql/workflows/Build/badge.svg?branch=master) [![Go Report Card](https://goreportcard.com/badge/github.com/orlangure/gnomock-mssql)](https://goreportcard.com/report/github.com/orlangure/gnomock-mssql)
 
 Gnomock MSSQL is a [Gnomock](https://github.com/orlangure/gnomock) preset for
 running tests against a real Microsoft SQL Server database, without mocks.
