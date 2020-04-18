@@ -26,13 +26,13 @@ import (
 // This function does nothing if you don't provide localstack.S3 as one of the
 // services in WithServices
 func WithS3Files(path string) Option {
-	return func(p *preset) {
-		p.s3Path = path
+	return func(p *P) {
+		p.S3Path = path
 	}
 }
 
-func (p *preset) initS3(c *gnomock.Container) error {
-	if p.s3Path == "" {
+func (p *P) initS3(c *gnomock.Container) error {
+	if p.S3Path == "" {
 		return nil
 	}
 
@@ -64,8 +64,8 @@ func (p *preset) initS3(c *gnomock.Container) error {
 	return nil
 }
 
-func (p *preset) createBuckets(svc *s3.S3) ([]string, error) {
-	files, err := ioutil.ReadDir(p.s3Path)
+func (p *P) createBuckets(svc *s3.S3) ([]string, error) {
+	files, err := ioutil.ReadDir(p.S3Path)
 	if err != nil {
 		return nil, fmt.Errorf("can't read s3 initial files: %w", err)
 	}
@@ -91,7 +91,7 @@ func (p *preset) createBuckets(svc *s3.S3) ([]string, error) {
 	return buckets, nil
 }
 
-func (p *preset) createBucket(svc *s3.S3, bucket string) error {
+func (p *P) createBucket(svc *s3.S3, bucket string) error {
 	input := &s3.CreateBucketInput{Bucket: aws.String(bucket)}
 
 	_, err := svc.CreateBucket(input)
@@ -102,12 +102,12 @@ func (p *preset) createBucket(svc *s3.S3, bucket string) error {
 	return nil
 }
 
-func (p *preset) uploadFiles(svc *s3.S3, buckets []string) error {
+func (p *P) uploadFiles(svc *s3.S3, buckets []string) error {
 	for _, bucket := range buckets {
 		bucket := bucket
 
 		err := filepath.Walk(
-			path.Join(p.s3Path, bucket),
+			path.Join(p.S3Path, bucket),
 			func(fPath string, file os.FileInfo, err error) error {
 				if err != nil {
 					return fmt.Errorf("error reading input file '%s': %w", fPath, err)
@@ -133,7 +133,7 @@ func (p *preset) uploadFiles(svc *s3.S3, buckets []string) error {
 	return nil
 }
 
-func (p *preset) uploadFile(svc *s3.S3, bucket, file string) (err error) {
+func (p *P) uploadFile(svc *s3.S3, bucket, file string) (err error) {
 	inputFile, err := os.Open(file) //nolint:gosec
 	if err != nil {
 		return fmt.Errorf("can't open file '%s': %w", file, err)
@@ -146,7 +146,7 @@ func (p *preset) uploadFile(svc *s3.S3, bucket, file string) (err error) {
 		}
 	}()
 
-	localPath := path.Join(p.s3Path, bucket)
+	localPath := path.Join(p.S3Path, bucket)
 	key := file[len(localPath):]
 
 	input := &s3.PutObjectInput{

@@ -2,7 +2,7 @@ package localstack
 
 // Option is an optional configuration of this Gnomock preset. Use available
 // Options to configure the container
-type Option func(*preset)
+type Option func(*P)
 
 // Service represents an AWS service that can be setup using localstack
 type Service string
@@ -38,7 +38,7 @@ const (
 // WithServices selects localstack services to spin up. It is OK to not select
 // any services, but in such case the container will be useless
 func WithServices(services ...Service) Option {
-	return func(o *preset) {
-		o.services = append(o.services, services...)
+	return func(o *P) {
+		o.Services = append(o.Services, services...)
 	}
 }

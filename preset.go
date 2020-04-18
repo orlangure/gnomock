@@ -27,7 +27,7 @@ const (
 //
 // This Preset cannot be used with localstack image prior to 0.11.0
 func Preset(opts ...Option) gnomock.Preset {
-	p := &preset{}
+	p := &P{}
 
 	for _, opt := range opts {
 		opt(p)
@@ -36,19 +36,19 @@ func Preset(opts ...Option) gnomock.Preset {
 	return p
 }
 
-type preset struct {
-	services []Service
-
-	s3Path string
+// P is a Gnomock Preset localstack implementation
+type P struct {
+	Services []Service `json:"services"`
+	S3Path   string    `json:"s3_path"`
 }
 
 // Image returns an image that should be pulled to create this container
-func (p *preset) Image() string {
+func (p *P) Image() string {
 	return "docker.io/localstack/localstack"
 }
 
 // Ports returns ports that should be used to access this container
-func (p *preset) Ports() gnomock.NamedPorts {
+func (p *P) Ports() gnomock.NamedPorts {
 	return gnomock.NamedPorts{
 		webPort: {Protocol: "tcp", Port: 8080},
 		APIPort: {Protocol: "tcp", Port: 4566},
@@ -56,9 +56,9 @@ func (p *preset) Ports() gnomock.NamedPorts {
 }
 
 // Options returns a list of options to configure this container
-func (p *preset) Options() []gnomock.Option {
-	svcStrings := make([]string, len(p.services))
-	for i, svc := range p.services {
+func (p *P) Options() []gnomock.Option {
+	svcStrings := make([]string, len(p.Services))
+	for i, svc := range p.Services {
 		svcStrings[i] = string(svc)
 	}
 
@@ -75,7 +75,7 @@ func (p *preset) Options() []gnomock.Option {
 	return opts
 }
 
-func (p *preset) healthcheck(services []string) gnomock.HealthcheckFunc {
+func (p *P) healthcheck(services []string) gnomock.HealthcheckFunc {
 	return func(c *gnomock.Container) (err error) {
 		addr := fmt.Sprintf("http://%s/health", c.Address(webPort))
 
@@ -122,9 +122,9 @@ type healthResponse struct {
 	Services map[string]string `json:"services"`
 }
 
-func (p *preset) initf() gnomock.InitFunc {
+func (p *P) initf() gnomock.InitFunc {
 	return func(c *gnomock.Container) error {
-		for _, s := range p.services {
+		for _, s := range p.Services {
 			if s == S3 {
 				err := p.initS3(c)
 				if err != nil {
