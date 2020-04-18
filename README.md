@@ -1,4 +1,4 @@
-# Gnomock MongoDB ![Build](https://github.com/orlangure/gnomock-mongo/workflows/Build/badge.svg?branch=master)
+# Gnomock MongoDB ![Build](https://github.com/orlangure/gnomock-mongo/workflows/Build/badge.svg?branch=master) [![Go Report Card](https://goreportcard.com/badge/github.com/orlangure/gnomock-mongo)](https://goreportcard.com/report/github.com/orlangure/gnomock-mongo)
 
 Gnomock MongoDB is a [Gnomock](https://github.com/orlangure/gnomock) preset for
 running tests against a real MongoDB container, without mocks.
