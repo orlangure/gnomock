@@ -25,10 +25,10 @@ func Preset(opts ...Option) gnomock.Preset {
 	// err is always nil for non-nil logger
 	_ = mysqldriver.SetLogger(log.New(ioutil.Discard, "", -1))
 
-	p := &preset{
-		db:       defaultDatabase,
-		user:     defaultUser,
-		password: defaultPassword,
+	p := &P{
+		DB:       defaultDatabase,
+		User:     defaultUser,
+		Password: defaultPassword,
 	}
 
 	for _, opt := range opts {
@@ -38,39 +38,40 @@ func Preset(opts ...Option) gnomock.Preset {
 	return p
 }
 
-type preset struct {
-	db       string
-	user     string
-	password string
-	queries  []string
+// P is a Gnomock Preset implementation of MySQL database
+type P struct {
+	DB       string   `json:"db"`
+	User     string   `json:"user"`
+	Password string   `json:"password"`
+	Queries  []string `json:"queries"`
 }
 
 // Image returns an image that should be pulled to create this container
-func (p *preset) Image() string {
+func (p *P) Image() string {
 	return "docker.io/library/mysql"
 }
 
 // Ports returns ports that should be used to access this container
-func (p *preset) Ports() gnomock.NamedPorts {
+func (p *P) Ports() gnomock.NamedPorts {
 	return gnomock.DefaultTCP(defaultPort)
 }
 
 // Options returns a list of options to configure this container
-func (p *preset) Options() []gnomock.Option {
+func (p *P) Options() []gnomock.Option {
 	opts := []gnomock.Option{
 		gnomock.WithHealthCheck(p.healthcheck),
-		gnomock.WithEnv("MYSQL_USER=" + p.user),
-		gnomock.WithEnv("MYSQL_PASSWORD=" + p.password),
-		gnomock.WithEnv("MYSQL_DATABASE=" + p.db),
-		gnomock.WithEnv("MYSQL_RANDOM_ROOT_PASSWORD=" + p.db),
-		gnomock.WithInit(p.initf(p.queries)),
+		gnomock.WithEnv("MYSQL_USER=" + p.User),
+		gnomock.WithEnv("MYSQL_PASSWORD=" + p.Password),
+		gnomock.WithEnv("MYSQL_DATABASE=" + p.DB),
+		gnomock.WithEnv("MYSQL_RANDOM_ROOT_PASSWORD=" + p.DB),
+		gnomock.WithInit(p.initf(p.Queries)),
 		gnomock.WithWaitTimeout(time.Second * 30),
 	}
 
 	return opts
 }
 
-func (p *preset) healthcheck(c *gnomock.Container) error {
+func (p *P) healthcheck(c *gnomock.Container) error {
 	addr := c.Address(gnomock.DefaultPort)
 
 	db, err := p.connect(addr)
@@ -94,7 +95,7 @@ func (p *preset) healthcheck(c *gnomock.Container) error {
 	return nil
 }
 
-func (p *preset) initf(queries []string) gnomock.InitFunc {
+func (p *P) initf(queries []string) gnomock.InitFunc {
 	return func(c *gnomock.Container) error {
 		addr := c.Address(gnomock.DefaultPort)
 
@@ -114,10 +115,10 @@ func (p *preset) initf(queries []string) gnomock.InitFunc {
 	}
 }
 
-func (p *preset) connect(addr string) (*sql.DB, error) {
+func (p *P) connect(addr string) (*sql.DB, error) {
 	connStr := fmt.Sprintf(
 		"%s:%s@tcp(%s)/%s?multiStatements=true",
-		p.user, p.password, addr, p.db,
+		p.User, p.Password, addr, p.DB,
 	)
 
 	return sql.Open("mysql", connStr)
