@@ -94,22 +94,16 @@ func ExamplePreset_sqs_sns() {
 
 	defer func() { _ = gnomock.Stop(c) }()
 
-	sqsEndpoint := fmt.Sprintf("http://%s", c.Address(localstack.SQSPort))
-	snsEndpoint := fmt.Sprintf("http://%s", c.Address(localstack.SNSPort))
+	endpoint := fmt.Sprintf("http://%s", c.Address(localstack.APIPort))
 
-	sqsSession, _ := session.NewSession(&aws.Config{
+	sess, _ := session.NewSession(&aws.Config{
 		Region:      aws.String("us-east-1"),
-		Endpoint:    aws.String(sqsEndpoint),
-		Credentials: credentials.NewStaticCredentials("a", "b", "c"),
-	})
-	snsSession, _ := session.NewSession(&aws.Config{
-		Region:      aws.String("us-east-1"),
-		Endpoint:    aws.String(snsEndpoint),
+		Endpoint:    aws.String(endpoint),
 		Credentials: credentials.NewStaticCredentials("a", "b", "c"),
 	})
 
-	sqsService := sqs.New(sqsSession)
-	snsService := sns.New(snsSession)
+	sqsService := sqs.New(sess)
+	snsService := sns.New(sess)
 
 	_, _ = sqsService.CreateQueue(&sqs.CreateQueueInput{
 		QueueName: aws.String("my_queue"),

@@ -26,17 +26,17 @@ import (
 // This function does nothing if you don't provide localstack.S3 as one of the
 // services in WithServices
 func WithS3Files(path string) Option {
-	return func(o *options) {
-		o.s3Path = path
+	return func(p *preset) {
+		p.s3Path = path
 	}
 }
 
-func (p *localstack) initS3(c *gnomock.Container) error {
+func (p *preset) initS3(c *gnomock.Container) error {
 	if p.s3Path == "" {
 		return nil
 	}
 
-	s3Endpoint := fmt.Sprintf("http://%s/", c.Address(S3Port))
+	s3Endpoint := fmt.Sprintf("http://%s/", c.Address(APIPort))
 	config := &aws.Config{
 		Region:           aws.String("us-east-1"),
 		Endpoint:         aws.String(s3Endpoint),
@@ -64,7 +64,7 @@ func (p *localstack) initS3(c *gnomock.Container) error {
 	return nil
 }
 
-func (p *localstack) createBuckets(svc *s3.S3) ([]string, error) {
+func (p *preset) createBuckets(svc *s3.S3) ([]string, error) {
 	files, err := ioutil.ReadDir(p.s3Path)
 	if err != nil {
 		return nil, fmt.Errorf("can't read s3 initial files: %w", err)
@@ -91,7 +91,7 @@ func (p *localstack) createBuckets(svc *s3.S3) ([]string, error) {
 	return buckets, nil
 }
 
-func (p *localstack) createBucket(svc *s3.S3, bucket string) error {
+func (p *preset) createBucket(svc *s3.S3, bucket string) error {
 	input := &s3.CreateBucketInput{Bucket: aws.String(bucket)}
 
 	_, err := svc.CreateBucket(input)
@@ -102,7 +102,7 @@ func (p *localstack) createBucket(svc *s3.S3, bucket string) error {
 	return nil
 }
 
-func (p *localstack) uploadFiles(svc *s3.S3, buckets []string) error {
+func (p *preset) uploadFiles(svc *s3.S3, buckets []string) error {
 	for _, bucket := range buckets {
 		bucket := bucket
 
@@ -133,7 +133,7 @@ func (p *localstack) uploadFiles(svc *s3.S3, buckets []string) error {
 	return nil
 }
 
-func (p *localstack) uploadFile(svc *s3.S3, bucket, file string) (err error) {
+func (p *preset) uploadFile(svc *s3.S3, bucket, file string) (err error) {
 	inputFile, err := os.Open(file) //nolint:gosec
 	if err != nil {
 		return fmt.Errorf("can't open file '%s': %w", file, err)
