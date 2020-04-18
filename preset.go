@@ -14,30 +14,32 @@ import (
 // specific healthcheck function, default Redis image and port, and allows to
 // optionally set up initial state
 func Preset(opts ...Option) gnomock.Preset {
-	config := buildConfig(opts...)
+	p := &preset{}
 
-	r := &redis{initialValues: config.values}
+	for _, opt := range opts {
+		opt(p)
+	}
 
-	return r
+	return p
 }
 
-// redis is a Gnomock Preset implementation for redis storage
-type redis struct {
+// preset is a Gnomock Preset implementation for preset storage
+type preset struct {
 	initialValues map[string]interface{}
 }
 
 // Image returns an image that should be pulled to create this container
-func (r *redis) Image() string {
+func (r *preset) Image() string {
 	return "docker.io/library/redis"
 }
 
 // Ports returns ports that should be used to access this container
-func (r *redis) Ports() gnomock.NamedPorts {
+func (r *preset) Ports() gnomock.NamedPorts {
 	return gnomock.DefaultTCP(6379)
 }
 
 // Options returns a list of options to configure this container
-func (r *redis) Options() []gnomock.Option {
+func (r *preset) Options() []gnomock.Option {
 	opts := []gnomock.Option{
 		gnomock.WithHealthCheck(healthcheck),
 	}
