@@ -1,4 +1,4 @@
-# Gnomock Localstack ![Build](https://github.com/orlangure/gnomock-localstack/workflows/Build/badge.svg?branch=master)
+# Gnomock Localstack ![Build](https://github.com/orlangure/gnomock-localstack/workflows/Build/badge.svg?branch=master) [![Go Report Card](https://goreportcard.com/badge/github.com/orlangure/gnomock-localstack)](https://goreportcard.com/report/github.com/orlangure/gnomock-localstack)
 
 Gnomock Localstack is a [Gnomock](https://github.com/orlangure/gnomock) preset
 for running tests against AWS services locally, powered by
