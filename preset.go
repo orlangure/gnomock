@@ -95,37 +95,43 @@ func (s *P) Options() []gnomock.Option {
 }
 
 func healthcheck(password string) gnomock.HealthcheckFunc {
-	client := insecureClient()
-
 	return func(c *gnomock.Container) (err error) {
-		addr := c.Address(APIPort)
-		uri := fmt.Sprintf("https://%s/services/auth/login", addr)
-
-		data := url.Values{}
-		data.Add("username", "admin")
-		data.Add("password", password)
-		data.Add("output_mode", "json")
-
-		buf := bytes.NewBufferString(data.Encode())
-
-		resp, err := client.Post(uri, "application/x-www-form-urlencoded", buf)
+		err = checkAPI(c, password)
 		if err != nil {
 			return err
 		}
 
-		defer func() {
-			closeErr := resp.Body.Close()
-			if err == nil && closeErr != nil {
-				err = closeErr
-			}
-		}()
-
-		if resp.StatusCode != http.StatusOK {
-			return fmt.Errorf("bad response: %s", resp.Status)
+		err = checkHEC(c)
+		if err != nil {
+			return err
 		}
 
 		return nil
 	}
+}
+
+func checkAPI(c *gnomock.Container, password string) error {
+	post := requestWithPassword(http.MethodPost, password, false)
+	uri := fmt.Sprintf("https://%s/services/auth/login", c.Address(APIPort))
+
+	data := url.Values{}
+	data.Add("username", "admin")
+	data.Add("password", password)
+	data.Add("output_mode", "json")
+	buf := bytes.NewBufferString(data.Encode())
+
+	_, err := post(uri, buf)
+
+	return err
+}
+
+func checkHEC(c *gnomock.Container) error {
+	get := requestWithPassword(http.MethodGet, "", false)
+	uri := fmt.Sprintf("https://%s/services/collector/health", c.Address(CollectorPort))
+
+	_, err := get(uri, bytes.NewBufferString(""))
+
+	return err
 }
 
 func insecureClient() http.Client {
