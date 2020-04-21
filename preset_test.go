@@ -38,11 +38,11 @@ func ExamplePreset() {
 	}
 
 	p := mocksplunk.Preset(
-		mocksplunk.WithVersion("edge"),
+		mocksplunk.WithVersion("latest"),
 		mocksplunk.WithLicense(true),
 		mocksplunk.WithPassword("12345678"),
 		mocksplunk.WithValues(events),
-		mocksplunk.WithInitTimeout(time.Second),
+		mocksplunk.WithInitTimeout(time.Second*10),
 	)
 
 	// created container now includes two events in "events" index
