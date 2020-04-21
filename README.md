@@ -22,12 +22,14 @@ func ExamplePreset() {
 			Index:      "events",
 			Source:     "app",
 			SourceType: "http",
+			Time:       time.Now().UnixNano(),
 		},
 		{
 			Event:      "action=bar",
 			Index:      "events",
 			Source:     "app",
 			SourceType: "http",
+			Time:       time.Now().UnixNano(),
 		},
 	}
 
