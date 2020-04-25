@@ -52,12 +52,12 @@ func (d *docker) pullImage(ctx context.Context, image string) error {
 	return nil
 }
 
-func (d *docker) startContainer(ctx context.Context, image string, ports NamedPorts, cfg *options) (*Container, error) {
+func (d *docker) startContainer(ctx context.Context, image string, ports NamedPorts, cfg *Options) (*Container, error) {
 	exposedPorts := d.exposedPorts(ports)
 	containerConfig := &container.Config{
 		Image:        image,
 		ExposedPorts: exposedPorts,
-		Env:          cfg.env,
+		Env:          cfg.Env,
 	}
 	portBindings := d.portBindings(exposedPorts)
 	hostConfig := &container.HostConfig{

@@ -27,9 +27,9 @@ const defaultTag = "latest"
 // when no longer needed using its Stop() method
 func StartCustom(image string, ports NamedPorts, opts ...Option) (c *Container, err error) {
 	config := buildConfig(opts...)
-	image = buildImage(image, config.tag)
+	image = buildImage(image, config.Tag)
 
-	startCtx, cancel := context.WithTimeout(config.ctx, config.startTimeout)
+	startCtx, cancel := context.WithTimeout(config.ctx, config.StartTimeout)
 	defer cancel()
 
 	cli, err := dockerConnect()
@@ -58,7 +58,7 @@ func StartCustom(image string, ports NamedPorts, opts ...Option) (c *Container, 
 
 	c.onStop = closeLogReader(logReader, g)
 
-	waitCtx, cancelWait := context.WithTimeout(config.ctx, config.waitTimeout)
+	waitCtx, cancelWait := context.WithTimeout(config.ctx, config.WaitTimeout)
 	defer cancelWait()
 
 	err = wait(waitCtx, c, config)
@@ -151,9 +151,11 @@ func stop(c *Container) error {
 		return fmt.Errorf("can't stop container: %w", err)
 	}
 
-	err = c.onStop()
-	if err != nil {
-		return fmt.Errorf("can't perform last cleanup: %w", err)
+	if c.onStop != nil {
+		err = c.onStop()
+		if err != nil {
+			return fmt.Errorf("can't perform last cleanup: %w", err)
+		}
 	}
 
 	return nil
@@ -176,7 +178,7 @@ func buildImage(image, tag string) string {
 	return image
 }
 
-func wait(ctx context.Context, c *Container, config *options) error {
+func wait(ctx context.Context, c *Container, config *Options) error {
 	delay := time.NewTicker(config.healthcheckInterval)
 	defer delay.Stop()
 
