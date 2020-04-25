@@ -17,10 +17,10 @@ var ErrPortNotFound = errors.New("port not found")
 // container
 type Port struct {
 	// Protocol of the exposed port (TCP/UDP)
-	Protocol string
+	Protocol string `json:"protocol"`
 
 	// Port number of the exposed port
-	Port int
+	Port int `json:"port"`
 }
 
 // DefaultTCP is a utility function to use with simple containers exposing a

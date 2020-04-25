@@ -8,9 +8,9 @@ import (
 // fields should be used to configure the connection to this container. ID
 // matches the original docker container ID
 type Container struct {
-	ID    string
-	Host  string
-	Ports NamedPorts
+	ID    string     `json:"id,omitempty"`
+	Host  string     `json:"host,omitempty"`
+	Ports NamedPorts `json:"ports,omitempty"`
 
 	onStop func() error
 }
