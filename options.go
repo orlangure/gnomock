@@ -37,3 +37,11 @@ func WithLicense(accept bool) Option {
 		o.License = accept
 	}
 }
+
+// WithQueriesFile sets a file name to read initial queries from. Queries from
+// this file are executed before any other queries provided in WithQueries
+func WithQueriesFile(file string) Option {
+	return func(p *P) {
+		p.QueriesFile = file
+	}
+}

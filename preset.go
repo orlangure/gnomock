@@ -4,6 +4,7 @@ package mssql
 import (
 	"database/sql"
 	"fmt"
+	"io/ioutil"
 	"time"
 
 	_ "github.com/denisenkom/go-mssqldb" // mssql driver
@@ -36,10 +37,11 @@ func Preset(opts ...Option) gnomock.Preset {
 
 // P is a Gnomock Preset implementation of Microsoft SQL Server database
 type P struct {
-	DB       string   `json:"db"`
-	Password string   `json:"password"`
-	Queries  []string `json:"queries"`
-	License  bool     `json:"license"`
+	DB          string   `json:"db"`
+	Password    string   `json:"password"`
+	Queries     []string `json:"queries"`
+	QueriesFile string   `json:"queries_file"`
+	License     bool     `json:"license"`
 }
 
 // Image returns an image that should be pulled to create this container
@@ -57,7 +59,7 @@ func (p *P) Options() []gnomock.Option {
 	opts := []gnomock.Option{
 		gnomock.WithHealthCheck(p.healthcheck),
 		gnomock.WithEnv("SA_PASSWORD=" + p.Password),
-		gnomock.WithInit(p.initf(p.Queries)),
+		gnomock.WithInit(p.initf()),
 		gnomock.WithWaitTimeout(time.Second * 30),
 	}
 
@@ -92,7 +94,7 @@ func (p *P) healthcheck(c *gnomock.Container) error {
 	return nil
 }
 
-func (p *P) initf(queries []string) gnomock.InitFunc {
+func (p *P) initf() gnomock.InitFunc {
 	return func(c *gnomock.Container) error {
 		addr := c.Address(gnomock.DefaultPort)
 
@@ -111,7 +113,16 @@ func (p *P) initf(queries []string) gnomock.InitFunc {
 			return err
 		}
 
-		for _, q := range queries {
+		if p.QueriesFile != "" {
+			bs, err := ioutil.ReadFile(p.QueriesFile)
+			if err != nil {
+				return fmt.Errorf("can't read queries file '%s': %w", p.QueriesFile, err)
+			}
+
+			p.Queries = append([]string{string(bs)}, p.Queries...)
+		}
+
+		for _, q := range p.Queries {
 			_, err = db.Exec(q)
 			if err != nil {
 				return err
