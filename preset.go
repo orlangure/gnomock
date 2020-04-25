@@ -4,6 +4,7 @@ package postgres
 import (
 	"database/sql"
 	"fmt"
+	"io/ioutil"
 
 	_ "github.com/lib/pq" // postgres driver
 	"github.com/orlangure/gnomock"
@@ -32,10 +33,11 @@ func Preset(opts ...Option) gnomock.Preset {
 
 // P is a Gnomock Preset implementation of PostgreSQL database
 type P struct {
-	DB       string
-	Queries  []string
-	User     string
-	Password string
+	DB          string   `json:"db"`
+	Queries     []string `json:"queries"`
+	QueriesFile string   `json:"queries_file"`
+	User        string   `json:"user"`
+	Password    string   `json:"password"`
 }
 
 // Image returns an image that should be pulled to create this container
@@ -62,7 +64,7 @@ func (p *P) Options() []gnomock.Option {
 	opts := []gnomock.Option{
 		gnomock.WithHealthCheck(p.healthcheck),
 		gnomock.WithEnv("POSTGRES_PASSWORD=" + defaultPassword),
-		gnomock.WithInit(p.initf(p.Queries)),
+		gnomock.WithInit(p.initf()),
 	}
 
 	return opts
@@ -90,7 +92,7 @@ func (p *P) healthcheck(c *gnomock.Container) error {
 	return nil
 }
 
-func (p *P) initf(queries []string) gnomock.InitFunc {
+func (p *P) initf() gnomock.InitFunc {
 	return func(c *gnomock.Container) error {
 		if p.DB != defaultDatabase {
 			db, err := connect(c, defaultDatabase)
@@ -109,7 +111,16 @@ func (p *P) initf(queries []string) gnomock.InitFunc {
 			return err
 		}
 
-		for _, q := range queries {
+		if p.QueriesFile != "" {
+			bs, err := ioutil.ReadFile(p.QueriesFile)
+			if err != nil {
+				return fmt.Errorf("can't read queries file '%s': %w", p.QueriesFile, err)
+			}
+
+			p.Queries = append([]string{string(bs)}, p.Queries...)
+		}
+
+		for _, q := range p.Queries {
 			_, err = db.Exec(q)
 			if err != nil {
 				return err

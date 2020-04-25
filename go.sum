@@ -23,6 +23,8 @@ github.com/opencontainers/go-digest v1.0.0-rc1 h1:WzifXhOVOEOuFYOJAW6aQqW0TooG2i
 github.com/opencontainers/go-digest v1.0.0-rc1/go.mod h1:cMLVZDEM3+U2I4VmLI6N8jQYUd2OVphdqWwCJHrFt2s=
 github.com/orlangure/gnomock v0.3.0 h1:1o33Gi6p2puB83z0OYaakJARx/LUCzoPsoLlsCLajis=
 github.com/orlangure/gnomock v0.3.0/go.mod h1:IV89zckHZMD5IPeEy74UOyg70CF2W4tzB3kac7d4oUU=
+github.com/orlangure/gnomock v0.4.0 h1:amWYR/mo+mPU6GKzE02hMjmWetxwmTveIaq/29SyLW4=
+github.com/orlangure/gnomock v0.4.0/go.mod h1:IV89zckHZMD5IPeEy74UOyg70CF2W4tzB3kac7d4oUU=
 github.com/pkg/errors v0.8.1/go.mod h1:bwawxfHBFNV+L2hUp1rHADufV3IMtnDRdf1r5NINEl0=
 github.com/pkg/errors v0.9.1 h1:FEBLx1zS214owpjy7qsBeixbURkuhQAwrK5UwLGTwt4=
 github.com/pkg/errors v0.9.1/go.mod h1:bwawxfHBFNV+L2hUp1rHADufV3IMtnDRdf1r5NINEl0=
