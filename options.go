@@ -21,6 +21,15 @@ func WithValues(vs []Event) Option {
 	}
 }
 
+// WithValuesFile sets file name to use as a source of initial events to
+// ingest. These events are ingested first, followed by any other events sent
+// using WithValues
+func WithValuesFile(file string) Option {
+	return func(p *P) {
+		p.ValuesFile = file
+	}
+}
+
 // WithLicense lets the user choose to accept Splunk enterprise license
 // (see more at https://hub.docker.com/_/splunk-enterprise). Failure to accept
 // the license will prevent Splunk container from starting

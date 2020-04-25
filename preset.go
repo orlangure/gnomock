@@ -50,6 +50,7 @@ func Preset(opts ...Option) gnomock.Preset {
 // P is a Gnomock Preset implementation of Splunk
 type P struct {
 	Values        []Event       `json:"values"`
+	ValuesFile    string        `json:"values_file"`
 	AcceptLicense bool          `json:"accept_license"`
 	AdminPassword string        `json:"admin_password"`
 	InitTimeout   time.Duration `json:"init_timeout"`
@@ -57,12 +58,12 @@ type P struct {
 }
 
 // Image returns an image that should be pulled to create this container
-func (s *P) Image() string {
-	return fmt.Sprintf("docker.io/splunk/splunk:%s", s.Version)
+func (p *P) Image() string {
+	return fmt.Sprintf("docker.io/splunk/splunk:%s", p.Version)
 }
 
 // Ports returns ports that should be used to access this container
-func (s *P) Ports() gnomock.NamedPorts {
+func (p *P) Ports() gnomock.NamedPorts {
 	return gnomock.NamedPorts{
 		CollectorPort: gnomock.TCP(8088),
 		APIPort:       gnomock.TCP(8089),
@@ -71,23 +72,23 @@ func (s *P) Ports() gnomock.NamedPorts {
 }
 
 // Options returns a list of options to configure this container
-func (s *P) Options() []gnomock.Option {
+func (p *P) Options() []gnomock.Option {
 	opts := []gnomock.Option{
 		gnomock.WithStartTimeout(time.Minute * 5),
 		gnomock.WithWaitTimeout(time.Minute * 1),
-		gnomock.WithHealthCheck(healthcheck(s.AdminPassword)),
-		gnomock.WithEnv("SPLUNK_PASSWORD=" + s.AdminPassword),
+		gnomock.WithHealthCheck(healthcheck(p.AdminPassword)),
+		gnomock.WithEnv("SPLUNK_PASSWORD=" + p.AdminPassword),
 	}
 
-	if s.AcceptLicense {
+	if p.AcceptLicense {
 		opts = append(
 			opts,
 			gnomock.WithEnv("SPLUNK_START_ARGS=--accept-license"),
 		)
 	}
 
-	if s.Values != nil {
-		init := initf(s.AdminPassword, s.Values, s.InitTimeout)
+	if p.Values != nil || p.ValuesFile != "" {
+		init := p.initf()
 		opts = append(opts, gnomock.WithInit(init))
 	}
 

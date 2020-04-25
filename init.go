@@ -6,9 +6,11 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"io"
 	"io/ioutil"
 	"net/http"
 	"net/url"
+	"os"
 	"strconv"
 	"time"
 
@@ -39,12 +41,46 @@ type Event struct {
 	Time int64 `json:"time"`
 }
 
-func initf(password string, events []Event, timeout time.Duration) gnomock.InitFunc {
+func (p *P) initf() gnomock.InitFunc {
 	return func(c *gnomock.Container) (err error) {
-		ctx, cancel := context.WithTimeout(context.Background(), timeout)
+		ctx, cancel := context.WithTimeout(context.Background(), p.InitTimeout)
 		defer cancel()
 
-		err = Ingest(ctx, c, password, events...)
+		if p.ValuesFile != "" {
+			f, err := os.Open(p.ValuesFile)
+			if err != nil {
+				return fmt.Errorf("can't open values file '%s': %w", p.ValuesFile, err)
+			}
+
+			defer func() {
+				closeErr := f.Close()
+				if err == nil && closeErr != nil {
+					err = closeErr
+				}
+			}()
+
+			events := make([]Event, 0)
+			decoder := json.NewDecoder(f)
+
+			for {
+				var e Event
+
+				err = decoder.Decode(&e)
+				if errors.Is(err, io.EOF) {
+					break
+				}
+
+				if err != nil {
+					return fmt.Errorf("can't read initial event: %w", err)
+				}
+
+				events = append(events, e)
+			}
+
+			p.Values = append(events, p.Values...)
+		}
+
+		err = Ingest(ctx, c, p.AdminPassword, p.Values...)
 		if err != nil {
 			return fmt.Errorf("can't ingest events: %w", err)
 		}
