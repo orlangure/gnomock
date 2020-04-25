@@ -22,9 +22,6 @@ const defaultPort = 3306
 // optionally set up initial state. When used without any configuration, it
 // creates a superuser "gnomock" with password "gnomick", and "mydb" database
 func Preset(opts ...Option) gnomock.Preset {
-	// err is always nil for non-nil logger
-	_ = mysqldriver.SetLogger(log.New(ioutil.Discard, "", -1))
-
 	p := &P{
 		DB:       defaultDatabase,
 		User:     defaultUser,
@@ -40,10 +37,11 @@ func Preset(opts ...Option) gnomock.Preset {
 
 // P is a Gnomock Preset implementation of MySQL database
 type P struct {
-	DB       string   `json:"db"`
-	User     string   `json:"user"`
-	Password string   `json:"password"`
-	Queries  []string `json:"queries"`
+	DB          string   `json:"db"`
+	User        string   `json:"user"`
+	Password    string   `json:"password"`
+	Queries     []string `json:"queries"`
+	QueriesFile string   `json:"queries_file"`
 }
 
 // Image returns an image that should be pulled to create this container
@@ -58,13 +56,16 @@ func (p *P) Ports() gnomock.NamedPorts {
 
 // Options returns a list of options to configure this container
 func (p *P) Options() []gnomock.Option {
+	// err is always nil for non-nil logger
+	_ = mysqldriver.SetLogger(log.New(ioutil.Discard, "", -1))
+
 	opts := []gnomock.Option{
 		gnomock.WithHealthCheck(p.healthcheck),
 		gnomock.WithEnv("MYSQL_USER=" + p.User),
 		gnomock.WithEnv("MYSQL_PASSWORD=" + p.Password),
 		gnomock.WithEnv("MYSQL_DATABASE=" + p.DB),
 		gnomock.WithEnv("MYSQL_RANDOM_ROOT_PASSWORD=" + p.DB),
-		gnomock.WithInit(p.initf(p.Queries)),
+		gnomock.WithInit(p.initf()),
 		gnomock.WithWaitTimeout(time.Second * 30),
 	}
 
@@ -95,7 +96,7 @@ func (p *P) healthcheck(c *gnomock.Container) error {
 	return nil
 }
 
-func (p *P) initf(queries []string) gnomock.InitFunc {
+func (p *P) initf() gnomock.InitFunc {
 	return func(c *gnomock.Container) error {
 		addr := c.Address(gnomock.DefaultPort)
 
@@ -104,7 +105,16 @@ func (p *P) initf(queries []string) gnomock.InitFunc {
 			return err
 		}
 
-		for _, q := range queries {
+		if p.QueriesFile != "" {
+			bs, err := ioutil.ReadFile(p.QueriesFile)
+			if err != nil {
+				return fmt.Errorf("can't read queries file '%s': %w", p.QueriesFile, err)
+			}
+
+			p.Queries = append([]string{string(bs)}, p.Queries...)
+		}
+
+		for _, q := range p.Queries {
 			_, err = db.Exec(q)
 			if err != nil {
 				return err
