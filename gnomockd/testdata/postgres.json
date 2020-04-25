@@ -1,0 +1,16 @@
+{
+    "preset": {
+        "queries_file": "./testdata/postgres/customers.sql",
+        "queries": [
+            "create table tbl(a int)",
+            "insert into tbl(a) values (42)"
+        ],
+        "user": "gnomock",
+        "password": "foobar",
+        "db": "gnomockd_db"
+    },
+    "options": {
+        "tag": "12",
+        "start_timeout": 120000000000
+    }
+}

@@ -1,0 +1,16 @@
+{
+    "preset": {
+        "queries_file": "./testdata/mssql/customers.sql",
+        "queries": [
+            "create table tbl(a int)",
+            "insert into tbl(a) values (42)"
+        ],
+        "password": "Passw0rd-",
+        "db": "foobar",
+        "license": true
+    },
+    "options": {
+        "tag": "2019-latest",
+        "start_timeout": 120000000000
+    }
+}

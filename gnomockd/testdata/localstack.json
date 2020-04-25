@@ -1,0 +1,11 @@
+{
+    "preset": {
+        "s3_path": "./testdata/localstack/s3",
+        "services":[
+             "s3"
+        ]
+    },
+    "options": {
+        "start_timeout": 180000000000
+    }
+}
