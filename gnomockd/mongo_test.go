@@ -34,11 +34,14 @@ func TestMongo(t *testing.T) {
 
 	defer func() { require.NoError(t, res.Body.Close()) }()
 
-	require.Equal(t, http.StatusOK, res.StatusCode)
+	body, err := ioutil.ReadAll(res.Body)
+	require.NoError(t, err)
+
+	require.Equalf(t, http.StatusOK, res.StatusCode, string(body))
 
 	var c *gnomock.Container
 
-	err = json.NewDecoder(res.Body).Decode(&c)
+	err = json.Unmarshal(body, &c)
 	require.NoError(t, err)
 
 	uri := fmt.Sprintf("mongodb://gnomock:foobar@%s", c.DefaultAddress())
