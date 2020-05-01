@@ -1,0 +1,633 @@
+openapi: 3.0.0
+info:
+  title: gnomockd
+  description: >
+    `gnomockd` is an HTTP wrapper for
+    [Gnomock](https://github.com/orlangure/gnomock) integration and end-to-end
+    testing toolkit. It allows to use Gnomock outside of Go ecosystem. Not all
+    Gnomock features exist in this wrapper, but official presets, as well as
+    basic general configuration, are supported.
+  version: 0.1.0
+  contact:
+    url: https://github.com/orlangure/gnomockd/
+  license:
+    name: MIT
+    url: https://github.com/orlangure/gnomockd/blob/master/LICENSE
+
+paths:
+  /start/localstack:
+    post:
+      summary: Start a new Gnomock Localstack container
+      operationId: startLocalstack
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/localstack-request'
+      responses:
+        '200':
+          $ref: '#/components/responses/container-created'
+        '400':
+          $ref: '#/components/responses/invalid-configuration'
+        '500':
+          $ref: '#/components/responses/start-failed'
+      tags:
+        - presets
+
+  /start/mongo:
+    post:
+      summary: Start a new Gnomock MongoDB container
+      operationId: startMongo
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/mongo-request'
+      responses:
+        '200':
+          $ref: '#/components/responses/container-created'
+        '400':
+          $ref: '#/components/responses/invalid-configuration'
+        '500':
+          $ref: '#/components/responses/start-failed'
+      tags:
+        - presets
+
+  /start/mssql:
+    post:
+      summary: Start a new Gnomock Microsoft SQL Server container
+      operationId: startMSSQL
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/mssql-request'
+      responses:
+        '200':
+          $ref: '#/components/responses/container-created'
+        '400':
+          $ref: '#/components/responses/invalid-configuration'
+        '500':
+          $ref: '#/components/responses/start-failed'
+      tags:
+        - presets
+
+  /start/mysql:
+    post:
+      summary: Start a new Gnomock MySQL container
+      operationId: startMySQL
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/mysql-request'
+      responses:
+        '200':
+          $ref: '#/components/responses/container-created'
+        '400':
+          $ref: '#/components/responses/invalid-configuration'
+        '500':
+          $ref: '#/components/responses/start-failed'
+      tags:
+        - presets
+  /start/postgres:
+    post:
+      summary: Start a new Gnomock Postgres container
+      operationId: startPostgres
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/postgres-request'
+      responses:
+        '200':
+          $ref: '#/components/responses/container-created'
+        '400':
+          $ref: '#/components/responses/invalid-configuration'
+        '500':
+          $ref: '#/components/responses/start-failed'
+      tags:
+        - presets
+  /start/redis:
+    post:
+      summary: Start a new Gnomock Redis container
+      operationId: startRedis
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/redis-request'
+      responses:
+        '200':
+          $ref: '#/components/responses/container-created'
+        '400':
+          $ref: '#/components/responses/invalid-configuration'
+        '500':
+          $ref: '#/components/responses/start-failed'
+      tags:
+        - presets
+  /start/splunk:
+    post:
+      summary: Start a new Gnomock Splunk container
+      operationId: startSplunk
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/splunk-request'
+      responses:
+        '200':
+          $ref: '#/components/responses/container-created'
+        '400':
+          $ref: '#/components/responses/invalid-configuration'
+        '500':
+          $ref: '#/components/responses/start-failed'
+      tags:
+        - presets
+  /stop:
+    post:
+      summary: Stop an existing Gnomock container
+      operationId: stop
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/stop-request'
+      responses:
+        '200':
+          description: Container stopped successfully
+        '400':
+          description: Invalid stop request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/invalid-stop-request'
+        '500':
+          description: Stop failed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/stop-failed'
+      tags:
+        - presets
+
+components:
+  schemas:
+    container:
+      type: object
+      properties:
+        id:
+          description: Container ID (same as in docker)
+          type: string
+          example: f5d08dc84421
+        host:
+          description: Host of bound ports
+          type: string
+          default: localhost
+        ports:
+          $ref: '#/components/schemas/named-ports'
+      description: >
+        This object is a Gnomock wrapper of a regular docker container. It uses
+        the same container ID as docker, and adds bound ports information.
+
+    named-ports:
+      type: object
+      example:
+        api:
+          protocol: tcp
+          port: 35973
+      additionalProperties:
+        type: object
+        properties:
+          protocol:
+            description: Protocol of bound port
+            type: string
+            example: tcp
+          port:
+            description: Port number on host machine
+            type: integer
+            example: 35973
+      description: >
+        A map of port bindings of a Gnomock container. Human readable names are
+        used to make the values readable. `port` value is an actual port
+        exposed on the host; use this port to connect to the container.
+
+    invalid-start-request:
+      type: object
+      properties:
+        error:
+          type: string
+      description: >
+        This error usually means that the request schema was invalid, or there
+        were missing/incorrect/unsupported values.
+
+    start-failed:
+      type: object
+      properties:
+        error:
+          type: string
+      description: >
+        This error means that Gnomock attempted to start a new container, but
+        failed somewhere during the process. It is possible that image took too
+        long to download, or there was an issue with container configuration.
+
+    stop-failed:
+      type: object
+      properties:
+        error:
+          type: string
+      description: >
+        This error means that Gnomock couldn't stop the requested container. It
+        is possible that the ID is incorrect, or that there is something wrong
+        with docker daemon.
+
+    invalid-stop-request:
+      type: object
+      properties:
+        error:
+          type: string
+      description: >
+        This error means that the provided `/stop` request was invalid.
+
+    options:
+      type: object
+      properties:
+        start_timeout:
+          type: integer
+          format: int64
+          description: Start timeout in nanoseconds
+          default: 60000000000
+          example: 120000000000
+        wait_timeout:
+          type: integer
+          format: int64
+          description: Wait timeout in nanoseconds
+          default: 10000000000
+          example: 30000000000
+        env:
+          type: array
+          description: Array of environment variables to set in the container
+          items:
+            type: string
+            example: ENV_VAR_NAME=some-value
+        tag:
+          type: string
+          description: Docker image tag
+          example: latest
+      description: >
+        This object includes general Gnomock configuration, similar to all
+        presets. Timeout configuration is especially useful for
+        troubleshooting.
+
+    localstack-request:
+      type: object
+      properties:
+        preset:
+          $ref: '#/components/schemas/localstack'
+        options:
+          $ref: '#/components/schemas/options'
+      description: >
+        This request includes Localstack and general configuration.
+
+    localstack:
+      type: object
+      properties:
+        services:
+          type: array
+          description: A list of localstack services to start
+          example:
+            - s3
+            - ses
+          items:
+            type: string
+            example: s3
+            enum:
+              - apigateway
+              - cloudformation
+              - cloudwatch
+              - logs
+              - events
+              - dynamodb
+              - dynamodbstreams
+              - ec2
+              - es
+              - firehose
+              - iam
+              - kinesis
+              - kms
+              - lambda
+              - redshift
+              - route53
+              - s3
+              - secretsmanager
+              - ses
+              - sns
+              - sqs
+              - ssm
+              - sts
+              - stepfunctions
+        s3_path:
+          type: string
+          description: >
+            Path to folder to setup initial S3 state. Top level folders are
+            used as buckets; all child folders and files are uploaded as-is
+          example: ./testdata/s3
+      description: >
+        This object describes Localstack container.
+
+    mongo-request:
+      type: object
+      properties:
+        preset:
+          $ref: '#/components/schemas/mongo'
+        options:
+          $ref: '#/components/schemas/options'
+      description: >
+        This request includes MongoDB and general configuration.
+
+    mongo:
+      type: object
+      properties:
+        data_path:
+          description: >
+            Path to folder to setup initial container state. Each top level
+            folder maps to a database, every separate file under it is a
+            collection, and every line is a document in that collection.
+          type: string
+          example: ./testdata/mongo/data
+        user:
+          type: string
+          description: Username to create inside the container.
+          example: gnomock
+        password:
+          type: string
+          description: Password to set for the created user.
+          example: p@s$w0rD
+      description: >
+        This object describes MongoDB container.
+
+    mssql-request:
+      type: object
+      properties:
+        preset:
+          $ref: '#/components/schemas/mssql'
+        options:
+          $ref: '#/components/schemas/options'
+      description: >
+        This request includes Microsoft SQL Server and general configuration.
+
+    mssql:
+      type: object
+      properties:
+        db:
+          type: string
+          description: Database name to create.
+          example: mydb
+        password:
+          type: string
+          description: Superuser password.
+          example: p@s$w0rD
+        queries:
+          type: array
+          description: >
+            A list of queries to execute while setting up the container.
+          items:
+            type: string
+          example:
+            - create table foo(bar int)
+            - insert into foo(bar) values(1)
+        queries_file:
+          type: string
+          description: A SQL file to execute while setting up container state.
+          example: ./testdata/mssql/queries
+        license:
+          type: boolean
+          description: Accept or decline Microsoft SQL Server license.
+          example: true
+      description: >
+        This object describes Microsoft SQL Server container.
+
+    mysql-request:
+      type: object
+      properties:
+        preset:
+          $ref: '#/components/schemas/mysql'
+        options:
+          $ref: '#/components/schemas/options'
+      description: >
+        This request includes MySQL and general configuration.
+
+    mysql:
+      type: object
+      properties:
+        db:
+          type: string
+          description: Database name to create.
+          example: mydb
+        user:
+          type: string
+          description: User to create in the container.
+          example: gnomock
+        password:
+          type: string
+          description: New user's password.
+          example: p@s$w0rD
+        queries:
+          type: array
+          description: >
+            A list of queries to execute while setting up the container.
+          items:
+            type: string
+          example:
+            - create table foo(bar int)
+            - insert into foo(bar) values(1)
+        queries_file:
+          type: string
+          description: A SQL file to execute while setting up container state.
+          example: ./testdata/mysql/queries
+      description: >
+        This object describes MySQL container.
+
+    postgres-request:
+      type: object
+      properties:
+        preset:
+          $ref: '#/components/schemas/postgres'
+        options:
+          $ref: '#/components/schemas/options'
+      description: >
+        This request includes Postgres and general configuration.
+
+    postgres:
+      type: object
+      properties:
+        db:
+          type: string
+          description: Database name to create.
+          example: mydb
+        user:
+          type: string
+          description: User to create in the container.
+          example: gnomock
+        password:
+          type: string
+          description: New user's password.
+          example: p@s$w0rD
+        queries:
+          type: array
+          description: >
+            A list of queries to execute while setting up the container.
+          items:
+            type: string
+          example:
+            - create table foo(bar int)
+            - insert into foo(bar) values(1)
+        queries_file:
+          type: string
+          description: A SQL file to execute while setting up container state.
+          example: ./testdata/postgres/queries
+      description: >
+        This object describes Postgres container.
+
+    redis-request:
+      type: object
+      properties:
+        preset:
+          $ref: '#/components/schemas/redis'
+        options:
+          $ref: '#/components/schemas/options'
+      description: >
+        This request includes Redis and general configuration.
+
+    redis:
+      type: object
+      properties:
+        values:
+          type: object
+          description: A list of key/value pairs to create in the container.
+          additionalProperties:
+            oneOf:
+              - type: string
+              - type: integer
+              - type: boolean
+              - type: number
+          example:
+            foo: bar
+            baz: 42
+            meh: 3.14
+      description: >
+        This object describes Redis container.
+
+    splunk-request:
+      type: object
+      properties:
+        preset:
+          $ref: '#/components/schemas/splunk'
+        options:
+          $ref: '#/components/schemas/options'
+      description: >
+        This request includes Splunk and general configuration.
+
+    splunk:
+      type: object
+      properties:
+        values:
+          type: array
+          description: A list of events to ingest into the container.
+          items:
+            type: object
+            properties:
+              event:
+                type: string
+                example: something happened
+              index:
+                type: string
+                example: main
+              source:
+                type: string
+                example: web
+              sourcetype:
+                type: string
+                example: http
+              time:
+                type: number
+                format: double
+                description: timestamp in seconds (or milli-, micro- or nanoseconds)
+                example: 1588269752
+        values_file:
+          type: string
+          description: >
+            File name with events to ingest into Splunk. Use JSON Lines format
+            (every event is a separate JSON object), each new event starts from
+            a new line.
+          example: ./testdata/splunk/events.jsonl
+        accept_license:
+          type: boolean
+          description: Accept or decline Splunk license.
+          example: true
+        admin_password:
+          type: string
+          description: Set a password for `admin` user.
+          example: p@s$w0rD
+        init_timeout:
+          type: number
+          format: double
+          example: 30000000000
+          description: >
+            Wait for the initialization for this number of nanoseconds.
+        version:
+          type: string
+          description: Splunk version.
+          example: 8.0.2.1
+      description: >
+        This object describes Splunk container.
+
+    stop-request:
+      type: object
+      properties:
+        id:
+          type: string
+          example: f5d08dc84421
+      description: >
+        Stop request asks Gnomock to stop a container.
+
+  responses:
+    container-created:
+      description: Container created successfully
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/container'
+    invalid-configuration:
+      description: Invalid container configuration
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/invalid-start-request'
+    start-failed:
+      description: Start failed
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/start-failed'
+tags:
+  - name: presets
+    description: >
+      `/start` endpoints allow to create temporary docker containers using the
+      provided configuration. Each preset has its own configuration schema.
+servers:
+  - url: http://127.0.0.1:{port}/
+    description: >
+      `gnomockd` runs locally in an environment with a configured docker
+      daemon.
+    variables:
+      port:
+        default: "23042"
