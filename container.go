@@ -8,8 +8,16 @@ import (
 // fields should be used to configure the connection to this container. ID
 // matches the original docker container ID
 type Container struct {
-	ID    string     `json:"id,omitempty"`
-	Host  string     `json:"host,omitempty"`
+	// Container ID as set by docker
+	ID string `json:"id,omitempty"`
+
+	// Host name of bound ports
+	//
+	// Default: localhost
+	Host string `json:"host,omitempty"`
+
+	// A collections of ports exposed by this container. Each port has an alias
+	// and an actual port number as exposed on the host
 	Ports NamedPorts `json:"ports,omitempty"`
 
 	onStop func() error
