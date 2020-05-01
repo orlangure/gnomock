@@ -17,7 +17,7 @@ func startHandler(presets preset.Preseter) http.HandlerFunc {
 		p := presets.Preset(name)
 
 		if p == nil {
-			w.WriteHeader(http.StatusNotFound)
+			respondWithError(w, errors.NewPresetNotFoundError(name))
 			return
 		}
 
@@ -26,19 +26,19 @@ func startHandler(presets preset.Preseter) http.HandlerFunc {
 
 		err := decoder.Decode(&sr)
 		if err != nil {
-			respondWithError(w, errors.InvalidStartRequestError(err))
+			respondWithError(w, errors.NewInvalidStartRequestError(err))
 			return
 		}
 
 		c, err := gnomock.Start(p, gnomock.WithOptions(&sr.Options))
 		if err != nil {
-			respondWithError(w, errors.StartFailedError(err, c))
+			respondWithError(w, errors.NewStartFailedError(err, c))
 			return
 		}
 
 		err = json.NewEncoder(w).Encode(c)
 		if err != nil {
-			respondWithError(w, errors.PrepareResponseError(err, c))
+			respondWithError(w, errors.NewStartFailedError(err, c))
 			return
 		}
 	}
