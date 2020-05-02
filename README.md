@@ -12,7 +12,7 @@
 
 ## <div align="center">![Build](https://github.com/orlangure/gnomock/workflows/Build/badge.svg) [![Go Report Card](https://goreportcard.com/badge/github.com/orlangure/gnomock)](https://goreportcard.com/report/github.com/orlangure/gnomock)</div>
 
-Gnomock is an integration and end-to-end testing framework.  It uses Docker to
+Gnomock is an integration and end-to-end testing toolkit.  It uses Docker to
 create **temporary containers** for application dependencies, **setup** their
 **initial state** and **clean them up** in the end. Gnomock allows to test the
 code with **no mocks** wherever possible.
@@ -33,9 +33,17 @@ For Preset documentation, refer to [Presets](#official-presets) section.
 ### Using Gnomock in other languages
 
 Gnomock can be used from any language using its HTTP wrapper –
-[`gnomockd`](https://github.com/orlangure/gnomockd). It runs as a locally and
-receives commands via HTTP from anywhere. More `gnomockd` documentation is
-coming.
+[`gnomockd`](https://github.com/orlangure/gnomockd). It runs locally and
+receives commands via HTTP from anywhere. Communication with
+[`gnomockd`](https://github.com/orlangure/gnomockd) is documented using OpenAPI
+3.0, making integration easy for almost any language:
+
+- [Python SDK](https://github.com/orlangure/gnomock-python-sdk)
+- Javascript SDK
+- PHP SDK
+- Ruby SDK
+- Java SDK
+- [Other](https://openapi-generator.tech/docs/generators) languages
 
 ## Preset usage
 
@@ -126,18 +134,3 @@ addr8080 := container.Address("web8080")
 
 To keep test code clean and simple, it is better to wrap custom use cases with
 Preset implementation, that can be contributed back to the community.
-
-## Roadmap
-
-Gnomock is being developed at this moment. There are many tasks that need to be
-completed before it can be considered publicly available:
-
-- [ ] Implement [presets](#official-presets). This list is compiled from the
-  most popular images in Docker Hub. It is a starting point.
-- [ ] Improve README of Gnomock and all the Presets. These files show usage
-  examples, but can be improved without turning into full blown guides. Users
-  should be able to get started using only Gnomock and Preset README.
-- [ ] Prepare contribution guides for Gnomock and Preset repositories. Gnomock
-  should get its power from community-implemented Presets, so it should be very
-  clear how to implement new presets, or contribute to Gnomock itself.
-- [ ] Start spreading the word.
