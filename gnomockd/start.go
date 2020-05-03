@@ -1,8 +1,12 @@
 package gnomockd
 
 import (
+	"bufio"
 	"encoding/json"
+	"fmt"
+	"io"
 	"net/http"
+	"strings"
 
 	"github.com/gorilla/mux"
 	"github.com/orlangure/gnomock"
@@ -30,9 +34,18 @@ func startHandler(presets preset.Preseter) http.HandlerFunc {
 			return
 		}
 
-		c, err := gnomock.Start(p, gnomock.WithOptions(&sr.Options))
+		started := make(chan bool)
+		logWriter, allLogs := setupLogWriter(started)
+
+		c, err := gnomock.Start(p, gnomock.WithOptions(&sr.Options), gnomock.WithLogWriter(logWriter))
+
+		close(started)
+
 		if err != nil {
+			containerLogs := <-allLogs
+			err = fmt.Errorf("%s: %w", strings.Join(containerLogs, ";"), err)
 			respondWithError(w, errors.NewStartFailedError(err, c))
+
 			return
 		}
 
@@ -42,6 +55,43 @@ func startHandler(presets preset.Preseter) http.HandlerFunc {
 			return
 		}
 	}
+}
+
+func setupLogWriter(done chan bool) (io.Writer, chan []string) {
+	logReader, logWriter := io.Pipe()
+	receivedLogLines, allLogs := make(chan string), make(chan []string, 1)
+
+	go func() {
+		defer close(receivedLogLines)
+
+		scanner := bufio.NewScanner(logReader)
+		for scanner.Scan() {
+			receivedLogLines <- scanner.Text()
+		}
+	}()
+
+	go func() {
+		defer func() {
+			close(allLogs)
+
+			_, _ = logReader.Close(), logWriter.Close()
+		}()
+
+		logs := make([]string, 0)
+
+		for {
+			select {
+			case <-done:
+				allLogs <- logs
+
+				return
+			case l := <-receivedLogLines:
+				logs = append(logs, l)
+			}
+		}
+	}()
+
+	return logWriter, allLogs
 }
 
 type startRequest struct {
