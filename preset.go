@@ -23,10 +23,7 @@ const defaultPort = 1433
 // password (user: sa). You must accept EULA to use this image (WithLicense
 // option)
 func Preset(opts ...Option) gnomock.Preset {
-	p := &P{
-		DB:       defaultDatabase,
-		Password: defaultPassword,
-	}
+	p := &P{}
 
 	for _, opt := range opts {
 		opt(p)
@@ -56,6 +53,8 @@ func (p *P) Ports() gnomock.NamedPorts {
 
 // Options returns a list of options to configure this container
 func (p *P) Options() []gnomock.Option {
+	p.setDefaults()
+
 	opts := []gnomock.Option{
 		gnomock.WithHealthCheck(p.healthcheck),
 		gnomock.WithEnv("SA_PASSWORD=" + p.Password),
@@ -140,4 +139,14 @@ func (p *P) connect(addr, db string) (*sql.DB, error) {
 	)
 
 	return sql.Open("sqlserver", connStr)
+}
+
+func (p *P) setDefaults() {
+	if p.DB == "" {
+		p.DB = defaultDatabase
+	}
+
+	if p.Password == "" {
+		p.Password = defaultPassword
+	}
 }
