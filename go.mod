@@ -9,7 +9,7 @@ require (
 	github.com/gorilla/mux v1.7.4
 	github.com/klauspost/compress v1.10.5 // indirect
 	github.com/lib/pq v1.5.1 // indirect
-	github.com/orlangure/gnomock v0.4.0
+	github.com/orlangure/gnomock v0.4.1
 	github.com/orlangure/gnomock-localstack v0.3.1
 	github.com/orlangure/gnomock-mongo v0.1.1
 	github.com/orlangure/gnomock-mssql v0.1.2

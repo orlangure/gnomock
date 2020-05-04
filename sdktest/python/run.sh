@@ -1,8 +1,11 @@
-#!/bin/sh
+#!/bin/bash
 
 set -e
 
-python3 -m venv venv
-source venv/bin/activate
-pip install -r requirements.txt
-py.test -n 8
+if [[ -z "$GITHUB_ACTIONS" ]]; then
+	python3 -m venv venv
+	source venv/bin/activate
+fi
+
+pip3 install -r requirements.txt
+python3 -m pytest -n 2

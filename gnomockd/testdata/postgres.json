@@ -10,7 +10,6 @@
         "db": "gnomockd_db"
     },
     "options": {
-        "tag": "12",
-        "start_timeout": 120000000000
+        "tag": "12"
     }
 }

@@ -112,6 +112,7 @@ github.com/orlangure/gnomock v0.3.0 h1:1o33Gi6p2puB83z0OYaakJARx/LUCzoPsoLlsCLaj
 github.com/orlangure/gnomock v0.3.0/go.mod h1:IV89zckHZMD5IPeEy74UOyg70CF2W4tzB3kac7d4oUU=
 github.com/orlangure/gnomock v0.4.0 h1:amWYR/mo+mPU6GKzE02hMjmWetxwmTveIaq/29SyLW4=
 github.com/orlangure/gnomock v0.4.0/go.mod h1:IV89zckHZMD5IPeEy74UOyg70CF2W4tzB3kac7d4oUU=
+github.com/orlangure/gnomock v0.4.1/go.mod h1:IV89zckHZMD5IPeEy74UOyg70CF2W4tzB3kac7d4oUU=
 github.com/orlangure/gnomock-localstack v0.3.1 h1:IhV30j3e66Qh0UWw1spEGbNb7QCa/Ke3RhTLMj69i1w=
 github.com/orlangure/gnomock-localstack v0.3.1/go.mod h1:7codYCsu7JupnsX/+o/aYhjL7xooRuD9djfxKvHrbO4=
 github.com/orlangure/gnomock-mongo v0.1.1 h1:RsH5xlUcvQLwgEz7WKx9E4y3tP7KdYB2KU/DevxhORs=
