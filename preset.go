@@ -22,11 +22,7 @@ const defaultPort = 3306
 // optionally set up initial state. When used without any configuration, it
 // creates a superuser "gnomock" with password "gnomick", and "mydb" database
 func Preset(opts ...Option) gnomock.Preset {
-	p := &P{
-		DB:       defaultDatabase,
-		User:     defaultUser,
-		Password: defaultPassword,
-	}
+	p := &P{}
 
 	for _, opt := range opts {
 		opt(p)
@@ -59,12 +55,14 @@ func (p *P) Options() []gnomock.Option {
 	// err is always nil for non-nil logger
 	_ = mysqldriver.SetLogger(log.New(ioutil.Discard, "", -1))
 
+	p.setDefaults()
+
 	opts := []gnomock.Option{
 		gnomock.WithHealthCheck(p.healthcheck),
 		gnomock.WithEnv("MYSQL_USER=" + p.User),
 		gnomock.WithEnv("MYSQL_PASSWORD=" + p.Password),
 		gnomock.WithEnv("MYSQL_DATABASE=" + p.DB),
-		gnomock.WithEnv("MYSQL_RANDOM_ROOT_PASSWORD=" + p.DB),
+		gnomock.WithEnv("MYSQL_RANDOM_ROOT_PASSWORD=yes"),
 		gnomock.WithInit(p.initf()),
 		gnomock.WithWaitTimeout(time.Second * 30),
 	}
@@ -132,4 +130,18 @@ func (p *P) connect(addr string) (*sql.DB, error) {
 	)
 
 	return sql.Open("mysql", connStr)
+}
+
+func (p *P) setDefaults() {
+	if p.DB == "" {
+		p.DB = defaultDatabase
+	}
+
+	if p.User == "" {
+		p.User = defaultUser
+	}
+
+	if p.Password == "" {
+		p.Password = defaultPassword
+	}
 }
