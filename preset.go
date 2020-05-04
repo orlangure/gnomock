@@ -35,10 +35,7 @@ const defaultVersion = "latest"
 // specific healthcheck function, default Splunk image and ports, and allows to
 // optionally ingest initial logs
 func Preset(opts ...Option) gnomock.Preset {
-	p := &P{
-		InitTimeout: defaultInitTimeout,
-		Version:     defaultVersion,
-	}
+	p := &P{}
 
 	for _, opt := range opts {
 		opt(p)
@@ -73,6 +70,8 @@ func (p *P) Ports() gnomock.NamedPorts {
 
 // Options returns a list of options to configure this container
 func (p *P) Options() []gnomock.Option {
+	p.setDefaults()
+
 	opts := []gnomock.Option{
 		gnomock.WithStartTimeout(time.Minute * 5),
 		gnomock.WithWaitTimeout(time.Minute * 1),
@@ -93,6 +92,16 @@ func (p *P) Options() []gnomock.Option {
 	}
 
 	return opts
+}
+
+func (p *P) setDefaults() {
+	if p.InitTimeout == 0 {
+		p.InitTimeout = defaultInitTimeout
+	}
+
+	if p.Version == "" {
+		p.Version = defaultVersion
+	}
 }
 
 func healthcheck(password string) gnomock.HealthcheckFunc {
