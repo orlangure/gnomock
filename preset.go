@@ -20,9 +20,7 @@ const defaultPort = 5432
 // specific healthcheck function, default Postgres image and port, and allows to
 // optionally set up initial state
 func Preset(opts ...Option) gnomock.Preset {
-	p := &P{
-		DB: defaultDatabase,
-	}
+	p := &P{}
 
 	for _, opt := range opts {
 		opt(p)
@@ -52,6 +50,8 @@ func (p *P) Ports() gnomock.NamedPorts {
 
 // Options returns a list of options to configure this container
 func (p *P) Options() []gnomock.Option {
+	p.setDefaults()
+
 	if p.User != "" && p.Password != "" {
 		q := fmt.Sprintf(
 			`create user %s with superuser password '%s'`,
@@ -128,6 +128,12 @@ func (p *P) initf() gnomock.InitFunc {
 		}
 
 		return nil
+	}
+}
+
+func (p *P) setDefaults() {
+	if p.DB == "" {
+		p.DB = defaultDatabase
 	}
 }
 
