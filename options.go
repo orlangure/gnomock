@@ -7,9 +7,9 @@ import (
 	"time"
 )
 
-const defaultStartTimeout = time.Second * 60
-const defaultWaitTimeout = time.Second * 10
-const defaultHealthcheckInterval = time.Millisecond * 50
+const defaultStartTimeout = time.Second * 300
+const defaultWaitTimeout = time.Second * 60
+const defaultHealthcheckInterval = time.Millisecond * 250
 
 // Option is an optional Gnomock configuration. Functions implementing this
 // signature may be combined to configure Gnomock containers for different use
