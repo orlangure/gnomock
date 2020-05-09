@@ -4,8 +4,8 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/orlangure/gnomock"
 	mockmongo "github.com/orlangure/gnomock-mongo"
-	"github.com/orlangure/gnomock/gnomock"
 	"go.mongodb.org/mongo-driver/bson"
 	mongodb "go.mongodb.org/mongo-driver/mongo"
 	mongooptions "go.mongodb.org/mongo-driver/mongo/options"
