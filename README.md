@@ -25,9 +25,10 @@ creation, test data upload into S3, sending test events to Splunk, etc.
 ## Documentation
 
 Gnomock runs locally and exposes an API over HTTP. This API is defined using
-OpenAPI 3.0 [specification](./swagger). Go programs can use extended Gnomock
-package directly, without HTTP layer, while other languages require
-communication with a local server.
+OpenAPI 3.0
+[specification](https://app.swaggerhub.com/apis/orlangure/gnomock/1.0.1). Go
+programs can use extended Gnomock package directly, without HTTP layer, while
+other languages require communication with a local server.
 
 ### Using Gnomock in Go applications
 
@@ -38,8 +39,9 @@ For Preset documentation, refer to [Presets](#official-presets) section.
 ### Using Gnomock in other languages
 
 Gnomock runs as a local server, and any program in any language can communicate
-with it using OpenAPI 3.0 [specification](./swagger). Below are some language
-specific wrappers for Gnomock API:
+with it using OpenAPI 3.0
+[specification](https://app.swaggerhub.com/apis/orlangure/gnomock/1.0.1). Below
+are some language specific wrappers for Gnomock API:
 
 - [Python SDK](https://github.com/orlangure/gnomock-python-sdk)
 - Javascript SDK
