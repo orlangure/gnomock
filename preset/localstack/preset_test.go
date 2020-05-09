@@ -6,6 +6,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"testing"
 
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/credentials"
@@ -15,13 +16,18 @@ import (
 	"github.com/aws/aws-sdk-go/service/sqs"
 	"github.com/orlangure/gnomock"
 	"github.com/orlangure/gnomock/preset/localstack"
+	"github.com/stretchr/testify/require"
 )
 
-func ExamplePreset_s3() {
-	p := localstack.Preset(localstack.WithServices(localstack.S3))
-	c, _ := gnomock.Start(p)
+func TestPreset_s3(t *testing.T) {
+	t.Parallel()
 
-	defer func() { _ = gnomock.Stop(c) }()
+	p := localstack.Preset(localstack.WithServices(localstack.S3))
+	c, err := gnomock.Start(p)
+
+	defer func() { require.NoError(t, gnomock.Stop(c)) }()
+
+	require.NoError(t, err)
 
 	s3Endpoint := fmt.Sprintf("http://%s/", c.Address(localstack.APIPort))
 	config := &aws.Config{
@@ -30,96 +36,105 @@ func ExamplePreset_s3() {
 		S3ForcePathStyle: aws.Bool(true),
 		Credentials:      credentials.NewStaticCredentials("a", "b", "c"),
 	}
-	sess, _ := session.NewSession(config)
+	sess, err := session.NewSession(config)
+	require.NoError(t, err)
+
 	svc := s3.New(sess)
 
-	_, _ = svc.CreateBucket(&s3.CreateBucketInput{
+	_, err = svc.CreateBucket(&s3.CreateBucketInput{
 		Bucket: aws.String("foo"),
 	})
+	require.NoError(t, err)
 
-	out, _ := svc.ListObjectsV2(&s3.ListObjectsV2Input{
+	out, err := svc.ListObjectsV2(&s3.ListObjectsV2Input{
 		Bucket: aws.String("foo"),
 	})
-	fmt.Println("keys before:", *out.KeyCount)
+	require.NoError(t, err)
+	require.Empty(t, out.Contents)
 
-	_, _ = svc.PutObject(&s3.PutObjectInput{
+	_, err = svc.PutObject(&s3.PutObjectInput{
 		Body:   bytes.NewReader([]byte("this is a file")),
 		Key:    aws.String("file"),
 		Bucket: aws.String("foo"),
 	})
+	require.NoError(t, err)
 
-	out, _ = svc.ListObjectsV2(&s3.ListObjectsV2Input{
+	out, err = svc.ListObjectsV2(&s3.ListObjectsV2Input{
 		Bucket: aws.String("foo"),
 	})
-	fmt.Println("keys after:", *out.KeyCount)
-
-	// Output:
-	// keys before: 0
-	// keys after: 1
+	require.NoError(t, err)
+	require.Equal(t, 1, len(out.Contents))
 }
 
 //nolint:funlen
-func ExamplePreset_sqs_sns() {
+func TestPreset_sqs_sns(t *testing.T) {
+	t.Parallel()
+
 	p := localstack.Preset(
 		localstack.WithServices(localstack.SNS, localstack.SQS),
 	)
-	c, _ := gnomock.Start(p)
+	c, err := gnomock.Start(p)
 
-	defer func() { _ = gnomock.Stop(c) }()
+	defer func() { require.NoError(t, gnomock.Stop(c)) }()
+
+	require.NoError(t, err)
 
 	endpoint := fmt.Sprintf("http://%s", c.Address(localstack.APIPort))
 
-	sess, _ := session.NewSession(&aws.Config{
+	sess, err := session.NewSession(&aws.Config{
 		Region:      aws.String("us-east-1"),
 		Endpoint:    aws.String(endpoint),
 		Credentials: credentials.NewStaticCredentials("a", "b", "c"),
 	})
+	require.NoError(t, err)
 
 	sqsService := sqs.New(sess)
 	snsService := sns.New(sess)
 
-	_, _ = sqsService.CreateQueue(&sqs.CreateQueueInput{
+	_, err = sqsService.CreateQueue(&sqs.CreateQueueInput{
 		QueueName: aws.String("my_queue"),
 	})
+	require.NoError(t, err)
 
-	_, _ = snsService.CreateTopic(&sns.CreateTopicInput{
+	_, err = snsService.CreateTopic(&sns.CreateTopicInput{
 		Name: aws.String("my_topic"),
 	})
+	require.NoError(t, err)
 
-	queues, _ := sqsService.ListQueues(&sqs.ListQueuesInput{})
-	fmt.Println("queues:", len(queues.QueueUrls))
+	queues, err := sqsService.ListQueues(&sqs.ListQueuesInput{})
+	require.NoError(t, err)
+	require.Equal(t, 1, len(queues.QueueUrls))
 
 	queueURL := queues.QueueUrls[0]
 
-	topics, _ := snsService.ListTopics(&sns.ListTopicsInput{})
-	fmt.Println("topics:", len(topics.Topics))
+	topics, err := snsService.ListTopics(&sns.ListTopicsInput{})
+	require.NoError(t, err)
+	require.Equal(t, 1, len(topics.Topics))
 
 	topic := topics.Topics[0]
 
-	_, _ = snsService.Subscribe(&sns.SubscribeInput{
+	_, err = snsService.Subscribe(&sns.SubscribeInput{
 		Protocol: aws.String("sqs"),
 		Endpoint: queueURL,
 		TopicArn: topic.TopicArn,
 	})
+	require.NoError(t, err)
 
-	_, _ = snsService.Publish(&sns.PublishInput{
+	_, err = snsService.Publish(&sns.PublishInput{
 		TopicArn: topic.TopicArn,
 		Message:  aws.String("foobar"),
 	})
+	require.NoError(t, err)
 
-	messages, _ := sqsService.ReceiveMessage(&sqs.ReceiveMessageInput{
+	messages, err := sqsService.ReceiveMessage(&sqs.ReceiveMessageInput{
 		QueueUrl: queueURL,
 	})
-	fmt.Println("messages:", len(messages.Messages))
+	require.NoError(t, err)
+	require.Equal(t, 1, len(messages.Messages))
 
 	var msg map[string]string
 
-	_ = json.Unmarshal([]byte(*messages.Messages[0].Body), &msg)
-	fmt.Println("message:", msg["Message"])
-
-	// Output:
-	// queues: 1
-	// topics: 1
-	// messages: 1
-	// message: foobar
+	err = json.Unmarshal([]byte(*messages.Messages[0].Body), &msg)
+	require.NoError(t, err)
+	require.Equal(t, "foobar", msg["Message"])
 }

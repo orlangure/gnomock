@@ -5,50 +5,51 @@ package mongo_test
 import (
 	"context"
 	"fmt"
+	"testing"
 
 	"github.com/orlangure/gnomock"
 	"github.com/orlangure/gnomock/preset/mongo"
+	"github.com/stretchr/testify/require"
 	"go.mongodb.org/mongo-driver/bson"
 	mongodb "go.mongodb.org/mongo-driver/mongo"
 	mongooptions "go.mongodb.org/mongo-driver/mongo/options"
 )
 
-func ExamplePreset() {
+func TestPreset(t *testing.T) {
+	t.Parallel()
+
 	p := mongo.Preset(
 		mongo.WithData("./testdata/"),
 		mongo.WithUser("gnomock", "gnomick"),
 	)
 	c, err := gnomock.Start(p)
 
-	defer func() { _ = gnomock.Stop(c) }()
+	defer func() { require.NoError(t, gnomock.Stop(c)) }()
 
-	if err != nil {
-		panic(err)
-	}
+	require.NoError(t, err)
 
 	addr := c.DefaultAddress()
 	uri := fmt.Sprintf("mongodb://%s:%s@%s", "gnomock", "gnomick", addr)
 	clientOptions := mongooptions.Client().ApplyURI(uri)
 
 	client, err := mongodb.NewClient(clientOptions)
-	if err != nil {
-		panic(err)
-	}
+	require.NoError(t, err)
 
 	ctx := context.Background()
 
 	err = client.Connect(ctx)
-	if err != nil {
-		panic(err)
-	}
+	require.NoError(t, err)
 
 	// see testdata folder to verify names/numbers
-	fmt.Println(client.Database("db1").Collection("users").CountDocuments(ctx, bson.D{}))
-	fmt.Println(client.Database("db2").Collection("customers").CountDocuments(ctx, bson.D{}))
-	fmt.Println(client.Database("db2").Collection("countries").CountDocuments(ctx, bson.D{}))
+	count, err := client.Database("db1").Collection("users").CountDocuments(ctx, bson.D{})
+	require.NoError(t, err)
+	require.Equal(t, int64(10), count)
 
-	// Output:
-	// 10 <nil>
-	// 5 <nil>
-	// 3 <nil>
+	count, err = client.Database("db2").Collection("customers").CountDocuments(ctx, bson.D{})
+	require.NoError(t, err)
+	require.Equal(t, int64(5), count)
+
+	count, err = client.Database("db2").Collection("countries").CountDocuments(ctx, bson.D{})
+	require.NoError(t, err)
+	require.Equal(t, int64(3), count)
 }
