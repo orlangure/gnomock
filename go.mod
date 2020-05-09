@@ -4,5 +4,5 @@ go 1.14
 
 require (
 	github.com/lib/pq v1.5.1
-	github.com/orlangure/gnomock v0.5.2
+	github.com/orlangure/gnomock v0.5.3
 )
