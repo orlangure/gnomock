@@ -10,7 +10,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/orlangure/gnomock/gnomock"
+	"github.com/orlangure/gnomock"
 )
 
 const (

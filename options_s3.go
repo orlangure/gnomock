@@ -11,7 +11,7 @@ import (
 	"github.com/aws/aws-sdk-go/aws/credentials"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/s3"
-	"github.com/orlangure/gnomock/gnomock"
+	"github.com/orlangure/gnomock"
 )
 
 // WithS3Files sets up S3 service running in localstack with the contents of
