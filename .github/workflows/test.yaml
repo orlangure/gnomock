@@ -1,8 +1,8 @@
 name: Build
 on: [push]
 jobs:
-  test:
-    name: Test
+  test-gnomock:
+    name: Test Gnomock
     runs-on: ubuntu-latest
     steps:
       - name: Set up Go 1.14
@@ -15,7 +15,52 @@ jobs:
       - name: Get dependencies
         run: go get -v -t -d ./...
       - name: Test
-        run: go test -race -cover -v -p 1 ./...
+        run: go test -race -cover -v -p 1 -tags "nosdk nopreset noserver" ./...
+  test-sdk:
+    name: Test SDK
+    runs-on: ubuntu-latest
+    steps:
+      - name: Set up Go 1.14
+        uses: actions/setup-go@v1
+        with:
+          go-version: 1.14
+          id: go
+      - name: Check out code into the Go module directory
+        uses: actions/checkout@v1
+      - name: Get dependencies
+        run: go get -v -t -d ./...
+      - name: Test
+        run: go test -race -cover -v -p 1 -tags "nognomock nopreset noserver" ./...
+  test-preset:
+    name: Test Presets
+    runs-on: ubuntu-latest
+    steps:
+      - name: Set up Go 1.14
+        uses: actions/setup-go@v1
+        with:
+          go-version: 1.14
+          id: go
+      - name: Check out code into the Go module directory
+        uses: actions/checkout@v1
+      - name: Get dependencies
+        run: go get -v -t -d ./...
+      - name: Test
+        run: go test -race -cover -v -p 1 -tags "nognomock nosdk noserver" ./...
+  test-server:
+    name: Test Server
+    runs-on: ubuntu-latest
+    steps:
+      - name: Set up Go 1.14
+        uses: actions/setup-go@v1
+        with:
+          go-version: 1.14
+          id: go
+      - name: Check out code into the Go module directory
+        uses: actions/checkout@v1
+      - name: Get dependencies
+        run: go get -v -t -d ./...
+      - name: Test
+        run: go test -race -cover -v -p 1 -tags "nognomock nosdk nopreset" ./...
   lint:
     name: Lint
     runs-on: ubuntu-latest
