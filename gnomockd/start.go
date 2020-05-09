@@ -9,8 +9,8 @@ import (
 	"strings"
 
 	"github.com/gorilla/mux"
+	"github.com/orlangure/gnomock"
 	"github.com/orlangure/gnomock/errors"
-	"github.com/orlangure/gnomock/gnomock"
 	"github.com/orlangure/gnomock/preset"
 )
 

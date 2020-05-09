@@ -2,6 +2,7 @@
 package preset
 
 import (
+	"github.com/orlangure/gnomock"
 	localstack "github.com/orlangure/gnomock-localstack"
 	mongo "github.com/orlangure/gnomock-mongo"
 	mssql "github.com/orlangure/gnomock-mssql"
@@ -9,7 +10,6 @@ import (
 	postgres "github.com/orlangure/gnomock-postgres"
 	redis "github.com/orlangure/gnomock-redis"
 	splunk "github.com/orlangure/gnomock-splunk"
-	"github.com/orlangure/gnomock/gnomock"
 )
 
 // Preseter is a type that creates Gnomock Presets given their name

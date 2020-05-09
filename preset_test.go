@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/orlangure/gnomock/gnomock"
+	"github.com/orlangure/gnomock"
 	"github.com/stretchr/testify/require"
 )
 

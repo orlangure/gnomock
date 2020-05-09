@@ -14,8 +14,8 @@ import (
 	"github.com/aws/aws-sdk-go/aws/credentials"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/s3"
+	"github.com/orlangure/gnomock"
 	localstack "github.com/orlangure/gnomock-localstack"
-	"github.com/orlangure/gnomock/gnomock"
 	"github.com/orlangure/gnomock/gnomockd"
 	"github.com/stretchr/testify/require"
 )

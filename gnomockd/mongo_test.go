@@ -10,7 +10,7 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"github.com/orlangure/gnomock/gnomock"
+	"github.com/orlangure/gnomock"
 	"github.com/orlangure/gnomock/gnomockd"
 	"github.com/stretchr/testify/require"
 	"go.mongodb.org/mongo-driver/bson"
