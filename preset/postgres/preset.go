@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	"fmt"
 	"io/ioutil"
+	"time"
 
 	_ "github.com/lib/pq" // postgres driver
 	"github.com/orlangure/gnomock"
@@ -144,5 +145,12 @@ func connect(c *gnomock.Container, db string) (*sql.DB, error) {
 		defaultUser, defaultPassword, db, defaultSSLMode,
 	)
 
-	return sql.Open("postgres", connStr)
+	conn, err := sql.Open("postgres", connStr)
+	if err != nil {
+		return nil, err
+	}
+
+	conn.SetConnMaxLifetime(time.Second * 10)
+
+	return conn, nil
 }
