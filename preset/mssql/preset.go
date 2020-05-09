@@ -77,6 +77,10 @@ func (p *P) healthcheck(c *gnomock.Container) error {
 		return err
 	}
 
+	defer func() {
+		_ = db.Close()
+	}()
+
 	var one int
 
 	row := db.QueryRow(`select 1`)
@@ -101,6 +105,10 @@ func (p *P) initf() gnomock.InitFunc {
 		if err != nil {
 			return err
 		}
+
+		defer func() {
+			_ = db.Close()
+		}()
 
 		_, err = db.Exec("create database " + p.DB)
 		if err != nil {

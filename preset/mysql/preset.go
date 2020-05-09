@@ -78,6 +78,10 @@ func (p *P) healthcheck(c *gnomock.Container) error {
 		return err
 	}
 
+	defer func() {
+		_ = db.Close()
+	}()
+
 	var one int
 
 	row := db.QueryRow(`select 1`)
@@ -102,6 +106,10 @@ func (p *P) initf() gnomock.InitFunc {
 		if err != nil {
 			return err
 		}
+
+		defer func() {
+			_ = db.Close()
+		}()
 
 		if p.QueriesFile != "" {
 			bs, err := ioutil.ReadFile(p.QueriesFile)
