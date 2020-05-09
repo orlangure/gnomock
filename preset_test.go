@@ -5,8 +5,8 @@ import (
 	"testing"
 
 	"github.com/go-redis/redis/v7"
+	"github.com/orlangure/gnomock"
 	mockredis "github.com/orlangure/gnomock-redis"
-	"github.com/orlangure/gnomock/gnomock"
 	"github.com/stretchr/testify/require"
 )
 
