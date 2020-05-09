@@ -1,3 +1,5 @@
+// +build !nopreset
+
 package mongo_test
 
 import (
