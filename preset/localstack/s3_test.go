@@ -1,3 +1,5 @@
+// +build !nopreset
+
 package localstack_test
 
 import (
