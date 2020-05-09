@@ -1,0 +1,11 @@
+{
+    "preset": {
+        "data_path": "./testdata/mongo",
+        "user": "gnomock",
+        "password": "foobar"
+    },
+    "options": {
+        "tag": "3",
+        "start_timeout": 120000000000
+    }
+}

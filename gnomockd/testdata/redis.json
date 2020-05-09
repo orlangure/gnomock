@@ -1,0 +1,12 @@
+{
+    "preset": {
+        "values": {
+            "answer": 42,
+            "is_good": true
+        }
+    },
+    "options": {
+        "tag": "5",
+        "start_timeout": 120000000000
+    }
+}
