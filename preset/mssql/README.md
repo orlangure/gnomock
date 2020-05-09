@@ -1,4 +1,4 @@
-# Gnomock MSSQL ![Build](https://github.com/orlangure/gnomock-mssql/workflows/Build/badge.svg?branch=master) [![Go Report Card](https://goreportcard.com/badge/github.com/orlangure/gnomock-mssql)](https://goreportcard.com/report/github.com/orlangure/gnomock-mssql)
+# Gnomock MSSQL
 
 Gnomock MSSQL is a [Gnomock](https://github.com/orlangure/gnomock) preset for
 running tests against a real Microsoft SQL Server database, without mocks.
@@ -11,7 +11,7 @@ import (
 	"fmt"
 
 	"github.com/orlangure/gnomock"
-	mockmssql "github.com/orlangure/gnomock-mssql"
+	"github.com/orlangure/gnomock/preset/mssql"
 )
 
 func ExamplePreset() {
@@ -21,11 +21,11 @@ func ExamplePreset() {
 		insert into t (a) values (2);
 	`
 	query := `insert into t (a) values (3);`
-	p := mockmssql.Preset(
-		mockmssql.WithLicense(true),
-		mockmssql.WithAdminPassword("Passw0rd-"),
-		mockmssql.WithQueries(queries, query),
-		mockmssql.WithDatabase("foobar"),
+	p := mssql.Preset(
+		mssql.WithLicense(true),
+		mssql.WithAdminPassword("Passw0rd-"),
+		mssql.WithQueries(queries, query),
+		mssql.WithDatabase("foobar"),
 	)
 
 	container, err := gnomock.Start(p)

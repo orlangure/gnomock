@@ -57,13 +57,13 @@ both existing and planned, are listed below:
 
 | Preset | Repository | Reference |
 |--------|------------|-----------|
-Localstack | https://github.com/orlangure/gnomock-localstack | [Reference](https://pkg.go.dev/github.com/orlangure/gnomock-localstack?tab=doc)
-Splunk | https://github.com/orlangure/gnomock-splunk | [Reference](https://pkg.go.dev/github.com/orlangure/gnomock-splunk?tab=doc)
-Redis | https://github.com/orlangure/gnomock-redis | [Reference](https://pkg.go.dev/github.com/orlangure/gnomock-redis?tab=doc)
-MySQL | https://github.com/orlangure/gnomock-mysql | [Reference](https://pkg.go.dev/github.com/orlangure/gnomock-mysql?tab=doc)
-PostgreSQL | https://github.com/orlangure/gnomock-postgres | [Reference](https://pkg.go.dev/github.com/orlangure/gnomock-postgres?tab=doc)
-Microsoft SQL Server | https://github.com/orlangure/gnomock-mssql | [Reference](https://pkg.go.dev/github.com/orlangure/gnomock-mssql?tab=doc)
-MongoDB | https://github.com/orlangure/gnomock-mongo | [Reference](https://pkg.go.dev/github.com/orlangure/gnomock-mongo?tab=doc)
+Localstack | https://github.com/orlangure/gnomock/tree/master/preset/localstack | [Reference](https://pkg.go.dev/github.com/orlangure/gnomock/preset/localstack?tab=doc)
+Splunk | https://github.com/orlangure/gnomock/tree/master/preset/splunk | [Reference](https://pkg.go.dev/github.com/orlangure/gnomock/preset/splunk?tab=doc)
+Redis | https://github.com/orlangure/gnomock/tree/master/preset/redis | [Reference](https://pkg.go.dev/github.com/orlangure/gnomock/preset/redis?tab=doc)
+MySQL | https://github.com/orlangure/gnomock/tree/master/preset/mysql | [Reference](https://pkg.go.dev/github.com/orlangure/gnomock/preset/mysql?tab=doc)
+PostgreSQL | https://github.com/orlangure/gnomock/tree/master/preset/postgres | [Reference](https://pkg.go.dev/github.com/orlangure/gnomock/preset/postgres?tab=doc)
+Microsoft SQL Server | https://github.com/orlangure/gnomock/tree/master/preset/mssql | [Reference](https://pkg.go.dev/github.com/orlangure/gnomock/preset/mssql?tab=doc)
+MongoDB | https://github.com/orlangure/gnomock/tree/master/preset/mongo | [Reference](https://pkg.go.dev/github.com/orlangure/gnomock/preset/mongo?tab=doc)
 Elasticsearch | |
 DynamoDB | |
 Cassandra | |
@@ -73,7 +73,7 @@ MariaDB | |
 
 Presets allow to easily setup a service that is popular enough to have a public
 Gnomock implementation. Below is a sample
-[Redis](https://github.com/orlangure/gnomock-redis) setup:
+[Redis](https://github.com/orlangure/preset/redis) setup:
 
 ```go
 p := mockredis.Preset()

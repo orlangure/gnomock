@@ -1,4 +1,4 @@
-# Gnomock MongoDB ![Build](https://github.com/orlangure/gnomock-mongo/workflows/Build/badge.svg?branch=master) [![Go Report Card](https://goreportcard.com/badge/github.com/orlangure/gnomock-mongo)](https://goreportcard.com/report/github.com/orlangure/gnomock-mongo)
+# Gnomock MongoDB
 
 Gnomock MongoDB is a [Gnomock](https://github.com/orlangure/gnomock) preset for
 running tests against a real MongoDB container, without mocks.
@@ -11,16 +11,16 @@ import (
 	"fmt"
 
 	"github.com/orlangure/gnomock"
-	mockmongo "github.com/orlangure/gnomock-mongo"
+	"github.com/orlangure/gnomock/preset/mongo"
 	"go.mongodb.org/mongo-driver/bson"
 	mongodb "go.mongodb.org/mongo-driver/mongo"
 	mongooptions "go.mongodb.org/mongo-driver/mongo/options"
 )
 
 func ExamplePreset() {
-	p := mockmongo.Preset(
-		mockmongo.WithData("./testdata/"),
-		mockmongo.WithUser("gnomock", "gnomick"),
+	p := mongo.Preset(
+		mongo.WithData("./testdata/"),
+		mongo.WithUser("gnomock", "gnomick"),
 	)
 	c, err := gnomock.Start(p)
 

@@ -1,4 +1,4 @@
-# Gnomock MySQL ![Build](https://github.com/orlangure/gnomock-mysql/workflows/Build/badge.svg?branch=master) [![Go Report Card](https://goreportcard.com/badge/github.com/orlangure/gnomock-mysql)](https://goreportcard.com/report/github.com/orlangure/gnomock-mysql)
+# Gnomock MySQL
 
 Gnomock MySQL is a [Gnomock](https://github.com/orlangure/gnomock) preset for
 running tests against a real MySQL database, without mocks.
@@ -11,7 +11,7 @@ import (
 	"fmt"
 
 	"github.com/orlangure/gnomock"
-	mockmysql "github.com/orlangure/gnomock-mysql"
+	"github.com/orlangure/gnomock/preset/mysql"
 )
 
 func ExamplePreset() {
@@ -21,10 +21,10 @@ func ExamplePreset() {
 		insert into t (a) values (2);
 	`
 	query := `insert into t (a) values (3);`
-	p := mockmysql.Preset(
-		mockmysql.WithUser("Sherlock", "Holmes"),
-		mockmysql.WithDatabase("books"),
-		mockmysql.WithQueries(queries, query),
+	p := mysql.Preset(
+		mysql.WithUser("Sherlock", "Holmes"),
+		mysql.WithDatabase("books"),
+		mysql.WithQueries(queries, query),
 	)
 
 	container, err := gnomock.Start(p)

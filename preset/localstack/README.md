@@ -1,4 +1,4 @@
-# Gnomock Localstack ![Build](https://github.com/orlangure/gnomock-localstack/workflows/Build/badge.svg?branch=master) [![Go Report Card](https://goreportcard.com/badge/github.com/orlangure/gnomock-localstack)](https://goreportcard.com/report/github.com/orlangure/gnomock-localstack)
+# Gnomock Localstack
 
 Gnomock Localstack is a [Gnomock](https://github.com/orlangure/gnomock) preset
 for running tests against AWS services locally, powered by
@@ -23,7 +23,7 @@ import (
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/s3"
 	"github.com/orlangure/gnomock"
-	localstack "github.com/orlangure/gnomock-localstack"
+	"github.com/orlangure/gnomock/preset/localstack"
 )
 
 func ExamplePreset_s3() {
@@ -32,7 +32,7 @@ func ExamplePreset_s3() {
 
 	defer func() { _ = gnomock.Stop(c) }()
 
-	s3Endpoint := fmt.Sprintf("http://%s/", c.Address(localstack.S3Port))
+	s3Endpoint := fmt.Sprintf("http://%s/", c.Address(localstack.APIPort))
 	config := &aws.Config{
 		Region:           aws.String("us-east-1"),
 		Endpoint:         aws.String(s3Endpoint),
@@ -83,7 +83,7 @@ import (
 	"github.com/aws/aws-sdk-go/service/sns"
 	"github.com/aws/aws-sdk-go/service/sqs"
 	"github.com/orlangure/gnomock"
-	localstack "github.com/orlangure/gnomock-localstack"
+	"github.com/orlangure/gnomock/preset/localstack"
 )
 
 func ExamplePreset_sqs_sns() {

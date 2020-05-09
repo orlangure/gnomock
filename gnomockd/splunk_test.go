@@ -14,8 +14,8 @@ import (
 	"testing"
 
 	"github.com/orlangure/gnomock"
-	splunk "github.com/orlangure/gnomock-splunk"
 	"github.com/orlangure/gnomock/gnomockd"
+	"github.com/orlangure/gnomock/preset/splunk"
 	"github.com/stretchr/testify/require"
 )
 

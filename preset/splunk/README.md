@@ -1,4 +1,4 @@
-# Gnomock Splunk ![Build](https://github.com/orlangure/gnomock-splunk/workflows/Build/badge.svg?branch=master) [![Go Report Card](https://goreportcard.com/badge/github.com/orlangure/gnomock-splunk)](https://goreportcard.com/report/github.com/orlangure/gnomock-splunk)
+# Gnomock Splunk
 
 Gnomock Splunk is a [Gnomock](https://github.com/orlangure/gnomock) preset for
 running tests against a real Splunk container, without mocks.
@@ -12,11 +12,11 @@ import (
 	"time"
 
 	"github.com/orlangure/gnomock"
-	mocksplunk "github.com/orlangure/gnomock-splunk"
+	"github.com/orlangure/gnomock/preset/splunk"
 )
 
 func ExamplePreset() {
-	events := []mocksplunk.Event{
+	events := []splunk.Event{
 		{
 			Event:      "action=foo",
 			Index:      "events",
@@ -33,11 +33,12 @@ func ExamplePreset() {
 		},
 	}
 
-	p := mocksplunk.Preset(
-		mocksplunk.WithLicense(true),
-		mocksplunk.WithPassword("12345678"),
-		mocksplunk.WithValues(events),
-		mocksplunk.WithInitTimeout(time.Second),
+	p := splunk.Preset(
+		splunk.WithVersion("latest"),
+		splunk.WithLicense(true),
+		splunk.WithPassword("12345678"),
+		splunk.WithValues(events),
+		splunk.WithInitTimeout(time.Second*10),
 	)
 
 	// created container now includes two events in "events" index

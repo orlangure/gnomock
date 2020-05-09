@@ -1,4 +1,4 @@
-# Gnomock Redis ![Build](https://github.com/orlangure/gnomock-redis/workflows/Build/badge.svg?branch=master) [![Go Report Card](https://goreportcard.com/badge/github.com/orlangure/gnomock-redis)](https://goreportcard.com/report/github.com/orlangure/gnomock-redis)
+# Gnomock Redis
 
 Gnomock Redis is a [Gnomock](https://github.com/orlangure/gnomock) preset for
 running tests against a real Redis container, without mocks.
@@ -10,25 +10,25 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/go-redis/redis/v7"
+	redisclient "github.com/go-redis/redis/v7"
 	"github.com/orlangure/gnomock"
-	mockredis "github.com/orlangure/gnomock-redis"
+	"github.com/orlangure/gnomock/preset/redis"
 )
 
-func ExampleRedis() {
+func ExamplePreset() {
 	vs := make(map[string]interface{})
 
 	vs["a"] = "foo"
 	vs["b"] = 42
 	vs["c"] = true
 
-	p := mockredis.Preset(mockredis.WithValues(vs))
+	p := redis.Preset(redis.WithValues(vs))
 	container, _ := gnomock.Start(p)
 
 	defer func() { _ = gnomock.Stop(container) }()
 
-	addr := container.Address(gnomock.DefaultPort)
-	client := redis.NewClient(&redis.Options{Addr: addr})
+	addr := container.DefaultAddress()
+	client := redisclient.NewClient(&redisclient.Options{Addr: addr})
 
 	fmt.Println(client.Get("a").Result())
 

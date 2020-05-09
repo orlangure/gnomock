@@ -1,4 +1,4 @@
-# Gnomock Postgres ![Build](https://github.com/orlangure/gnomock-postgres/workflows/Build/badge.svg?branch=master) [![Go Report Card](https://goreportcard.com/badge/github.com/orlangure/gnomock-postgres)](https://goreportcard.com/report/github.com/orlangure/gnomock-postgres)
+# Gnomock Postgres
 
 Gnomock Postgres is a [Gnomock](https://github.com/orlangure/gnomock) preset for
 running tests against a real Postgres database, without mocks.
@@ -11,7 +11,7 @@ import (
 	"fmt"
 
 	"github.com/orlangure/gnomock"
-	mockpostgres "github.com/orlangure/gnomock-postgres"
+	"github.com/orlangure/gnomock/preset/postgres"
 )
 
 func ExamplePreset() {
@@ -21,10 +21,10 @@ func ExamplePreset() {
 		insert into t (a) values (2);
 	`
 	query := `insert into t (a) values (3);`
-	p := mockpostgres.Preset(
-		mockpostgres.WithUser("gnomock", "gnomick"),
-		mockpostgres.WithDatabase("mydb"),
-		mockpostgres.WithQueries(queries, query),
+	p := postgres.Preset(
+		postgres.WithUser("gnomock", "gnomick"),
+		postgres.WithDatabase("mydb"),
+		postgres.WithQueries(queries, query),
 	)
 
 	container, err := gnomock.Start(p)
