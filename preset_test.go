@@ -4,8 +4,8 @@ import (
 	"database/sql"
 	"fmt"
 
+	"github.com/orlangure/gnomock"
 	mockpostgres "github.com/orlangure/gnomock-postgres"
-	"github.com/orlangure/gnomock/gnomock"
 )
 
 func ExamplePreset() {

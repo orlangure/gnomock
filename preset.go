@@ -7,7 +7,7 @@ import (
 	"io/ioutil"
 
 	_ "github.com/lib/pq" // postgres driver
-	"github.com/orlangure/gnomock/gnomock"
+	"github.com/orlangure/gnomock"
 )
 
 const defaultUser = "postgres"
