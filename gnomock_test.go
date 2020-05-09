@@ -1,3 +1,5 @@
+// +build !nognomock
+
 //nolint:gosec
 package gnomock_test
 
