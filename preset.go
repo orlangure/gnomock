@@ -8,7 +8,7 @@ import (
 	"time"
 
 	_ "github.com/denisenkom/go-mssqldb" // mssql driver
-	"github.com/orlangure/gnomock"
+	"github.com/orlangure/gnomock/gnomock"
 )
 
 const masterDB = "master"

@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/orlangure/gnomock"
 	mockmssql "github.com/orlangure/gnomock-mssql"
+	"github.com/orlangure/gnomock/gnomock"
 	"github.com/stretchr/testify/require"
 )
 
