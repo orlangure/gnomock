@@ -7,7 +7,7 @@ import (
 	"fmt"
 
 	redisclient "github.com/go-redis/redis/v7"
-	"github.com/orlangure/gnomock"
+	"github.com/orlangure/gnomock/gnomock"
 )
 
 // Preset creates a new Gmomock Redis preset. This preset includes a Redis
