@@ -4,8 +4,8 @@ import (
 	"database/sql"
 	"fmt"
 
-	"github.com/orlangure/gnomock"
 	mockmysql "github.com/orlangure/gnomock-mysql"
+	"github.com/orlangure/gnomock/gnomock"
 )
 
 func ExamplePreset() {

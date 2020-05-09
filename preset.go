@@ -9,7 +9,7 @@ import (
 	"time"
 
 	mysqldriver "github.com/go-sql-driver/mysql"
-	"github.com/orlangure/gnomock"
+	"github.com/orlangure/gnomock/gnomock"
 )
 
 const defaultUser = "gnomock"
