@@ -1,13 +1,13 @@
 openapi: 3.0.0
 info:
-  title: gnomockd
+  title: gnomock
   description: >
-    `gnomockd` is an HTTP wrapper for
+    `gnomock` is an HTTP wrapper for
     [Gnomock](https://github.com/orlangure/gnomock) integration and end-to-end
     testing toolkit. It allows to use Gnomock outside of Go ecosystem. Not all
     Gnomock features exist in this wrapper, but official presets, as well as
     basic general configuration, are supported.
-  version: 0.1.0
+  version: 0.1.1
   contact:
     url: https://github.com/orlangure/gnomock/
   license:
@@ -650,7 +650,7 @@ tags:
 servers:
   - url: http://127.0.0.1:{port}/
     description: >
-      `gnomockd` runs locally in an environment with a configured docker
+      `gnomock` runs locally in an environment with a configured docker
       daemon.
     variables:
       port:

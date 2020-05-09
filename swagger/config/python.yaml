@@ -1,3 +1,4 @@
 projectName: gnomock-python-sdk
 projectUrl: https://github.com/orlangure/gnomock
 packageName: gnomock
+packageVersion: 1.0.1
