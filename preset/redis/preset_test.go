@@ -6,9 +6,9 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/go-redis/redis/v7"
+	redisclient "github.com/go-redis/redis/v7"
 	"github.com/orlangure/gnomock"
-	mockredis "github.com/orlangure/gnomock-redis"
+	"github.com/orlangure/gnomock/preset/redis"
 	"github.com/stretchr/testify/require"
 )
 
@@ -19,13 +19,13 @@ func ExamplePreset() {
 	vs["b"] = 42
 	vs["c"] = true
 
-	p := mockredis.Preset(mockredis.WithValues(vs))
+	p := redis.Preset(redis.WithValues(vs))
 	container, _ := gnomock.Start(p)
 
 	defer func() { _ = gnomock.Stop(container) }()
 
 	addr := container.DefaultAddress()
-	client := redis.NewClient(&redis.Options{Addr: addr})
+	client := redisclient.NewClient(&redisclient.Options{Addr: addr})
 
 	fmt.Println(client.Get("a").Result())
 
@@ -47,7 +47,7 @@ func ExamplePreset() {
 
 func TestRedis_wrongValue(t *testing.T) {
 	vs := map[string]interface{}{"a": []string{"b", "c"}}
-	p := mockredis.Preset(mockredis.WithValues(vs))
+	p := redis.Preset(redis.WithValues(vs))
 
 	c, err := gnomock.Start(p)
 

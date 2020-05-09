@@ -14,7 +14,7 @@ import (
 	"github.com/aws/aws-sdk-go/service/sns"
 	"github.com/aws/aws-sdk-go/service/sqs"
 	"github.com/orlangure/gnomock"
-	localstack "github.com/orlangure/gnomock-localstack"
+	"github.com/orlangure/gnomock/preset/localstack"
 )
 
 func ExamplePreset_s3() {

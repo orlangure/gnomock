@@ -17,12 +17,12 @@ import (
 	"time"
 
 	"github.com/orlangure/gnomock"
-	mocksplunk "github.com/orlangure/gnomock-splunk"
+	"github.com/orlangure/gnomock/preset/splunk"
 	"github.com/stretchr/testify/require"
 )
 
 func ExamplePreset() {
-	events := []mocksplunk.Event{
+	events := []splunk.Event{
 		{
 			Event:      "action=foo",
 			Index:      "events",
@@ -39,12 +39,12 @@ func ExamplePreset() {
 		},
 	}
 
-	p := mocksplunk.Preset(
-		mocksplunk.WithVersion("latest"),
-		mocksplunk.WithLicense(true),
-		mocksplunk.WithPassword("12345678"),
-		mocksplunk.WithValues(events),
-		mocksplunk.WithInitTimeout(time.Second*10),
+	p := splunk.Preset(
+		splunk.WithVersion("latest"),
+		splunk.WithLicense(true),
+		splunk.WithPassword("12345678"),
+		splunk.WithValues(events),
+		splunk.WithInitTimeout(time.Second*10),
 	)
 
 	// created container now includes two events in "events" index
@@ -79,10 +79,10 @@ func ExamplePreset() {
 
 //nolint:funlen
 func TestPreset(t *testing.T) {
-	events := make([]mocksplunk.Event, 1000)
+	events := make([]splunk.Event, 1000)
 
 	for i := range events {
-		e := mocksplunk.Event{
+		e := splunk.Event{
 			Index:      "foo",
 			Source:     "bar",
 			SourceType: "baz",
@@ -101,19 +101,19 @@ func TestPreset(t *testing.T) {
 		events[i] = e
 	}
 
-	p := mocksplunk.Preset(
-		mocksplunk.WithVersion("8.0.2.1"),
-		mocksplunk.WithLicense(true),
-		mocksplunk.WithPassword("12345678"),
-		mocksplunk.WithValues(events),
-		mocksplunk.WithInitTimeout(time.Second*20),
+	p := splunk.Preset(
+		splunk.WithVersion("8.0.2.1"),
+		splunk.WithLicense(true),
+		splunk.WithPassword("12345678"),
+		splunk.WithValues(events),
+		splunk.WithInitTimeout(time.Second*20),
 	)
 	c, err := gnomock.Start(p)
 
 	defer func() { require.NoError(t, gnomock.Stop(c)) }()
 	require.NoError(t, err)
 
-	err = mocksplunk.Ingest(context.Background(), c, "12345678", mocksplunk.Event{
+	err = splunk.Ingest(context.Background(), c, "12345678", splunk.Event{
 		Index:      "foo",
 		Source:     "bar",
 		SourceType: "baz",
@@ -136,7 +136,7 @@ func TestPreset(t *testing.T) {
 		data.Add("output_mode", "json")
 		buf := bytes.NewBufferString(data.Encode())
 
-		addr := fmt.Sprintf("https://%s/services/search/jobs/export", c.Address(mocksplunk.APIPort))
+		addr := fmt.Sprintf("https://%s/services/search/jobs/export", c.Address(splunk.APIPort))
 		req, err := http.NewRequest(http.MethodPost, addr, buf)
 		require.NoError(t, err)
 		req.SetBasicAuth("admin", "12345678")
@@ -159,10 +159,10 @@ func TestPreset(t *testing.T) {
 	})
 
 	t.Run("context canceled", func(t *testing.T) {
-		events := make([]mocksplunk.Event, 1000)
+		events := make([]splunk.Event, 1000)
 
 		for i := range events {
-			e := mocksplunk.Event{
+			e := splunk.Event{
 				Index:      "foo",
 				Source:     "bar",
 				SourceType: "baz",
@@ -184,7 +184,7 @@ func TestPreset(t *testing.T) {
 		ctx, cancel := context.WithCancel(context.Background())
 		cancel()
 
-		err = mocksplunk.Ingest(ctx, c, "12345678", events...)
+		err = splunk.Ingest(ctx, c, "12345678", events...)
 		require.Truef(t, errors.Is(err, context.Canceled), "want context.Canceled, got %v", err)
 	})
 }

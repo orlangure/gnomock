@@ -8,7 +8,7 @@ import (
 	"testing"
 
 	"github.com/orlangure/gnomock"
-	mockmssql "github.com/orlangure/gnomock-mssql"
+	"github.com/orlangure/gnomock/preset/mssql"
 	"github.com/stretchr/testify/require"
 )
 
@@ -19,11 +19,11 @@ func ExamplePreset() {
 		insert into t (a) values (2);
 	`
 	query := `insert into t (a) values (3);`
-	p := mockmssql.Preset(
-		mockmssql.WithLicense(true),
-		mockmssql.WithAdminPassword("Passw0rd-"),
-		mockmssql.WithQueries(queries, query),
-		mockmssql.WithDatabase("foobar"),
+	p := mssql.Preset(
+		mssql.WithLicense(true),
+		mssql.WithAdminPassword("Passw0rd-"),
+		mssql.WithQueries(queries, query),
+		mssql.WithDatabase("foobar"),
 	)
 
 	container, err := gnomock.Start(p)
@@ -70,9 +70,9 @@ func TestMSSQL_defaultValues(t *testing.T) {
 		insert into t (a) values (2);
 	`
 	query := `insert into t (a) values (3);`
-	p := mockmssql.Preset(
-		mockmssql.WithLicense(true),
-		mockmssql.WithQueries(queries, query),
+	p := mssql.Preset(
+		mssql.WithLicense(true),
+		mssql.WithQueries(queries, query),
 	)
 
 	container, err := gnomock.Start(p)
