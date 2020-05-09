@@ -3,13 +3,13 @@ package preset
 
 import (
 	"github.com/orlangure/gnomock"
-	localstack "github.com/orlangure/gnomock-localstack"
-	mongo "github.com/orlangure/gnomock-mongo"
-	mssql "github.com/orlangure/gnomock-mssql"
-	mysql "github.com/orlangure/gnomock-mysql"
-	postgres "github.com/orlangure/gnomock-postgres"
-	redis "github.com/orlangure/gnomock-redis"
-	splunk "github.com/orlangure/gnomock-splunk"
+	"github.com/orlangure/gnomock/preset/localstack"
+	"github.com/orlangure/gnomock/preset/mongo"
+	"github.com/orlangure/gnomock/preset/mssql"
+	"github.com/orlangure/gnomock/preset/mysql"
+	"github.com/orlangure/gnomock/preset/postgres"
+	"github.com/orlangure/gnomock/preset/redis"
+	"github.com/orlangure/gnomock/preset/splunk"
 )
 
 // Preseter is a type that creates Gnomock Presets given their name
