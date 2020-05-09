@@ -129,7 +129,15 @@ func (p *P) connect(addr string) (*sql.DB, error) {
 		p.User, p.Password, addr, p.DB,
 	)
 
-	return sql.Open("mysql", connStr)
+	db, err := sql.Open("mysql", connStr)
+	if err != nil {
+		return nil, err
+	}
+
+	// attempt to solve "driver: bad connection issue"
+	db.SetConnMaxLifetime(time.Second * 10)
+
+	return db, nil
 }
 
 func (p *P) setDefaults() {

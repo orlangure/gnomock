@@ -7,6 +7,7 @@ require (
 	github.com/docker/docker v1.13.1
 	github.com/docker/go-connections v0.4.0
 	github.com/go-redis/redis v6.15.7+incompatible
+	github.com/go-sql-driver/mysql v1.5.0
 	github.com/gorilla/mux v1.7.4
 	github.com/orlangure/gnomock-localstack v0.7.0
 	github.com/orlangure/gnomock-mongo v0.7.0
