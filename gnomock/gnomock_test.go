@@ -11,7 +11,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/orlangure/gnomock"
+	"github.com/orlangure/gnomock/gnomock"
 	"github.com/stretchr/testify/require"
 )
 

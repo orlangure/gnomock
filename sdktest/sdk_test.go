@@ -7,7 +7,7 @@ import (
 	"os/exec"
 	"testing"
 
-	"github.com/orlangure/gnomockd/gnomockd"
+	"github.com/orlangure/gnomock/gnomockd"
 	"github.com/stretchr/testify/require"
 )
 

@@ -7,7 +7,7 @@ import (
 	"net/http"
 	"os"
 
-	"github.com/orlangure/gnomockd/gnomockd"
+	"github.com/orlangure/gnomock/gnomockd"
 )
 
 var version string

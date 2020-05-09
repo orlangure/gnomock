@@ -7,8 +7,8 @@ import (
 	"net/http"
 
 	"github.com/gorilla/mux"
-	"github.com/orlangure/gnomockd/errors"
-	"github.com/orlangure/gnomockd/preset"
+	"github.com/orlangure/gnomock/errors"
+	"github.com/orlangure/gnomock/preset"
 )
 
 // Handler returns an HTTP handler ready to serve incoming connections

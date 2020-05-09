@@ -9,10 +9,10 @@ info:
     basic general configuration, are supported.
   version: 0.1.0
   contact:
-    url: https://github.com/orlangure/gnomockd/
+    url: https://github.com/orlangure/gnomock/
   license:
     name: MIT
-    url: https://github.com/orlangure/gnomockd/blob/master/LICENSE
+    url: https://github.com/orlangure/gnomock/blob/master/LICENSE
 
 paths:
   /start/localstack:
