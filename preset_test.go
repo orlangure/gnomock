@@ -14,8 +14,8 @@ import (
 	"testing"
 	"time"
 
+	"github.com/orlangure/gnomock"
 	mocksplunk "github.com/orlangure/gnomock-splunk"
-	"github.com/orlangure/gnomock/gnomock"
 	"github.com/stretchr/testify/require"
 )
 
