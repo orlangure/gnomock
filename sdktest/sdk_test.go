@@ -1,3 +1,5 @@
+// +build !nosdk
+
 package sdktest
 
 import (
