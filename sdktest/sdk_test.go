@@ -33,9 +33,11 @@ func testMain(m *testing.M) int {
 }
 
 func TestPython(t *testing.T) {
+	t.Parallel()
+
 	require.NoError(t, os.Chdir("./python"))
 
-	cmd := exec.Command("./run.sh")
+	cmd := exec.Command("/bin/bash", "./run.sh")
 	out, err := cmd.CombinedOutput()
 	require.NoErrorf(t, err, "got error with output: %s", string(out))
 }

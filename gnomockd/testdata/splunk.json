@@ -4,9 +4,6 @@
         "admin_password": "12345678",
         "accept_license": true,
         "version": "8.0.2.1",
-        "init_timeout": 30000000000
-    },
-    "options": {
-        "start_timeout": 240000000000
+        "init_timeout": 60000000000
     }
 }

@@ -6,7 +6,6 @@
         }
     },
     "options": {
-        "tag": "5",
-        "start_timeout": 120000000000
+        "tag": "5"
     }
 }

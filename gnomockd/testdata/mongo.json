@@ -5,7 +5,6 @@
         "password": "foobar"
     },
     "options": {
-        "tag": "3",
-        "start_timeout": 120000000000
+        "tag": "3"
     }
 }

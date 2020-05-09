@@ -10,7 +10,6 @@
         "license": true
     },
     "options": {
-        "tag": "2019-latest",
-        "start_timeout": 120000000000
+        "tag": "2019-latest"
     }
 }
