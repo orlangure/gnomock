@@ -4,7 +4,6 @@
 
 🎁 Setup initial dependency state – easily!
 
-<<<<<<< HEAD
 🏭 Test against actual, close to production software
 
 ⏳ Spend no time writing mocks
