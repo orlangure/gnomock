@@ -49,15 +49,9 @@ $ cat mysql-preset.json
       "create table foo(bar int)",
       "insert into foo(bar) values(1)"
     ],
-    "queries_file": "/home/gnomock/project/testdata/mysql/queries"
+    "queries_file": "/home/gnomock/project/testdata/mysql/queries.sql"
   },
-  "options": {
-    "start_timeout": 120000000000,
-    "wait_timeout": 30000000000,
-    "env": [
-      "ENV_VAR_NAME=some-value"
-    ],
-  }
+  "options": {}
 }
 
 $ curl --data @mysql-preset.json http://127.0.0.1:23042/start/mysql
