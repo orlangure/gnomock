@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"io/ioutil"
 	"log"
-	"time"
 
 	mysqldriver "github.com/go-sql-driver/mysql"
 	"github.com/orlangure/gnomock"
@@ -64,7 +63,6 @@ func (p *P) Options() []gnomock.Option {
 		gnomock.WithEnv("MYSQL_DATABASE=" + p.DB),
 		gnomock.WithEnv("MYSQL_RANDOM_ROOT_PASSWORD=yes"),
 		gnomock.WithInit(p.initf()),
-		gnomock.WithWaitTimeout(time.Second * 30),
 	}
 
 	return opts
@@ -142,10 +140,7 @@ func (p *P) connect(addr string) (*sql.DB, error) {
 		return nil, err
 	}
 
-	// attempt to solve "driver: bad connection issue"
-	db.SetConnMaxLifetime(time.Second * 10)
-
-	return db, nil
+	return db, db.Ping()
 }
 
 func (p *P) setDefaults() {
