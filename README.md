@@ -30,50 +30,64 @@ OpenAPI 3.0
 programs can use extended Gnomock package directly, without HTTP layer, while
 other languages require communication with a local server.
 
-### Using Gnomock in Go applications
-
-See package [reference](https://pkg.go.dev/github.com/orlangure/gnomock?tab=doc).
-
-For Preset documentation, refer to [Presets](#official-presets) section.
-
-### Using Gnomock in other languages
+### Using Gnomock server
 
 Gnomock runs as a local server, and any program in any language can communicate
 with it using OpenAPI 3.0
-[specification](https://app.swaggerhub.com/apis/orlangure/gnomock/1.0.1). Below
-are some language specific wrappers for Gnomock API:
+[specification](https://app.swaggerhub.com/apis/orlangure/gnomock/1.0.1).
+
+Below is an example of setting up a **MySQL** container using a `POST` request:
+
+```
+$ cat mysql-preset.json
+{
+  "preset": {
+    "db": "mydb",
+    "user": "gnomock",
+    "password": "p@s$w0rD",
+    "queries": [
+      "create table foo(bar int)",
+      "insert into foo(bar) values(1)"
+    ],
+    "queries_file": "/home/gnomock/project/testdata/mysql/queries"
+  },
+  "options": {
+    "start_timeout": 120000000000,
+    "wait_timeout": 30000000000,
+    "env": [
+      "ENV_VAR_NAME=some-value"
+    ],
+  }
+}
+
+$ curl --data @mysql-preset.json http://127.0.0.1:23042/start/mysql
+{
+  "id": "f5d08dc84421",
+  "host": "string",
+  "ports": {
+    "default": {
+      "protocol": "tcp",
+      "port": 35973
+    }
+  }
+}
+```
+
+There are auto-generated wrappers for the available API:
 
 - [Python SDK](https://github.com/orlangure/gnomock-python-sdk)
-- Javascript SDK
+- JavaScript SDK
 - PHP SDK
 - Ruby SDK
 - Java SDK
 - [Other](https://openapi-generator.tech/docs/generators) languages
 
-## Official presets
+**For more details and a full specification, see
+[documentation](https://app.swaggerhub.com/apis/orlangure/gnomock/1.0.1).**
 
-The power of Gnomock is in the Presets developed by the community. Presets,
-both existing and planned, are listed below:
+### Using Gnomock in Go applications
 
-| Preset | Repository | Reference |
-|--------|------------|-----------|
-Localstack | https://github.com/orlangure/gnomock/tree/master/preset/localstack | [Reference](https://pkg.go.dev/github.com/orlangure/gnomock/preset/localstack?tab=doc)
-Splunk | https://github.com/orlangure/gnomock/tree/master/preset/splunk | [Reference](https://pkg.go.dev/github.com/orlangure/gnomock/preset/splunk?tab=doc)
-Redis | https://github.com/orlangure/gnomock/tree/master/preset/redis | [Reference](https://pkg.go.dev/github.com/orlangure/gnomock/preset/redis?tab=doc)
-MySQL | https://github.com/orlangure/gnomock/tree/master/preset/mysql | [Reference](https://pkg.go.dev/github.com/orlangure/gnomock/preset/mysql?tab=doc)
-PostgreSQL | https://github.com/orlangure/gnomock/tree/master/preset/postgres | [Reference](https://pkg.go.dev/github.com/orlangure/gnomock/preset/postgres?tab=doc)
-Microsoft SQL Server | https://github.com/orlangure/gnomock/tree/master/preset/mssql | [Reference](https://pkg.go.dev/github.com/orlangure/gnomock/preset/mssql?tab=doc)
-MongoDB | https://github.com/orlangure/gnomock/tree/master/preset/mongo | [Reference](https://pkg.go.dev/github.com/orlangure/gnomock/preset/mongo?tab=doc)
-Elasticsearch | |
-DynamoDB | |
-Cassandra | |
-MariaDB | |
-
-## Preset usage
-
-Presets allow to easily setup a service that is popular enough to have a public
-Gnomock implementation. Below is a sample
-[Redis](https://github.com/orlangure/preset/redis) setup:
+Setting up a Redis container example:
 
 ```go
 p := mockredis.Preset()
@@ -85,57 +99,25 @@ addr := container.DefaultAddress()
 client := redis.NewClient(&redis.Options{Addr: addr})
 ```
 
-With Gnomock it is easy to setup complex environments using multiple presets.
-It could be done in parallel. For example, below is a dependency stack of a Go
-program that uses Postgres database, Redis cache, AWS S3 storage and AWS SES:
+See package [reference](https://pkg.go.dev/github.com/orlangure/gnomock?tab=doc).
 
-```go
-containers, err := gnomock.InParallel().
-    Start(mockredis.Preset()).
-    Start(mockpostgres.Preset(), mockpostgres.WithUser("user", "pass")).
-    Start(
-            localstack.Preset(),
-            localstack.WithServices(localstack.S3, localstack.SES),
-         ).
-    Go()
+For Preset documentation, refer to [Presets](#official-presets) section.
 
-defer func() { _ = gnomock.Stop(containers...) }()
-```
+## Official presets
 
-## Usage without presets
+The power of Gnomock is in the Presets developed by the community. Presets,
+both existing and planned, are listed below:
 
-Gnomock can be used directly, without Presets. It requires a bit more work
-since every use case needs its own healthcheck and initialization
-implementation, as well as detailed configuration targeted at that particular
-use case:
-
-```go
-// assuming the container exposes 2 ports
-namedPorts := gnomock.NamedPorts{
-    "web80":   gnomock.TCP(80),
-    "web8080": gnomock.TCP(8080),
-}
-
-// see docs for option description
-container, err := gnomock.StartCustom(
-    testImage, namedPorts,
-    gnomock.WithHealthCheckInterval(time.Microsecond*500),
-    gnomock.WithHealthCheck(healthcheck),
-    gnomock.WithInit(initf),
-    gnomock.WithContext(context.Background()),
-    gnomock.WithStartTimeout(time.Second*30),
-    gnomock.WithWaitTimeout(time.Second*1),
-    gnomock.WithEnv("GNOMOCK_TEST_1=foo"),
-    gnomock.WithEnv("GNOMOCK_TEST_2=bar"),
-)
-
-// stop and remove the container after tests
-defer gnomock.Stop(container)
-
-// ports bound on host are different from the ports containers expose
-addr80 := container.Address("web80")
-addr8080 := container.Address("web8080")
-```
-
-To keep test code clean and simple, it is better to wrap custom use cases with
-Preset implementation, that can be contributed back to the community.
+| Preset | Go package | HTTP API | Go API |
+|--------|------------|----------|-----------|
+Localstack | https://github.com/orlangure/gnomock/tree/master/preset/localstack | [Docs](https://app.swaggerhub.com/apis/orlangure/gnomock/1.0.1#/presets/startLocalstack) | [Reference](https://pkg.go.dev/github.com/orlangure/gnomock/preset/localstack?tab=doc)
+Splunk | https://github.com/orlangure/gnomock/tree/master/preset/splunk | [Docs](https://app.swaggerhub.com/apis/orlangure/gnomock/1.0.1#/presets/startSplunk) | [Reference](https://pkg.go.dev/github.com/orlangure/gnomock/preset/splunk?tab=doc)
+Redis | https://github.com/orlangure/gnomock/tree/master/preset/redis | [Docs](https://app.swaggerhub.com/apis/orlangure/gnomock/1.0.1#/presets/startRedis) | [Reference](https://pkg.go.dev/github.com/orlangure/gnomock/preset/redis?tab=doc)
+MySQL | https://github.com/orlangure/gnomock/tree/master/preset/mysql | [Docs](https://app.swaggerhub.com/apis/orlangure/gnomock/1.0.1#/presets/startMysql) | [Reference](https://pkg.go.dev/github.com/orlangure/gnomock/preset/mysql?tab=doc)
+PostgreSQL | https://github.com/orlangure/gnomock/tree/master/preset/postgres | [Docs](https://app.swaggerhub.com/apis/orlangure/gnomock/1.0.1#/presets/startPostgres) | [Reference](https://pkg.go.dev/github.com/orlangure/gnomock/preset/postgres?tab=doc)
+Microsoft SQL Server | https://github.com/orlangure/gnomock/tree/master/preset/mssql | [Docs](https://app.swaggerhub.com/apis/orlangure/gnomock/1.0.1#/presets/startMssql) | [Reference](https://pkg.go.dev/github.com/orlangure/gnomock/preset/mssql?tab=doc)
+MongoDB | https://github.com/orlangure/gnomock/tree/master/preset/mongo | [Docs](https://app.swaggerhub.com/apis/orlangure/gnomock/1.0.1#/presets/startMongo) | [Reference](https://pkg.go.dev/github.com/orlangure/gnomock/preset/mongo?tab=doc)
+Elasticsearch | |
+DynamoDB | |
+Cassandra | |
+MariaDB | |
