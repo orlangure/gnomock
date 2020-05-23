@@ -30,6 +30,40 @@ OpenAPI 3.0
 programs can use extended Gnomock package directly, without HTTP layer, while
 other languages require communication with a local server.
 
+Gnomock **requires** a running and working Docker daemon running locally in the
+same environment.
+
+### Using Gnomock in Go applications
+
+Gnomock can be used in Go programs directly, without running a local server.
+See the following example to get started:
+
+```
+go get github.com/orlangure/gnomock
+```
+
+Setting up a Redis container example:
+
+```go
+import (
+	redisclient "github.com/go-redis/redis/v7"
+	"github.com/orlangure/gnomock"
+	"github.com/orlangure/gnomock/preset/redis"
+)
+
+p := redis.Preset()
+container, _ := gnomock.Start(p)
+
+defer func() { _ = gnomock.Stop(container) }()
+
+addr := container.DefaultAddress()
+client := redisclient.NewClient(&redisclient.Options{Addr: addr})
+```
+
+See package [reference](https://pkg.go.dev/github.com/orlangure/gnomock?tab=doc).
+
+For Preset documentation, refer to [Presets](#official-presets) section.
+
 ### Using Gnomock server
 
 Gnomock runs as a local server, and any program in any language can communicate
@@ -79,23 +113,8 @@ There are auto-generated wrappers for the available API:
 **For more details and a full specification, see
 [documentation](https://app.swaggerhub.com/apis/orlangure/gnomock/1.0.1).**
 
-### Using Gnomock in Go applications
-
-Setting up a Redis container example:
-
-```go
-p := mockredis.Preset()
-container, _ := gnomock.Start(p)
-
-defer func() { _ = gnomock.Stop(container) }()
-
-addr := container.DefaultAddress()
-client := redis.NewClient(&redis.Options{Addr: addr})
-```
-
-See package [reference](https://pkg.go.dev/github.com/orlangure/gnomock?tab=doc).
-
-For Preset documentation, refer to [Presets](#official-presets) section.
+Installation instruction, as well as pre-compiled binaries for MacOS and Linux,
+are coming soon.
 
 ## Official presets
 
@@ -119,3 +138,33 @@ MariaDB | |
 It is possible to use Gnomock directly from Go code without any presets. HTTP
 API only allows to setup containers using presets that exist in this
 repository.
+
+## Troubleshooting
+
+### Tests with Gnomock take too long and time-out eventually
+
+It happens a lot locally if your internet isn't fast enough to pull docker
+images used in tests. In CI, such as in Github Actions, the images are
+downloaded very quickly. To work around this issue locally, pull the image
+manually before running the tests. You only need to do it once, the images stay
+in local cache until deleted. For example, to pull Postgres 11 image, run:
+
+```
+docker pull postgres:11
+```
+
+### Tests time-out even when the image exists locally
+
+It can happen if the containers can't become ready to use before they time out.
+By default, Gnomock uses fairly high timeouts for new containers (for starting
+and for setting them up). If you choose to change default timeouts using
+`WithWaitTimeout` (`wait_timeout` in HTTP) or `WithInitTimeout` (`init_timeout`
+in HTTP), it is possible that the values you choose are too short.
+
+### Tests pass when run one-by-one, and fail when run in parallel
+
+It happens when you try to start up **a lot** of containers at the same time.
+The system, especially in CI environments such as Github Actions, cannot handle
+the load, and containers fail to become healthy before they time-out. That's
+the reason Gnomock has a few separate build jobs, each running only a small
+subset of tests, one package at a time.
