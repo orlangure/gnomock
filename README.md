@@ -99,8 +99,8 @@ For Preset documentation, refer to [Presets](#official-presets) section.
 
 ## Official presets
 
-The power of Gnomock is in the Presets developed by the community. Presets,
-both existing and planned, are listed below:
+The power of Gnomock is in the Presets. Presets, both existing and planned, are
+listed below:
 
 | Preset | Go package | HTTP API | Go API |
 |--------|------------|----------|-----------|
@@ -115,3 +115,7 @@ Elasticsearch | |
 DynamoDB | |
 Cassandra | |
 MariaDB | |
+
+It is possible to use Gnomock directly from Go code without any presets. HTTP
+API only allows to setup containers using presets that exist in this
+repository.
