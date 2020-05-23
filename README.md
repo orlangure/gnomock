@@ -22,7 +22,7 @@ implementing a specific database, service or other tools. Each preset provides
 ways of setting up its initial state as easily as possible: SQL schema
 creation, test data upload into S3, sending test events to Splunk, etc.
 
-## Documentation
+## Overview
 
 Gnomock runs locally and exposes an API over HTTP. This API is defined using
 OpenAPI 3.0
