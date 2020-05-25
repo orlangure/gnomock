@@ -41,10 +41,6 @@ func TestGnomock_happyFlow(t *testing.T) {
 		gnomock.WithEnv("GNOMOCK_TEST_2=bar"),
 	)
 
-	defer func() {
-		require.NoError(t, gnomock.Stop(container))
-	}()
-
 	require.NoError(t, err)
 	require.NotNil(t, container)
 
@@ -53,6 +49,8 @@ func TestGnomock_happyFlow(t *testing.T) {
 
 	addr = fmt.Sprintf("http://%s/", container.Address("web8080"))
 	requireResponse(t, addr, "8080")
+
+	require.NoError(t, gnomock.Stop(container))
 }
 
 func TestGnomock_wrongPort(t *testing.T) {
@@ -63,13 +61,9 @@ func TestGnomock_wrongPort(t *testing.T) {
 		gnomock.WithHealthCheck(healthcheck),
 		gnomock.WithWaitTimeout(time.Millisecond*50),
 	)
-
-	defer func() {
-		require.NoError(t, gnomock.Stop(container))
-	}()
-
 	require.Error(t, err)
-	require.NotNil(t, container)
+	require.Nil(t, container)
+	require.NoError(t, gnomock.Stop(container))
 }
 
 func TestGnomock_cancellation(t *testing.T) {
@@ -87,12 +81,9 @@ func TestGnomock_cancellation(t *testing.T) {
 		gnomock.WithHealthCheck(healthcheck),
 		gnomock.WithContext(ctx),
 	)
-
-	defer func() {
-		require.NoError(t, gnomock.Stop(container))
-	}()
-
 	require.True(t, errors.Is(err, context.Canceled))
+	require.Nil(t, container)
+	require.NoError(t, gnomock.Stop(container))
 }
 
 func TestGnomock_defaultHealthcheck(t *testing.T) {
@@ -120,12 +111,9 @@ func TestGnomock_initError(t *testing.T) {
 		testImage, gnomock.DefaultTCP(goodPort80),
 		gnomock.WithInit(initWithErr),
 	)
-
-	defer func() {
-		require.NoError(t, gnomock.Stop(container))
-	}()
-
 	require.True(t, errors.Is(err, errNope))
+	require.Nil(t, container)
+	require.NoError(t, gnomock.Stop(container))
 }
 
 func TestGnomock_cantStart(t *testing.T) {
@@ -135,10 +123,9 @@ func TestGnomock_cantStart(t *testing.T) {
 		"docker.io/orlangure/noimage",
 		gnomock.DefaultTCP(goodPort80),
 	)
-
-	defer func() { require.NoError(t, gnomock.Stop(container)) }()
-
 	require.Error(t, err)
+	require.Nil(t, container)
+	require.NoError(t, gnomock.Stop(container))
 }
 
 func TestGnomock_withLogWriter(t *testing.T) {

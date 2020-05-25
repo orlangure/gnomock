@@ -5,6 +5,7 @@ package gnomock_test
 import (
 	"fmt"
 	"testing"
+	"time"
 
 	"github.com/orlangure/gnomock"
 	"github.com/stretchr/testify/require"
@@ -36,7 +37,7 @@ func TestPreset(t *testing.T) {
 	t.Parallel()
 
 	p := &testPreset{testImage}
-	container, err := gnomock.Start(p)
+	container, err := gnomock.Start(p, gnomock.WithStartTimeout(time.Second))
 
 	defer func(c *gnomock.Container) {
 		require.NoError(t, gnomock.Stop(c))

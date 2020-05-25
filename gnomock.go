@@ -47,9 +47,17 @@ func StartCustom(image string, ports NamedPorts, opts ...Option) (c *Container, 
 		return nil, fmt.Errorf("can't start container: %w", err)
 	}
 
+	defer func() {
+		if err != nil {
+			if Stop(c) == nil {
+				c = nil
+			}
+		}
+	}()
+
 	logReader, err := cli.readLogs(context.Background(), c.ID)
 	if err != nil {
-		return nil, fmt.Errorf("can't setup log forwarding: %w", err)
+		return c, fmt.Errorf("can't setup log forwarding: %w", err)
 	}
 
 	g := &errgroup.Group{}
