@@ -26,7 +26,7 @@ creation, test data upload into S3, sending test events to Splunk, etc.
 
 Gnomock runs locally and exposes an API over HTTP. This API is defined using
 OpenAPI 3.0
-[specification](https://app.swaggerhub.com/apis/orlangure/gnomock/1.0.1). Go
+[specification](https://app.swaggerhub.com/apis/orlangure/gnomock/1.1.1). Go
 programs can use extended Gnomock package directly, without HTTP layer, while
 other languages require communication with a local server.
 
@@ -68,7 +68,7 @@ For Preset documentation, refer to [Presets](#official-presets) section.
 
 Gnomock runs as a local server, and any program in any language can communicate
 with it using OpenAPI 3.0
-[specification](https://app.swaggerhub.com/apis/orlangure/gnomock/1.0.1).
+[specification](https://app.swaggerhub.com/apis/orlangure/gnomock/1.1.1).
 
 Below is an example of setting up a **MySQL** container using a `POST` request:
 
@@ -111,7 +111,7 @@ There are auto-generated wrappers for the available API:
 - [Other](https://openapi-generator.tech/docs/generators) languages
 
 **For more details and a full specification, see
-[documentation](https://app.swaggerhub.com/apis/orlangure/gnomock/1.0.1).**
+[documentation](https://app.swaggerhub.com/apis/orlangure/gnomock/1.1.1).**
 
 Installation instruction, as well as pre-compiled binaries for MacOS and Linux,
 are coming soon.
@@ -123,13 +123,13 @@ listed below:
 
 | Preset | Go package | HTTP API | Go API |
 |--------|------------|----------|-----------|
-Localstack | https://github.com/orlangure/gnomock/tree/master/preset/localstack | [Docs](https://app.swaggerhub.com/apis/orlangure/gnomock/1.0.1#/presets/startLocalstack) | [Reference](https://pkg.go.dev/github.com/orlangure/gnomock/preset/localstack?tab=doc)
-Splunk | https://github.com/orlangure/gnomock/tree/master/preset/splunk | [Docs](https://app.swaggerhub.com/apis/orlangure/gnomock/1.0.1#/presets/startSplunk) | [Reference](https://pkg.go.dev/github.com/orlangure/gnomock/preset/splunk?tab=doc)
-Redis | https://github.com/orlangure/gnomock/tree/master/preset/redis | [Docs](https://app.swaggerhub.com/apis/orlangure/gnomock/1.0.1#/presets/startRedis) | [Reference](https://pkg.go.dev/github.com/orlangure/gnomock/preset/redis?tab=doc)
-MySQL | https://github.com/orlangure/gnomock/tree/master/preset/mysql | [Docs](https://app.swaggerhub.com/apis/orlangure/gnomock/1.0.1#/presets/startMysql) | [Reference](https://pkg.go.dev/github.com/orlangure/gnomock/preset/mysql?tab=doc)
-PostgreSQL | https://github.com/orlangure/gnomock/tree/master/preset/postgres | [Docs](https://app.swaggerhub.com/apis/orlangure/gnomock/1.0.1#/presets/startPostgres) | [Reference](https://pkg.go.dev/github.com/orlangure/gnomock/preset/postgres?tab=doc)
-Microsoft SQL Server | https://github.com/orlangure/gnomock/tree/master/preset/mssql | [Docs](https://app.swaggerhub.com/apis/orlangure/gnomock/1.0.1#/presets/startMssql) | [Reference](https://pkg.go.dev/github.com/orlangure/gnomock/preset/mssql?tab=doc)
-MongoDB | https://github.com/orlangure/gnomock/tree/master/preset/mongo | [Docs](https://app.swaggerhub.com/apis/orlangure/gnomock/1.0.1#/presets/startMongo) | [Reference](https://pkg.go.dev/github.com/orlangure/gnomock/preset/mongo?tab=doc)
+Localstack | https://github.com/orlangure/gnomock/tree/master/preset/localstack | [Docs](https://app.swaggerhub.com/apis/orlangure/gnomock/1.1.1#/presets/startLocalstack) | [Reference](https://pkg.go.dev/github.com/orlangure/gnomock/preset/localstack?tab=doc)
+Splunk | https://github.com/orlangure/gnomock/tree/master/preset/splunk | [Docs](https://app.swaggerhub.com/apis/orlangure/gnomock/1.1.1#/presets/startSplunk) | [Reference](https://pkg.go.dev/github.com/orlangure/gnomock/preset/splunk?tab=doc)
+Redis | https://github.com/orlangure/gnomock/tree/master/preset/redis | [Docs](https://app.swaggerhub.com/apis/orlangure/gnomock/1.1.1#/presets/startRedis) | [Reference](https://pkg.go.dev/github.com/orlangure/gnomock/preset/redis?tab=doc)
+MySQL | https://github.com/orlangure/gnomock/tree/master/preset/mysql | [Docs](https://app.swaggerhub.com/apis/orlangure/gnomock/1.1.1#/presets/startMysql) | [Reference](https://pkg.go.dev/github.com/orlangure/gnomock/preset/mysql?tab=doc)
+PostgreSQL | https://github.com/orlangure/gnomock/tree/master/preset/postgres | [Docs](https://app.swaggerhub.com/apis/orlangure/gnomock/1.1.1#/presets/startPostgres) | [Reference](https://pkg.go.dev/github.com/orlangure/gnomock/preset/postgres?tab=doc)
+Microsoft SQL Server | https://github.com/orlangure/gnomock/tree/master/preset/mssql | [Docs](https://app.swaggerhub.com/apis/orlangure/gnomock/1.1.1#/presets/startMssql) | [Reference](https://pkg.go.dev/github.com/orlangure/gnomock/preset/mssql?tab=doc)
+MongoDB | https://github.com/orlangure/gnomock/tree/master/preset/mongo | [Docs](https://app.swaggerhub.com/apis/orlangure/gnomock/1.1.1#/presets/startMongo) | [Reference](https://pkg.go.dev/github.com/orlangure/gnomock/preset/mongo?tab=doc)
 Elasticsearch | |
 DynamoDB | |
 Cassandra | |
