@@ -2,10 +2,10 @@
 package mssql
 
 import (
+	"context"
 	"database/sql"
 	"fmt"
 	"io/ioutil"
-	"time"
 
 	_ "github.com/denisenkom/go-mssqldb" // mssql driver
 	"github.com/orlangure/gnomock"
@@ -59,7 +59,6 @@ func (p *P) Options() []gnomock.Option {
 		gnomock.WithHealthCheck(p.healthcheck),
 		gnomock.WithEnv("SA_PASSWORD=" + p.Password),
 		gnomock.WithInit(p.initf()),
-		gnomock.WithWaitTimeout(time.Second * 30),
 	}
 
 	if p.License {
@@ -69,7 +68,7 @@ func (p *P) Options() []gnomock.Option {
 	return opts
 }
 
-func (p *P) healthcheck(c *gnomock.Container) error {
+func (p *P) healthcheck(ctx context.Context, c *gnomock.Container) error {
 	addr := c.Address(gnomock.DefaultPort)
 
 	db, err := p.connect(addr, masterDB)
@@ -98,7 +97,7 @@ func (p *P) healthcheck(c *gnomock.Container) error {
 }
 
 func (p *P) initf() gnomock.InitFunc {
-	return func(c *gnomock.Container) error {
+	return func(ctx context.Context, c *gnomock.Container) error {
 		addr := c.Address(gnomock.DefaultPort)
 
 		db, err := p.connect(addr, masterDB)

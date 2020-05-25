@@ -8,11 +8,11 @@ package splunk
 
 import (
 	"bytes"
+	"context"
 	"crypto/tls"
 	"fmt"
 	"net/http"
 	"net/url"
-	"time"
 
 	"github.com/orlangure/gnomock"
 )
@@ -28,7 +28,6 @@ const (
 	WebPort string = "web"
 )
 
-const defaultInitTimeout = time.Second * 5
 const defaultVersion = "latest"
 
 // Preset creates a new Gnomock Splunk preset. This preset includes a Splunk
@@ -46,12 +45,11 @@ func Preset(opts ...Option) gnomock.Preset {
 
 // P is a Gnomock Preset implementation of Splunk
 type P struct {
-	Values        []Event       `json:"values"`
-	ValuesFile    string        `json:"values_file"`
-	AcceptLicense bool          `json:"accept_license"`
-	AdminPassword string        `json:"admin_password"`
-	InitTimeout   time.Duration `json:"init_timeout"`
-	Version       string        `json:"version"`
+	Values        []Event `json:"values"`
+	ValuesFile    string  `json:"values_file"`
+	AcceptLicense bool    `json:"accept_license"`
+	AdminPassword string  `json:"admin_password"`
+	Version       string  `json:"version"`
 }
 
 // Image returns an image that should be pulled to create this container
@@ -73,8 +71,6 @@ func (p *P) Options() []gnomock.Option {
 	p.setDefaults()
 
 	opts := []gnomock.Option{
-		gnomock.WithStartTimeout(time.Minute * 5),
-		gnomock.WithWaitTimeout(time.Minute * 1),
 		gnomock.WithHealthCheck(healthcheck(p.AdminPassword)),
 		gnomock.WithEnv("SPLUNK_PASSWORD=" + p.AdminPassword),
 	}
@@ -95,17 +91,13 @@ func (p *P) Options() []gnomock.Option {
 }
 
 func (p *P) setDefaults() {
-	if p.InitTimeout == 0 {
-		p.InitTimeout = defaultInitTimeout
-	}
-
 	if p.Version == "" {
 		p.Version = defaultVersion
 	}
 }
 
 func healthcheck(password string) gnomock.HealthcheckFunc {
-	return func(c *gnomock.Container) (err error) {
+	return func(ctx context.Context, c *gnomock.Container) (err error) {
 		err = checkAPI(c, password)
 		if err != nil {
 			return err

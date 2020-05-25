@@ -71,7 +71,7 @@ func (p *P) Options() []gnomock.Option {
 	return opts
 }
 
-func (p *P) initf(c *gnomock.Container) error {
+func (p *P) initf(ctx context.Context, c *gnomock.Container) error {
 	addr := c.Address(gnomock.DefaultPort)
 	uri := "mongodb://" + addr
 
@@ -175,7 +175,7 @@ func (p *P) setupCollection(client *mongodb.Client, dirName, dataFileName string
 	}
 }
 
-func healthcheck(c *gnomock.Container) error {
+func healthcheck(ctx context.Context, c *gnomock.Container) error {
 	addr := c.Address(gnomock.DefaultPort)
 	clientOptions := mongooptions.Client().ApplyURI("mongodb://" + addr)
 

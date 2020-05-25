@@ -38,7 +38,6 @@ func ExamplePreset() {
 		splunk.WithLicense(true),
 		splunk.WithPassword("12345678"),
 		splunk.WithValues(events),
-		splunk.WithInitTimeout(time.Second*10),
 	)
 
 	// created container now includes two events in "events" index

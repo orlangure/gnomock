@@ -2,6 +2,7 @@
 package postgres
 
 import (
+	"context"
 	"database/sql"
 	"fmt"
 	"io/ioutil"
@@ -70,7 +71,7 @@ func (p *P) Options() []gnomock.Option {
 	return opts
 }
 
-func (p *P) healthcheck(c *gnomock.Container) error {
+func (p *P) healthcheck(ctx context.Context, c *gnomock.Container) error {
 	db, err := connect(c, defaultDatabase)
 	if err != nil {
 		return err
@@ -97,7 +98,7 @@ func (p *P) healthcheck(c *gnomock.Container) error {
 }
 
 func (p *P) initf() gnomock.InitFunc {
-	return func(c *gnomock.Container) error {
+	return func(ctx context.Context, c *gnomock.Container) error {
 		if p.DB != defaultDatabase {
 			db, err := connect(c, defaultDatabase)
 			if err != nil {

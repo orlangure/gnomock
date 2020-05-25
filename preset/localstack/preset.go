@@ -4,11 +4,11 @@
 package localstack
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"net/http"
 	"strings"
-	"time"
 
 	"github.com/orlangure/gnomock"
 )
@@ -66,8 +66,6 @@ func (p *P) Options() []gnomock.Option {
 
 	opts := []gnomock.Option{
 		gnomock.WithHealthCheck(p.healthcheck(svcStrings)),
-		gnomock.WithStartTimeout(time.Second * 60 * 2),
-		gnomock.WithWaitTimeout(time.Second * 60),
 		gnomock.WithEnv("SERVICES=" + svcEnv),
 		gnomock.WithInit(p.initf()),
 	}
@@ -76,7 +74,7 @@ func (p *P) Options() []gnomock.Option {
 }
 
 func (p *P) healthcheck(services []string) gnomock.HealthcheckFunc {
-	return func(c *gnomock.Container) (err error) {
+	return func(ctx context.Context, c *gnomock.Container) (err error) {
 		addr := fmt.Sprintf("http://%s/health", c.Address(webPort))
 
 		res, err := http.Get(addr) //nolint:gosec
@@ -123,7 +121,7 @@ type healthResponse struct {
 }
 
 func (p *P) initf() gnomock.InitFunc {
-	return func(c *gnomock.Container) error {
+	return func(ctx context.Context, c *gnomock.Container) error {
 		for _, s := range p.Services {
 			if s == S3 {
 				err := p.initS3(c)

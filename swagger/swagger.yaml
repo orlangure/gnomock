@@ -7,7 +7,7 @@ info:
     testing toolkit. It allows to use Gnomock outside of Go ecosystem. Not all
     Gnomock features exist in this wrapper, but official presets, as well as
     basic general configuration, are supported.
-  version: 0.1.1
+  version: 1.1.1
   contact:
     url: https://github.com/orlangure/gnomock/
   license:
@@ -260,18 +260,12 @@ components:
     options:
       type: object
       properties:
-        start_timeout:
-          type: integer
-          format: int64
-          description: Start timeout in nanoseconds
-          default: 60000000000
-          example: 120000000000
-        wait_timeout:
+        timeout:
           type: integer
           format: int64
           description: Wait timeout in nanoseconds
-          default: 10000000000
-          example: 30000000000
+          default: 300000000000
+          example: 60000000000
         env:
           type: array
           description: Array of environment variables to set in the container
@@ -597,13 +591,6 @@ components:
           type: string
           description: Set a password for `admin` user.
           example: p@s$w0rD
-        init_timeout:
-          type: number
-          format: double
-          example: 30000000000
-          default: 5000000000
-          description: >
-            Wait for the initialization for this number of nanoseconds.
         version:
           type: string
           description: Splunk version.
