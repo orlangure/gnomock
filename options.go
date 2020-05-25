@@ -7,8 +7,7 @@ import (
 	"time"
 )
 
-const defaultStartTimeout = time.Second * 300
-const defaultWaitTimeout = time.Second * 180
+const defaultTimeout = time.Second * 300
 const defaultHealthcheckInterval = time.Millisecond * 250
 
 // Option is an optional Gnomock configuration. Functions implementing this
@@ -52,22 +51,12 @@ func WithHealthCheckInterval(t time.Duration) Option {
 	}
 }
 
-// WithStartTimeout sets the amount of time to wait for a new Gnomock container
-// to start. This includes pulling an image and creating a new container from
-// it. To set the amount of time to wait before a created container healthy and
-// ready to use, use WithWaitTimeout
-func WithStartTimeout(t time.Duration) Option {
+// WithTimeout sets the amount of time to wait for a created container to
+// become ready to use. All startup steps must complete before they time out:
+// start, wait until healthy, init.
+func WithTimeout(t time.Duration) Option {
 	return func(o *Options) {
-		o.StartTimeout = t
-	}
-}
-
-// WithWaitTimeout sets the amount of time to wait for a created container to
-// become ready to use. If health check function does not return nil error
-// until this timeout is reached, Start() fails
-func WithWaitTimeout(t time.Duration) Option {
-	return func(o *Options) {
-		o.WaitTimeout = t
+		o.Timeout = t
 	}
 }
 
@@ -101,12 +90,8 @@ func WithTag(tag string) Option {
 // functions cannot be set in this way
 func WithOptions(options *Options) Option {
 	return func(o *Options) {
-		if options.StartTimeout > 0 {
-			o.StartTimeout = options.StartTimeout
-		}
-
-		if options.WaitTimeout > 0 {
-			o.WaitTimeout = options.WaitTimeout
+		if options.Timeout > 0 {
+			o.Timeout = options.Timeout
 		}
 
 		if options.Tag != "" {
@@ -122,18 +107,18 @@ func WithOptions(options *Options) Option {
 // ready, or nil when the container can be used. One example of HealthcheckFunc
 // would be an attempt to establish the same connection to the container that
 // the application under test uses
-type HealthcheckFunc func(*Container) error
+type HealthcheckFunc func(context.Context, *Container) error
 
-func nopHealthcheck(*Container) error {
+func nopHealthcheck(context.Context, *Container) error {
 	return nil
 }
 
 // InitFunc defines a function to be called on a ready to use container to set
 // up its initial state before running the tests. For example, InitFunc can
 // take care of creating a SQL table and inserting test data into it
-type InitFunc func(*Container) error
+type InitFunc func(context.Context, *Container) error
 
-func nopInit(*Container) error {
+func nopInit(context.Context, *Container) error {
 	return nil
 }
 
@@ -141,15 +126,9 @@ func nopInit(*Container) error {
 // (WithSomething) should be used instead of directly initializing objects of
 // this type whenever possible
 type Options struct {
-	// StartTimeout is an amount of nanoseconds to wait for the container to be
-	// created. This includes the time to pull docker image, create and start
-	// the container. It does not include the time to wait for the container to
-	// become healthy
-	StartTimeout time.Duration `json:"start_timeout"`
-
-	// WaitTimeout is an amount of nanoseconds to wait for a created container
-	// to become healthy and ready to use
-	WaitTimeout time.Duration `json:"wait_timeout"`
+	// Timeout is an amount of time to wait before considering Start operation
+	// as failed.
+	Timeout time.Duration `json:"timeout"`
 
 	// Env is a list of environment variable to inject into the container. Each
 	// entry is in format ENV_VAR_NAME=value
@@ -172,8 +151,7 @@ func buildConfig(opts ...Option) *Options {
 		init:                nopInit,
 		healthcheck:         nopHealthcheck,
 		healthcheckInterval: defaultHealthcheckInterval,
-		StartTimeout:        defaultStartTimeout,
-		WaitTimeout:         defaultWaitTimeout,
+		Timeout:             defaultTimeout,
 		logWriter:           ioutil.Discard,
 		Tag:                 "",
 	}

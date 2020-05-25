@@ -42,10 +42,7 @@ type Event struct {
 }
 
 func (p *P) initf() gnomock.InitFunc {
-	return func(c *gnomock.Container) (err error) {
-		ctx, cancel := context.WithTimeout(context.Background(), p.InitTimeout)
-		defer cancel()
-
+	return func(ctx context.Context, c *gnomock.Container) (err error) {
 		if p.ValuesFile != "" {
 			f, err := os.Open(p.ValuesFile)
 			if err != nil {

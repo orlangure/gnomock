@@ -49,7 +49,6 @@ func TestPreset(t *testing.T) {
 		splunk.WithLicense(true),
 		splunk.WithPassword("12345678"),
 		splunk.WithValues(events),
-		splunk.WithInitTimeout(time.Second*20),
 	)
 	c, err := gnomock.Start(p)
 

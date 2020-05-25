@@ -35,8 +35,7 @@ func TestGnomock_happyFlow(t *testing.T) {
 		gnomock.WithHealthCheck(healthcheck),
 		gnomock.WithInit(initf),
 		gnomock.WithContext(context.Background()),
-		gnomock.WithStartTimeout(time.Second*30),
-		gnomock.WithWaitTimeout(time.Second*1),
+		gnomock.WithTimeout(time.Second*30),
 		gnomock.WithEnv("GNOMOCK_TEST_1=foo"),
 		gnomock.WithEnv("GNOMOCK_TEST_2=bar"),
 	)
@@ -59,7 +58,7 @@ func TestGnomock_wrongPort(t *testing.T) {
 	container, err := gnomock.StartCustom(
 		testImage, gnomock.DefaultTCP(badPort),
 		gnomock.WithHealthCheck(healthcheck),
-		gnomock.WithWaitTimeout(time.Millisecond*50),
+		gnomock.WithTimeout(time.Millisecond*50),
 	)
 	require.Error(t, err)
 	require.Nil(t, container)
@@ -103,7 +102,7 @@ func TestGnomock_initError(t *testing.T) {
 	t.Parallel()
 
 	errNope := fmt.Errorf("nope")
-	initWithErr := func(*gnomock.Container) error {
+	initWithErr := func(context.Context, *gnomock.Container) error {
 		return errNope
 	}
 
@@ -156,7 +155,7 @@ func TestGnomock_withLogWriter(t *testing.T) {
 	require.NoError(t, r.Close())
 }
 
-func healthcheck(c *gnomock.Container) error {
+func healthcheck(ctx context.Context, c *gnomock.Container) error {
 	err := callRoot(fmt.Sprintf("http://%s/", c.Address("web80")))
 	if err != nil {
 		return err
@@ -191,7 +190,7 @@ func callRoot(addr string) error {
 	return nil
 }
 
-func initf(*gnomock.Container) error {
+func initf(context.Context, *gnomock.Container) error {
 	return nil
 }
 

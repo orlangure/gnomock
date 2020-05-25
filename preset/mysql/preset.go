@@ -2,6 +2,7 @@
 package mysql
 
 import (
+	"context"
 	"database/sql"
 	"fmt"
 	"io/ioutil"
@@ -68,7 +69,7 @@ func (p *P) Options() []gnomock.Option {
 	return opts
 }
 
-func (p *P) healthcheck(c *gnomock.Container) error {
+func (p *P) healthcheck(ctx context.Context, c *gnomock.Container) error {
 	addr := c.Address(gnomock.DefaultPort)
 
 	db, err := p.connect(addr)
@@ -97,7 +98,7 @@ func (p *P) healthcheck(c *gnomock.Container) error {
 }
 
 func (p *P) initf() gnomock.InitFunc {
-	return func(c *gnomock.Container) error {
+	return func(ctx context.Context, c *gnomock.Container) error {
 		addr := c.Address(gnomock.DefaultPort)
 
 		db, err := p.connect(addr)

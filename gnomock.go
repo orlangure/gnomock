@@ -29,7 +29,7 @@ func StartCustom(image string, ports NamedPorts, opts ...Option) (c *Container, 
 	config := buildConfig(opts...)
 	image = buildImage(image, config.Tag)
 
-	startCtx, cancel := context.WithTimeout(config.ctx, config.StartTimeout)
+	ctx, cancel := context.WithTimeout(config.ctx, config.Timeout)
 	defer cancel()
 
 	cli, err := dockerConnect()
@@ -37,12 +37,12 @@ func StartCustom(image string, ports NamedPorts, opts ...Option) (c *Container, 
 		return nil, fmt.Errorf("can't create docker client: %w", err)
 	}
 
-	err = cli.pullImage(startCtx, image)
+	err = cli.pullImage(ctx, image)
 	if err != nil {
 		return nil, fmt.Errorf("can't pull image: %w", err)
 	}
 
-	c, err = cli.startContainer(startCtx, image, ports, config)
+	c, err = cli.startContainer(ctx, image, ports, config)
 	if err != nil {
 		return nil, fmt.Errorf("can't start container: %w", err)
 	}
@@ -66,15 +66,12 @@ func StartCustom(image string, ports NamedPorts, opts ...Option) (c *Container, 
 
 	c.onStop = closeLogReader(logReader, g)
 
-	waitCtx, cancelWait := context.WithTimeout(config.ctx, config.WaitTimeout)
-	defer cancelWait()
-
-	err = wait(waitCtx, c, config)
+	err = wait(ctx, c, config)
 	if err != nil {
 		return c, fmt.Errorf("can't connect to container: %w", err)
 	}
 
-	err = config.init(c)
+	err = config.init(ctx, c)
 	if err != nil {
 		return c, fmt.Errorf("can't init container: %w", err)
 	}
@@ -197,7 +194,7 @@ func wait(ctx context.Context, c *Container, config *Options) error {
 		case <-ctx.Done():
 			return fmt.Errorf("canceled after error: %w", lastErr)
 		case <-delay.C:
-			err := config.healthcheck(c)
+			err := config.healthcheck(ctx, c)
 			if err == nil {
 				return nil
 			}

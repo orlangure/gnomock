@@ -4,6 +4,7 @@
 package redis
 
 import (
+	"context"
 	"fmt"
 
 	redisclient "github.com/go-redis/redis/v7"
@@ -45,7 +46,7 @@ func (r *P) Options() []gnomock.Option {
 	}
 
 	if r.Values != nil {
-		initf := func(c *gnomock.Container) error {
+		initf := func(ctx context.Context, c *gnomock.Container) error {
 			addr := c.Address(gnomock.DefaultPort)
 			client := redisclient.NewClient(&redisclient.Options{Addr: addr})
 
@@ -65,7 +66,7 @@ func (r *P) Options() []gnomock.Option {
 	return opts
 }
 
-func healthcheck(c *gnomock.Container) error {
+func healthcheck(ctx context.Context, c *gnomock.Container) error {
 	addr := c.Address(gnomock.DefaultPort)
 	client := redisclient.NewClient(&redisclient.Options{Addr: addr})
 	_, err := client.Ping().Result()

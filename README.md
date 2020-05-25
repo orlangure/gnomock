@@ -157,9 +157,9 @@ docker pull postgres:11
 
 It can happen if the containers can't become ready to use before they time out.
 By default, Gnomock uses fairly high timeouts for new containers (for starting
-and for setting them up). If you choose to change default timeouts using
-`WithWaitTimeout` (`wait_timeout` in HTTP) or `WithInitTimeout` (`init_timeout`
-in HTTP), it is possible that the values you choose are too short.
+and for setting them up). If you choose to change default timeout using
+`WithTimeout` (`timeout` in HTTP), it is possible that the values you choose
+are too short.
 
 ### Tests pass when run one-by-one, and fail when run in parallel
 

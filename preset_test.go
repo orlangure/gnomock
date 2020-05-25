@@ -3,6 +3,7 @@
 package gnomock_test
 
 import (
+	"context"
 	"fmt"
 	"testing"
 	"time"
@@ -37,7 +38,7 @@ func TestPreset(t *testing.T) {
 	t.Parallel()
 
 	p := &testPreset{testImage}
-	container, err := gnomock.Start(p, gnomock.WithStartTimeout(time.Second))
+	container, err := gnomock.Start(p, gnomock.WithTimeout(time.Second))
 
 	defer func(c *gnomock.Container) {
 		require.NoError(t, gnomock.Stop(c))
@@ -95,7 +96,7 @@ func (t *testPreset) Ports() gnomock.NamedPorts {
 // Preset implementation. This test preset always returns a failing healthcheck
 func (t *testPreset) Options() []gnomock.Option {
 	return []gnomock.Option{
-		gnomock.WithHealthCheck(func(*gnomock.Container) error {
+		gnomock.WithHealthCheck(func(context.Context, *gnomock.Container) error {
 			return fmt.Errorf("this container should not start")
 		}),
 	}
