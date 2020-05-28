@@ -1,3 +1,7 @@
+<div align="center">
+    <img src="./gnomock.png">
+</div>
+
 # <div align="center">Gnomock – test your code without mocks</div>
 
 🏗️ Spin up entire dependency stack
