@@ -27,7 +27,7 @@ const defaultTag = "latest"
 // when no longer needed using its Stop() method
 func StartCustom(image string, ports NamedPorts, opts ...Option) (c *Container, err error) {
 	config := buildConfig(opts...)
-	image = buildImage(image, config.Tag)
+	image = buildImage(image)
 
 	ctx, cancel := context.WithTimeout(config.ctx, config.Timeout)
 	defer cancel()
@@ -166,18 +166,12 @@ func stop(c *Container) error {
 	return nil
 }
 
-func buildImage(image, tag string) string {
+func buildImage(image string) string {
 	parts := strings.Split(image, ":")
 
 	noTagSet := len(parts) == 1
 	if noTagSet {
-		if tag == "" {
-			tag = defaultTag
-		}
-
-		image = fmt.Sprintf("%s:%s", image, tag)
-	} else if tag != "" {
-		image = fmt.Sprintf("%s:%s", parts[0], tag)
+		image = fmt.Sprintf("%s:%s", parts[0], defaultTag)
 	}
 
 	return image

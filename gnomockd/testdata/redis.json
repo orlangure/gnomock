@@ -3,9 +3,8 @@
         "values": {
             "answer": 42,
             "is_good": true
-        }
+        },
+        "version": "5"
     },
-    "options": {
-        "tag": "5"
-    }
+    "options": {}
 }

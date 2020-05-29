@@ -11,6 +11,8 @@ import (
 	"github.com/orlangure/gnomock"
 )
 
+const defaultVersion = "latest"
+
 // Preset creates a new Gmomock Redis preset. This preset includes a Redis
 // specific healthcheck function, default Redis image and port, and allows to
 // optionally set up initial state
@@ -26,31 +28,34 @@ func Preset(opts ...Option) gnomock.Preset {
 
 // P is a Gnomock Preset implementation for Redis storage
 type P struct {
-	Values map[string]interface{} `json:"values"`
+	Values  map[string]interface{} `json:"values"`
+	Version string                 `json:"version"`
 }
 
 // Image returns an image that should be pulled to create this container
-func (r *P) Image() string {
-	return "docker.io/library/redis"
+func (p *P) Image() string {
+	return fmt.Sprintf("docker.io/library/redis:%s", p.Version)
 }
 
 // Ports returns ports that should be used to access this container
-func (r *P) Ports() gnomock.NamedPorts {
+func (p *P) Ports() gnomock.NamedPorts {
 	return gnomock.DefaultTCP(6379)
 }
 
 // Options returns a list of options to configure this container
-func (r *P) Options() []gnomock.Option {
+func (p *P) Options() []gnomock.Option {
+	p.setDefaults()
+
 	opts := []gnomock.Option{
 		gnomock.WithHealthCheck(healthcheck),
 	}
 
-	if r.Values != nil {
+	if p.Values != nil {
 		initf := func(ctx context.Context, c *gnomock.Container) error {
 			addr := c.Address(gnomock.DefaultPort)
 			client := redisclient.NewClient(&redisclient.Options{Addr: addr})
 
-			for k, v := range r.Values {
+			for k, v := range p.Values {
 				err := client.Set(k, v, 0).Err()
 				if err != nil {
 					return fmt.Errorf("can't set '%s'='%v': %w", k, v, err)
@@ -64,6 +69,12 @@ func (r *P) Options() []gnomock.Option {
 	}
 
 	return opts
+}
+
+func (p *P) setDefaults() {
+	if p.Version == "" {
+		p.Version = defaultVersion
+	}
 }
 
 func healthcheck(ctx context.Context, c *gnomock.Container) error {

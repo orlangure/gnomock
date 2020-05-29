@@ -7,9 +7,8 @@
         ],
         "user": "gnomock",
         "password": "foobar",
-        "db": "gnomockd_db"
+        "db": "gnomockd_db",
+        "version": "8"
     },
-    "options": {
-        "tag": "8"
-    }
+    "options": {}
 }

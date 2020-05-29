@@ -20,6 +20,8 @@ import (
 	mongooptions "go.mongodb.org/mongo-driver/mongo/options"
 )
 
+const defaultVersion = "latest"
+
 // Preset creates a new Gmomock MongoDB preset. This preset includes a MongoDB
 // specific healthcheck function, default MongoDB image and port, and allows to
 // optionally set up initial state
@@ -38,11 +40,12 @@ type P struct {
 	DataPath string `json:"data_path"`
 	User     string `json:"user"`
 	Password string `json:"password"`
+	Version  string `json:"version"`
 }
 
 // Image returns an image that should be pulled to create this container
 func (p *P) Image() string {
-	return "docker.io/library/mongo"
+	return fmt.Sprintf("docker.io/library/mongo:%s", p.Version)
 }
 
 // Ports returns ports that should be used to access this container
@@ -52,6 +55,8 @@ func (p *P) Ports() gnomock.NamedPorts {
 
 // Options returns a list of options to configure this container
 func (p *P) Options() []gnomock.Option {
+	p.setDefaults()
+
 	opts := []gnomock.Option{
 		gnomock.WithHealthCheck(healthcheck),
 	}
@@ -69,6 +74,12 @@ func (p *P) Options() []gnomock.Option {
 	}
 
 	return opts
+}
+
+func (p *P) setDefaults() {
+	if p.Version == "" {
+		p.Version = defaultVersion
+	}
 }
 
 func (p *P) initf(ctx context.Context, c *gnomock.Container) error {

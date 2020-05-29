@@ -57,19 +57,6 @@ func TestPreset(t *testing.T) {
 	require.NoError(t, err)
 }
 
-func TestPreset_overrideTag(t *testing.T) {
-	t.Parallel()
-
-	p := &testPreset{testImage + ":latest"}
-	container, err := gnomock.Start(p, gnomock.WithTag("bad"))
-
-	defer func() {
-		require.NoError(t, gnomock.Stop(container))
-	}()
-
-	require.Error(t, err)
-}
-
 type testPreset struct {
 	image string
 }

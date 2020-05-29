@@ -16,6 +16,7 @@ const defaultUser = "gnomock"
 const defaultPassword = "gnomick"
 const defaultDatabase = "mydb"
 const defaultPort = 3306
+const defaultVersion = "latest"
 
 // Preset creates a new Gmomock MySQL preset. This preset includes a MySQL
 // specific healthcheck function, default MySQL image and port, and allows to
@@ -38,11 +39,12 @@ type P struct {
 	Password    string   `json:"password"`
 	Queries     []string `json:"queries"`
 	QueriesFile string   `json:"queries_file"`
+	Version     string   `json:"version"`
 }
 
 // Image returns an image that should be pulled to create this container
 func (p *P) Image() string {
-	return "docker.io/library/mysql"
+	return fmt.Sprintf("docker.io/library/mysql:%s", p.Version)
 }
 
 // Ports returns ports that should be used to access this container
@@ -155,5 +157,9 @@ func (p *P) setDefaults() {
 
 	if p.Password == "" {
 		p.Password = defaultPassword
+	}
+
+	if p.Version == "" {
+		p.Version = defaultVersion
 	}
 }

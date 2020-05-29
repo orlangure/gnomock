@@ -2,9 +2,8 @@
     "preset": {
         "data_path": "./testdata/mongo",
         "user": "gnomock",
-        "password": "foobar"
+        "password": "foobar",
+        "version": "3"
     },
-    "options": {
-        "tag": "3"
-    }
+    "options": {}
 }

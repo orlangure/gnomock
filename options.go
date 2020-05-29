@@ -76,13 +76,6 @@ func WithLogWriter(w io.Writer) Option {
 	}
 }
 
-// WithTag overrides docker image tag provided by a preset
-func WithTag(tag string) Option {
-	return func(o *Options) {
-		o.Tag = tag
-	}
-}
-
 // WithOptions allows to provide an existing set of Options instead of using
 // optional configuration.
 //
@@ -92,10 +85,6 @@ func WithOptions(options *Options) Option {
 	return func(o *Options) {
 		if options.Timeout > 0 {
 			o.Timeout = options.Timeout
-		}
-
-		if options.Tag != "" {
-			o.Tag = options.Tag
 		}
 
 		o.Env = append(o.Env, options.Env...)
@@ -134,10 +123,6 @@ type Options struct {
 	// entry is in format ENV_VAR_NAME=value
 	Env []string `json:"env"`
 
-	// Tag sets docker image version to be used in this container. By default,
-	// latest tag is used
-	Tag string `json:"tag"`
-
 	ctx                 context.Context
 	init                InitFunc
 	healthcheck         HealthcheckFunc
@@ -153,7 +138,6 @@ func buildConfig(opts ...Option) *Options {
 		healthcheckInterval: defaultHealthcheckInterval,
 		Timeout:             defaultTimeout,
 		logWriter:           ioutil.Discard,
-		Tag:                 "",
 	}
 
 	for _, opt := range opts {

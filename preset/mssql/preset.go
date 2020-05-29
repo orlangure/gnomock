@@ -15,6 +15,7 @@ const masterDB = "master"
 const defaultPassword = "Gn0m!ck~"
 const defaultDatabase = "mydb"
 const defaultPort = 1433
+const defaultVersion = "latest"
 
 // Preset creates a new Gmomock Microsoft SQL Server preset. This preset
 // includes a mssql specific healthcheck function, default mssql image and
@@ -39,11 +40,12 @@ type P struct {
 	Queries     []string `json:"queries"`
 	QueriesFile string   `json:"queries_file"`
 	License     bool     `json:"license"`
+	Version     string   `json:"version"`
 }
 
 // Image returns an image that should be pulled to create this container
 func (p *P) Image() string {
-	return "mcr.microsoft.com/mssql/server"
+	return fmt.Sprintf("mcr.microsoft.com/mssql/server:%s", p.Version)
 }
 
 // Ports returns ports that should be used to access this container
@@ -155,5 +157,9 @@ func (p *P) setDefaults() {
 
 	if p.Password == "" {
 		p.Password = defaultPassword
+	}
+
+	if p.Version == "" {
+		p.Version = defaultVersion
 	}
 }

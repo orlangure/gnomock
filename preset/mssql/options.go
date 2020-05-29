@@ -45,3 +45,10 @@ func WithQueriesFile(file string) Option {
 		p.QueriesFile = file
 	}
 }
+
+// WithVersion sets image version.
+func WithVersion(version string) Option {
+	return func(o *P) {
+		o.Version = version
+	}
+}

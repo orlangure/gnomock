@@ -88,3 +88,10 @@ func WithServices(services ...Service) Option {
 		o.Services = append(o.Services, services...)
 	}
 }
+
+// WithVersion sets image version.
+func WithVersion(version string) Option {
+	return func(o *P) {
+		o.Version = version
+	}
+}

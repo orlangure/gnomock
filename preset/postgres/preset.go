@@ -16,6 +16,7 @@ const defaultPassword = "password"
 const defaultDatabase = "postgres"
 const defaultSSLMode = "disable"
 const defaultPort = 5432
+const defaultVersion = "latest"
 
 // Preset creates a new Gmomock Postgres preset. This preset includes a Postgres
 // specific healthcheck function, default Postgres image and port, and allows to
@@ -37,11 +38,12 @@ type P struct {
 	QueriesFile string   `json:"queries_file"`
 	User        string   `json:"user"`
 	Password    string   `json:"password"`
+	Version     string   `json:"version"`
 }
 
 // Image returns an image that should be pulled to create this container
 func (p *P) Image() string {
-	return "docker.io/library/postgres"
+	return fmt.Sprintf("docker.io/library/postgres:%s", p.Version)
 }
 
 // Ports returns ports that should be used to access this container
@@ -145,6 +147,10 @@ func (p *P) initf() gnomock.InitFunc {
 func (p *P) setDefaults() {
 	if p.DB == "" {
 		p.DB = defaultDatabase
+	}
+
+	if p.Version == "" {
+		p.Version = defaultVersion
 	}
 }
 
