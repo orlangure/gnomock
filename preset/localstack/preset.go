@@ -20,6 +20,8 @@ const (
 	APIPort = "api"
 )
 
+const defaultVersion = "latest"
+
 // Preset creates a new localstack preset to use with gnomock.Start. See
 // package docs for a list of exposed ports and services. It is legal to not
 // provide any services using WithServices options, but in such case a new
@@ -40,11 +42,12 @@ func Preset(opts ...Option) gnomock.Preset {
 type P struct {
 	Services []Service `json:"services"`
 	S3Path   string    `json:"s3_path"`
+	Version  string    `json:"version"`
 }
 
 // Image returns an image that should be pulled to create this container
 func (p *P) Image() string {
-	return "docker.io/localstack/localstack"
+	return fmt.Sprintf("docker.io/localstack/localstack:%s", p.Version)
 }
 
 // Ports returns ports that should be used to access this container
@@ -57,6 +60,8 @@ func (p *P) Ports() gnomock.NamedPorts {
 
 // Options returns a list of options to configure this container
 func (p *P) Options() []gnomock.Option {
+	p.setDefaults()
+
 	svcStrings := make([]string, len(p.Services))
 	for i, svc := range p.Services {
 		svcStrings[i] = string(svc)
@@ -71,6 +76,12 @@ func (p *P) Options() []gnomock.Option {
 	}
 
 	return opts
+}
+
+func (p *P) setDefaults() {
+	if p.Version == "" {
+		p.Version = defaultVersion
+	}
 }
 
 func (p *P) healthcheck(services []string) gnomock.HealthcheckFunc {

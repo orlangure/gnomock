@@ -12,3 +12,10 @@ func WithValues(vs map[string]interface{}) Option {
 		p.Values = vs
 	}
 }
+
+// WithVersion sets image version.
+func WithVersion(version string) Option {
+	return func(o *P) {
+		o.Version = version
+	}
+}

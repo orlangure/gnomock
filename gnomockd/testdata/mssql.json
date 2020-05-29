@@ -7,9 +7,8 @@
         ],
         "password": "Passw0rd-",
         "db": "foobar",
-        "license": true
+        "license": true,
+        "version": "2019-latest"
     },
-    "options": {
-        "tag": "2019-latest"
-    }
+    "options": {}
 }

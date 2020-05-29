@@ -40,3 +40,10 @@ func WithUser(user, pass string) Option {
 		p.Password = pass
 	}
 }
+
+// WithVersion sets image version.
+func WithVersion(version string) Option {
+	return func(o *P) {
+		o.Version = version
+	}
+}

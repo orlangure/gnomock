@@ -13,9 +13,9 @@ class TestSDK(unittest.TestCase):
         return super().tearDown()
 
     def test_mongo(self):
-        options = gnomock.Options(tag="3")
+        options = gnomock.Options()
         file_name = os.path.abspath("./test/testdata/mongo")
-        preset = gnomock.Mongo(data_path=file_name)
+        preset = gnomock.Mongo(data_path=file_name, version="3")
         mongo_request = gnomock.MongoRequest(options=options, preset=preset)
         id = ""
 
@@ -31,9 +31,9 @@ class TestSDK(unittest.TestCase):
 
 
     def test_mysql(self):
-        options = gnomock.Options(tag="8")
+        options = gnomock.Options()
         file_name = os.path.abspath("./test/testdata/mysql/schema.sql")
-        preset = gnomock.Mysql(queries_file=file_name)
+        preset = gnomock.Mysql(queries_file=file_name, version="8")
         mysql_request = gnomock.MysqlRequest(options=options, preset=preset)
         id = ""
 
@@ -49,9 +49,9 @@ class TestSDK(unittest.TestCase):
 
 
     def test_mssql(self):
-        options = gnomock.Options(tag="2019-latest")
+        options = gnomock.Options()
         file_name = os.path.abspath("./test/testdata/mssql/schema.sql")
-        preset = gnomock.Mssql(queries_file=file_name, license=True)
+        preset = gnomock.Mssql(queries_file=file_name, license=True, version="2019-latest")
         mssql_request = gnomock.MssqlRequest(options=options, preset=preset)
         id = ""
 
@@ -67,9 +67,9 @@ class TestSDK(unittest.TestCase):
 
 
     def test_postgres(self):
-        options = gnomock.Options(tag="12")
+        options = gnomock.Options()
         file_name = os.path.abspath("./test/testdata/postgres/schema.sql")
-        preset = gnomock.Postgres(queries_file=file_name)
+        preset = gnomock.Postgres(queries_file=file_name, version="12")
         postgres_request = gnomock.PostgresRequest(options=options, preset=preset)
         id = ""
 
@@ -85,8 +85,8 @@ class TestSDK(unittest.TestCase):
 
 
     def test_redis(self):
-        options = gnomock.Options(tag="5")
-        preset = gnomock.Redis()
+        options = gnomock.Options()
+        preset = gnomock.Redis(version="5")
         redis_request = gnomock.RedisRequest(options=options, preset=preset)
         id = ""
 
@@ -102,10 +102,10 @@ class TestSDK(unittest.TestCase):
 
 
     def test_splunk(self):
-        options = gnomock.Options(tag="8.0.2.1")
+        options = gnomock.Options()
         file_name = os.path.abspath("./test/testdata/splunk/events.jsonl")
         preset = gnomock.Splunk(values_file=file_name, accept_license=True,
-                admin_password="12345678")
+                admin_password="12345678", version="8.0.2.1")
         splunk_request = gnomock.SplunkRequest(options=options, preset=preset)
         id = ""
 
@@ -121,8 +121,8 @@ class TestSDK(unittest.TestCase):
 
 
     def test_localstack(self):
-        options = gnomock.Options(tag="0.11.0")
-        preset = gnomock.Localstack(services=['s3'])
+        options = gnomock.Options()
+        preset = gnomock.Localstack(services=['s3'], version="0.11.0")
         localstack_request = gnomock.LocalstackRequest(options=options, preset=preset)
         id = ""
 

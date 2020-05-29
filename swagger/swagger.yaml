@@ -7,7 +7,7 @@ info:
     testing toolkit. It allows to use Gnomock outside of Go ecosystem. Not all
     Gnomock features exist in this wrapper, but official presets, as well as
     basic general configuration, are supported.
-  version: 1.1.1
+  version: 1.2.0
   contact:
     url: https://github.com/orlangure/gnomock/
   license:
@@ -272,10 +272,6 @@ components:
           items:
             type: string
             example: ENV_VAR_NAME=some-value
-        tag:
-          type: string
-          description: Docker image tag
-          example: latest
       description: >
         This object includes general Gnomock configuration, similar to all
         presets. Timeout configuration is especially useful for
@@ -334,6 +330,10 @@ components:
             Path to folder to setup initial S3 state. Top level folders are
             used as buckets; all child folders and files are uploaded as-is
           example: /home/gnomock/project/testdata/s3
+        version:
+          type: string
+          description: Docker image tag (version)
+          default: latest
       required:
         - services
       example:
@@ -370,6 +370,10 @@ components:
           type: string
           description: Password to set for the created user.
           example: p@s$w0rD
+        version:
+          type: string
+          description: Docker image tag (version)
+          default: latest
       description: >
         This object describes MongoDB container.
 
@@ -413,6 +417,10 @@ components:
           type: boolean
           description: Accept or decline Microsoft SQL Server license.
           example: true
+        version:
+          type: string
+          description: Docker image tag (version)
+          default: latest
       required:
         - license
       description: >
@@ -459,6 +467,10 @@ components:
           type: string
           description: A SQL file to execute while setting up container state.
           example: /home/gnomock/project/testdata/mysql/queries
+        version:
+          type: string
+          description: Docker image tag (version)
+          default: latest
       description: >
         This object describes MySQL container.
 
@@ -502,6 +514,10 @@ components:
           type: string
           description: A SQL file to execute while setting up container state.
           example: /home/gnomock/project/testdata/postgres/queries
+        version:
+          type: string
+          description: Docker image tag (version)
+          default: latest
       description: >
         This object describes Postgres container.
 
@@ -531,6 +547,10 @@ components:
             foo: bar
             baz: 42
             meh: 3.14
+        version:
+          type: string
+          description: Docker image tag (version)
+          default: latest
       description: >
         This object describes Redis container.
 
@@ -594,6 +614,7 @@ components:
         version:
           type: string
           description: Splunk version.
+          default: latest
           example: 8.0.2.1
       required:
         - accept_license
