@@ -46,22 +46,32 @@ See the following example to get started:
 go get github.com/orlangure/gnomock
 ```
 
-Setting up a Redis container example:
+Setting up a Postgres container with schema setup example:
 
 ```go
 import (
-	redisclient "github.com/go-redis/redis/v7"
+	"database/sql"
+
+	_ "github.com/lib/pq" // postgres driver
 	"github.com/orlangure/gnomock"
-	"github.com/orlangure/gnomock/preset/redis"
+	"github.com/orlangure/gnomock/preset/postgres"
 )
 
-p := redis.Preset()
+p := postgres.Preset(
+    postgres.WithUser("gnomock", "gnomick"),
+    postgres.WithDatabase("mydb"),
+    postgres.WithQueriesFile("/var/project/db/schema.sql"),
+)
 container, _ := gnomock.Start(p)
-
 defer func() { _ = gnomock.Stop(container) }()
 
-addr := container.DefaultAddress()
-client := redisclient.NewClient(&redisclient.Options{Addr: addr})
+connStr := fmt.Sprintf(
+    "host=%s port=%d user=%s password=%s  dbname=%s sslmode=disable",
+    container.Host, container.DefaultPort(),
+    "gnomock", "gnomick", "mydb",
+)
+db, _ := sql.Open("postgres", connStr)
+// db has the required schema and data, and is ready to use
 ```
 
 See package [reference](https://pkg.go.dev/github.com/orlangure/gnomock?tab=doc).
