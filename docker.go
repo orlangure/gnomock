@@ -86,9 +86,10 @@ func (d *docker) startContainer(ctx context.Context, image string, ports NamedPo
 	}
 
 	container := &Container{
-		ID:    containerJSON.ID,
-		Host:  localhostAddr,
-		Ports: boundNamedPorts,
+		ID:      containerJSON.ID,
+		Host:    localhostAddr,
+		Ports:   boundNamedPorts,
+		gateway: containerJSON.NetworkSettings.Gateway,
 	}
 
 	return container, nil
@@ -108,10 +109,18 @@ func (d *docker) exposedPorts(namedPorts NamedPorts) nat.PortSet {
 func (d *docker) portBindings(exposedPorts nat.PortSet) nat.PortMap {
 	portBindings := make(nat.PortMap)
 
+	// for the container to be accessible from another container, it cannot
+	// listen on 127.0.0.1 as it will be accessed by gateway address (e.g
+	// 172.17.0.1), so its port should be exposed everywhere
+	hostAddr := localhostAddr
+	if isInDocker() {
+		hostAddr = "0.0.0.0"
+	}
+
 	for port := range exposedPorts {
 		portBindings[port] = []nat.PortBinding{
 			{
-				HostIP: localhostAddr,
+				HostIP: hostAddr,
 			},
 		}
 	}
