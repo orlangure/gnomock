@@ -16,19 +16,28 @@ jobs:
       - name: Test
         run: go test -race -cover -v -p 1 -tags "nosdk nopreset noserver" ./...
   test-sdk:
-    name: Test SDK
+    name: Test Python SDK
     runs-on: ubuntu-latest
     steps:
-      - name: Set up Go 1.14
-        uses: actions/setup-go@v1
-        with:
-          go-version: 1.14
       - name: Check out code into the Go module directory
         uses: actions/checkout@v1
       - name: Get dependencies
-        run: go get -v -t -d ./...
+        run: |
+          cd sdktest/python
+          pip3 install -r requirements.txt
+      - name: Build docker image
+        run: docker build --tag gnomock .
+      - name: Run gnomock
+        run: |
+          docker run -itd \
+            -p 23042:23042 \
+            -v /var/run/docker.sock:/var/run/docker.sock \
+            -v `pwd`:`pwd` \
+            gnomock
       - name: Test
-        run: go test -race -cover -v -tags "nognomock nopreset noserver" ./...
+        run: |
+          cd sdktest/python
+          python3 -m pytest -n 2 -v
   test-preset:
     name: Test Presets
     runs-on: ubuntu-latest
