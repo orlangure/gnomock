@@ -6,6 +6,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"strconv"
 
 	"github.com/orlangure/gnomock/gnomockd"
 )
@@ -25,6 +26,12 @@ func main() {
 	if v {
 		fmt.Println(version)
 		os.Exit(0)
+	}
+
+	if pStr, ok := os.LookupEnv("GNOMOCKD_PORT"); ok {
+		if p, err := strconv.Atoi(pStr); err == nil {
+			port = p
+		}
 	}
 
 	addr := fmt.Sprintf(":%d", port)
