@@ -2,6 +2,7 @@ package gnomock
 
 import (
 	"fmt"
+	"os"
 )
 
 // Container represents a docker container created for testing. Host and Ports
@@ -20,7 +21,8 @@ type Container struct {
 	// and an actual port number as exposed on the host
 	Ports NamedPorts `json:"ports,omitempty"`
 
-	onStop func() error
+	gateway string
+	onStop  func() error
 }
 
 // Address is a convenience function that returns host:port that can be used to
@@ -46,4 +48,9 @@ func (c *Container) Port(name string) int {
 // DefaultPort returns Port() with DefaultPort
 func (c *Container) DefaultPort() int {
 	return c.Port(DefaultPort)
+}
+
+func isInDocker() bool {
+	_, err := os.Stat("/.dockerenv")
+	return err == nil
 }

@@ -71,7 +71,7 @@ func StartCustom(image string, ports NamedPorts, opts ...Option) (c *Container, 
 		return c, fmt.Errorf("can't connect to container: %w", err)
 	}
 
-	err = config.init(ctx, c)
+	err = initf(ctx, c, config)
 	if err != nil {
 		return c, fmt.Errorf("can't init container: %w", err)
 	}
@@ -188,7 +188,7 @@ func wait(ctx context.Context, c *Container, config *Options) error {
 		case <-ctx.Done():
 			return fmt.Errorf("canceled after error: %w", lastErr)
 		case <-delay.C:
-			err := config.healthcheck(ctx, c)
+			err := config.healthcheck(ctx, envAwareClone(c))
 			if err == nil {
 				return nil
 			}
@@ -196,4 +196,31 @@ func wait(ctx context.Context, c *Container, config *Options) error {
 			lastErr = err
 		}
 	}
+}
+
+func initf(ctx context.Context, c *Container, config *Options) error {
+	return config.init(ctx, envAwareClone(c))
+}
+
+// envAwareClone returns a copy of the provided container adjusted for usage
+// inside current environment. For example, if current process runs directly on
+// the host where container ports are exposed, an exact copy will be returned.
+// For a process running itself inside a container, Host value will be replaced
+// by docker host IP address. Anyway, calling Address() on the returned
+// container will allow to communicate with it both from inside another
+// container or from docker host.
+func envAwareClone(c *Container) *Container {
+	containerCopy := &Container{
+		ID:    c.ID,
+		Host:  c.Host,
+		Ports: c.Ports,
+	}
+
+	// when gnomock runs inside docker container, the other container is only
+	// accessible through the host
+	if isInDocker() {
+		containerCopy.Host = c.gateway
+	}
+
+	return containerCopy
 }

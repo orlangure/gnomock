@@ -27,6 +27,6 @@ func main() {
 		os.Exit(0)
 	}
 
-	addr := fmt.Sprintf("127.0.0.1:%d", port)
+	addr := fmt.Sprintf(":%d", port)
 	log.Println(http.ListenAndServe(addr, gnomockd.Handler()))
 }
