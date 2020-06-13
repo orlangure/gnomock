@@ -1,5 +1,5 @@
 <div align="center">
-    <img src="./gnomock.png">
+    <img src="https://github.com/orlangure/gnomock/blob/master/gnomock.png">
 </div>
 
 # <div align="center">Gnomock – test your code without mocks</div>
@@ -26,13 +26,20 @@ implementing a specific database, service or other tools. Each preset provides
 ways of setting up its initial state as easily as possible: SQL schema
 creation, test data upload into S3, sending test events to Splunk, etc.
 
-## Overview
+## Table of contents
 
-Gnomock runs locally and exposes an API over HTTP. This API is defined using
-OpenAPI 3.0
+- [Getting started](#getting-started)
+  - [Using Gnomock in Go applications](#using-gnomock-in-go-applications)
+  - [Using Gnomock server](#using-gnomock-server)
+- [Official presets](#official-presets)
+- [Troubleshooting](#troubleshooting)
+
+## Getting started
+
+Gnomock runs exposes an API over HTTP. This API is defined using OpenAPI 3.0
 [specification](https://app.swaggerhub.com/apis/orlangure/gnomock/1.2.0). Go
-programs can use extended Gnomock package directly, without HTTP layer, while
-other languages require communication with a local server.
+programs can use an extended Gnomock package directly, without the HTTP layer,
+while other languages require communication with a Gnomock server.
 
 Gnomock **requires** a running and working Docker daemon running locally in the
 same environment.
@@ -46,7 +53,7 @@ See the following example to get started:
 go get github.com/orlangure/gnomock
 ```
 
-Setting up a Postgres container with schema setup example:
+Setting up a **Postgres** container with schema setup example:
 
 ```go
 import (
@@ -74,15 +81,40 @@ db, _ := sql.Open("postgres", connStr)
 // db has the required schema and data, and is ready to use
 ```
 
-See package [reference](https://pkg.go.dev/github.com/orlangure/gnomock?tab=doc).
-
-For Preset documentation, refer to [Presets](#official-presets) section.
+See package
+[reference](https://pkg.go.dev/github.com/orlangure/gnomock?tab=doc). For
+Preset documentation, refer to [Presets](#official-presets) section.
 
 ### Using Gnomock server
 
-Gnomock runs as a local server, and any program in any language can communicate
-with it using OpenAPI 3.0
-[specification](https://app.swaggerhub.com/apis/orlangure/gnomock/).
+To start a `gnomock` server, run the following on any Unix-based system:
+
+```bash
+docker run --rm \
+    -p 23042:23042 \
+    -v /var/run/docker.sock:/var/run/docker.sock \
+    -v `pwd`:`pwd` \
+    orlangure/gnomock
+```
+
+`-p 23042:23042` exposes a port on the host to communicate with `gnomock`. You
+can use any port you like, just make sure to configure the client properly.
+
+`-v /var/run/docker.sock:/var/run/docker.sock` allows `gnomock` to communicate
+with the docker engine running on host. Without it `gnomock` can't access
+docker.
+
+If you use any file-related `gnomock` options, like `WithQueriesFile`, you have
+to make the path you use available inside the container:
+
+```
+# this makes the current folder appear inside the container under the same
+# path and name:
+-v `pwd`:`pwd`
+```
+
+Any program in any language can communicate with `gnomock` server using OpenAPI
+3.0 [specification](https://app.swaggerhub.com/apis/orlangure/gnomock/).
 
 Below is an example of setting up a **MySQL** container using a `POST` request:
 
@@ -182,3 +214,12 @@ The system, especially in CI environments such as Github Actions, cannot handle
 the load, and containers fail to become healthy before they time-out. That's
 the reason Gnomock has a few separate build jobs, each running only a small
 subset of tests, one package at a time.
+
+### Containers fail to setup with a "File not found" error
+
+If you run `gnomock` as a server, you need to make sure the files you use in
+your setup are available inside `gnomock` container. Use `-v $(pwd):$(pwd)`
+argument to `docker run` to mount the current working directory under the same
+path inside the `gnomock` container. If you prefer to keep a permanent
+`gnomock` container running, you can mount your entire `$HOME` directory (or
+any other directory where you keep the code).
