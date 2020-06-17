@@ -26,6 +26,10 @@ implementing a specific database, service or other tools. Each preset provides
 ways of setting up its initial state as easily as possible: SQL schema
 creation, test data upload into S3, sending test events to Splunk, etc.
 
+The name "Gnomock" stands for "no mock", with a "G" for "Go" 😼. It also sounds
+like "gnome", that's why the friendly garden gnome artwork (by [Michael
+Zolotov](https://www.mzolotov.com/))
+
 ## Table of contents
 
 - [Getting started](#getting-started)
