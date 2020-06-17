@@ -15,10 +15,44 @@ import (
 	"time"
 
 	"github.com/docker/docker/pkg/stdcopy"
+	"github.com/google/uuid"
+	"go.uber.org/zap"
 	"golang.org/x/sync/errgroup"
 )
 
 const defaultTag = "latest"
+
+// newG creates a new Gnomock session with a unique identifier and a dedicated
+// logger. It allows to follow a specific action while having multiple
+// operations running in parallel.
+func newG(debug bool) (*g, error) {
+	if !debug {
+		return &g{log: zap.NewNop().Sugar()}, nil
+	}
+
+	id, err := uuid.NewRandom()
+	if err != nil {
+		return nil, fmt.Errorf("can't generate a unique session id")
+	}
+
+	cfg := zap.NewDevelopmentConfig()
+	cfg.Encoding = "json"
+
+	l, err := cfg.Build(zap.WithCaller(false))
+	if err != nil {
+		return nil, fmt.Errorf("can't setup logger")
+	}
+
+	l = l.With(zap.String("id", id.String()))
+
+	return &g{id, l.Sugar()}, nil
+}
+
+// g is a Gnomock operation wrapper, mostly for debug purposes.
+type g struct {
+	id  uuid.UUID
+	log *zap.SugaredLogger
+}
 
 // StartCustom creates a new container using provided image and binds random
 // ports on the host to the provided ports inside the container. Image may
@@ -26,13 +60,22 @@ const defaultTag = "latest"
 // available through Option functions. The returned container must be stopped
 // when no longer needed using its Stop() method
 func StartCustom(image string, ports NamedPorts, opts ...Option) (c *Container, err error) {
-	config := buildConfig(opts...)
-	image = buildImage(image)
+	config, image := buildConfig(opts...), buildImage(image)
+
+	g, err := newG(config.Debug)
+	if err != nil {
+		return nil, fmt.Errorf("can't create new gnomock session: %w", err)
+	}
+
+	defer func() { _ = g.log.Sync() }()
+
+	g.log.Infow("starting", "image", image, "ports", ports)
+	g.log.Infow("using config", "image", image, "ports", ports, "config", config)
 
 	ctx, cancel := context.WithTimeout(config.ctx, config.Timeout)
 	defer cancel()
 
-	cli, err := dockerConnect()
+	cli, err := g.dockerConnect()
 	if err != nil {
 		return nil, fmt.Errorf("can't create docker client: %w", err)
 	}
@@ -49,32 +92,28 @@ func StartCustom(image string, ports NamedPorts, opts ...Option) (c *Container, 
 
 	defer func() {
 		if err != nil {
-			if Stop(c) == nil {
+			if !config.Debug && Stop(c) == nil {
 				c = nil
 			}
 		}
 	}()
 
-	logReader, err := cli.readLogs(context.Background(), c.ID)
+	err = g.setupLogForwarding(c, cli, config)
 	if err != nil {
-		return c, fmt.Errorf("can't setup log forwarding: %w", err)
+		return nil, fmt.Errorf("can't setup log forwarding: %w", err)
 	}
 
-	g := &errgroup.Group{}
-
-	g.Go(copy(config.logWriter, logReader))
-
-	c.onStop = closeLogReader(logReader, g)
-
-	err = wait(ctx, c, config)
+	err = g.wait(ctx, c, config)
 	if err != nil {
 		return c, fmt.Errorf("can't connect to container: %w", err)
 	}
 
-	err = initf(ctx, c, config)
+	err = g.initf(ctx, c, config)
 	if err != nil {
 		return c, fmt.Errorf("can't init container: %w", err)
 	}
+
+	g.log.Infow("container is ready to use", "id", c.ID, "ports", c.Ports)
 
 	return c, nil
 }
@@ -128,25 +167,34 @@ func Start(p Preset, opts ...Option) (*Container, error) {
 // Stop stops the provided container and lets docker remove them from the
 // system. Stop returns an error if any one of the containers couldn't stop
 func Stop(cs ...*Container) error {
-	var g errgroup.Group
+	g, err := newG(isInDocker())
+	if err != nil {
+		return err
+	}
+
+	defer func() { _ = g.log.Sync() }()
+
+	var eg errgroup.Group
 
 	for _, c := range cs {
 		container := c
 
-		g.Go(func() error {
-			return stop(container)
+		eg.Go(func() error {
+			return g.stop(container)
 		})
 	}
 
-	return g.Wait()
+	return eg.Wait()
 }
 
-func stop(c *Container) error {
+func (g *g) stop(c *Container) error {
 	if c == nil {
 		return nil
 	}
 
-	cli, err := dockerConnect()
+	g.log.Infow("stopping", "container", c)
+
+	cli, err := g.dockerConnect()
 	if err != nil {
 		return fmt.Errorf("can't create docker client: %w", err)
 	}
@@ -177,7 +225,22 @@ func buildImage(image string) string {
 	return image
 }
 
-func wait(ctx context.Context, c *Container, config *Options) error {
+func (g *g) setupLogForwarding(c *Container, cli *docker, config *Options) error {
+	logReader, err := cli.readLogs(context.Background(), c.ID)
+	if err != nil {
+		return fmt.Errorf("can't create log reader: %w", err)
+	}
+
+	eg := &errgroup.Group{}
+	eg.Go(copy(config.logWriter, logReader))
+	c.onStop = closeLogReader(logReader, eg)
+
+	return nil
+}
+
+func (g *g) wait(ctx context.Context, c *Container, config *Options) error {
+	g.log.Info("waiting for healthcheck to pass")
+
 	delay := time.NewTicker(config.healthcheckInterval)
 	defer delay.Stop()
 
@@ -190,6 +253,7 @@ func wait(ctx context.Context, c *Container, config *Options) error {
 		case <-delay.C:
 			err := config.healthcheck(ctx, envAwareClone(c))
 			if err == nil {
+				g.log.Info("container is healthy")
 				return nil
 			}
 
@@ -198,7 +262,9 @@ func wait(ctx context.Context, c *Container, config *Options) error {
 	}
 }
 
-func initf(ctx context.Context, c *Container, config *Options) error {
+func (g *g) initf(ctx context.Context, c *Container, config *Options) error {
+	g.log.Info("starting initial state setup")
+
 	return config.init(ctx, envAwareClone(c))
 }
 

@@ -12,6 +12,7 @@ import (
 	"github.com/docker/docker/api/types/container"
 	"github.com/docker/docker/client"
 	"github.com/docker/go-connections/nat"
+	"go.uber.org/zap"
 )
 
 const localhostAddr = "127.0.0.1"
@@ -19,18 +20,25 @@ const defaultStopTimeout = time.Second * 5
 
 type docker struct {
 	client *client.Client
+	log    *zap.SugaredLogger
 }
 
-func dockerConnect() (*docker, error) {
+func (g *g) dockerConnect() (*docker, error) {
+	g.log.Info("connecting to docker engine")
+
 	cli, err := client.NewEnvClient()
 	if err != nil {
 		return nil, fmt.Errorf("%w: %s", ErrEnvClient, err)
 	}
 
-	return &docker{cli}, nil
+	g.log.Info("connected to docker engine")
+
+	return &docker{cli, g.log}, nil
 }
 
 func (d *docker) pullImage(ctx context.Context, image string) error {
+	d.log.Info("pulling image")
+
 	reader, err := d.client.ImagePull(ctx, image, types.ImagePullOptions{})
 	if err != nil {
 		return fmt.Errorf("can't pull image: %w", err)
@@ -49,10 +57,14 @@ func (d *docker) pullImage(ctx context.Context, image string) error {
 		return fmt.Errorf("can't read server output: %w", err)
 	}
 
+	d.log.Info("image pulled")
+
 	return nil
 }
 
 func (d *docker) startContainer(ctx context.Context, image string, ports NamedPorts, cfg *Options) (*Container, error) {
+	d.log.Info("starting container")
+
 	exposedPorts := d.exposedPorts(ports)
 	containerConfig := &container.Config{
 		Image:        image,
@@ -91,6 +103,8 @@ func (d *docker) startContainer(ctx context.Context, image string, ports NamedPo
 		Ports:   boundNamedPorts,
 		gateway: containerJSON.NetworkSettings.Gateway,
 	}
+
+	d.log.Infow("container started", "container", container)
 
 	return container, nil
 }
@@ -153,6 +167,8 @@ func (d *docker) boundNamedPorts(json types.ContainerJSON, namedPorts NamedPorts
 }
 
 func (d *docker) readLogs(ctx context.Context, id string) (io.ReadCloser, error) {
+	d.log.Info("starting container logs forwarder")
+
 	logsOptions := types.ContainerLogsOptions{
 		ShowStderr: true, ShowStdout: true, Follow: true,
 	}
@@ -161,6 +177,8 @@ func (d *docker) readLogs(ctx context.Context, id string) (io.ReadCloser, error)
 	if err != nil {
 		return nil, fmt.Errorf("can't read logs: %w", err)
 	}
+
+	d.log.Info("container logs forwarder ready")
 
 	return rc, nil
 }

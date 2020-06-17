@@ -76,6 +76,17 @@ func WithLogWriter(w io.Writer) Option {
 	}
 }
 
+// WithDebugMode allows Gnomock to output internal messages for debug purposes.
+// Containers created in debug mode will not be automatically removed on
+// failure to setup their initial state. Containers still might be removed if
+// they are shut down from the inside. Use WithLogWriter to see what happens
+// inside.
+func WithDebugMode() Option {
+	return func(o *Options) {
+		o.Debug = true
+	}
+}
+
 // WithOptions allows to provide an existing set of Options instead of using
 // optional configuration.
 //
@@ -88,6 +99,7 @@ func WithOptions(options *Options) Option {
 		}
 
 		o.Env = append(o.Env, options.Env...)
+		o.Debug = options.Debug
 	}
 }
 
@@ -122,6 +134,9 @@ type Options struct {
 	// Env is a list of environment variable to inject into the container. Each
 	// entry is in format ENV_VAR_NAME=value
 	Env []string `json:"env"`
+
+	// Debug flag allows Gnomock to be verbose about steps it takes
+	Debug bool `json:"debug"`
 
 	ctx                 context.Context
 	init                InitFunc

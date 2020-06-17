@@ -272,6 +272,10 @@ components:
           items:
             type: string
             example: ENV_VAR_NAME=some-value
+        debug:
+          type: boolean
+          description: Set to true to see logs inside the Gnomock container
+          default: false
       description: >
         This object includes general Gnomock configuration, similar to all
         presets. Timeout configuration is especially useful for
