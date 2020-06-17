@@ -10,5 +10,7 @@
         "license": true,
         "version": "2019-latest"
     },
-    "options": {}
+    "options": {
+        "debug": true
+    }
 }

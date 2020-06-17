@@ -13,10 +13,12 @@ require (
 	github.com/go-redis/redis v6.15.7+incompatible
 	github.com/go-redis/redis/v7 v7.2.0
 	github.com/go-sql-driver/mysql v1.5.0
+	github.com/google/uuid v1.1.1
 	github.com/gorilla/mux v1.7.4
 	github.com/lib/pq v1.5.1
 	github.com/opencontainers/go-digest v1.0.0-rc1 // indirect
 	github.com/stretchr/testify v1.5.1
 	go.mongodb.org/mongo-driver v1.3.2
+	go.uber.org/zap v1.15.0
 	golang.org/x/sync v0.0.0-20200317015054-43a5402ce75a
 )

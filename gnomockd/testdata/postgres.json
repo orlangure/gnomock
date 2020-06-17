@@ -10,5 +10,7 @@
         "db": "gnomockd_db",
         "version": "12"
     },
-    "options": {}
+    "options": {
+        "debug": true
+    }
 }
