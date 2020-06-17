@@ -38,7 +38,8 @@ func TestPreset(t *testing.T) {
 	t.Parallel()
 
 	p := &testPreset{testImage}
-	container, err := gnomock.Start(p, gnomock.WithTimeout(time.Second*10))
+	container, err := gnomock.Start(p, gnomock.WithTimeout(time.Second*15))
+
 	// by default, testPreset always fails its healthcheck
 	require.Error(t, err)
 	require.Contains(t, err.Error(), "this container should not start")
@@ -63,7 +64,7 @@ func TestPreset_containerRemainsIfDebug(t *testing.T) {
 	p := &testPreset{testImage}
 	container, err := gnomock.Start(
 		p,
-		gnomock.WithTimeout(time.Second*10),
+		gnomock.WithTimeout(time.Second*15),
 		gnomock.WithDebugMode(),
 	)
 	require.Error(t, err)
@@ -73,6 +74,9 @@ func TestPreset_containerRemainsIfDebug(t *testing.T) {
 	// if stopped without error, container existed at this point
 	err = gnomock.Stop(container)
 	require.NoError(t, err)
+
+	// allow the container to actually stop
+	time.Sleep(time.Second)
 
 	// confirm it doesn't exist anymore
 	err = gnomock.Stop(container)

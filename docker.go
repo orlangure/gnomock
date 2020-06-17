@@ -16,7 +16,7 @@ import (
 )
 
 const localhostAddr = "127.0.0.1"
-const defaultStopTimeout = time.Second * 5
+const defaultStopTimeout = time.Second * 1
 
 type docker struct {
 	client *client.Client
