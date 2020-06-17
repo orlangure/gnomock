@@ -1,7 +1,8 @@
 {
     "preset": {
         "queries_files": [
-            "./testdata/postgres/customers.sql"
+            "./testdata/postgres/customers.sql",
+            "./testdata/postgres/things.sql"
         ],
         "queries": [
             "create table tbl(a int)",

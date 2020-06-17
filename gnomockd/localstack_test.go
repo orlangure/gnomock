@@ -23,7 +23,6 @@ import (
 )
 
 //nolint:bodyclose
-//nolint:bodyclose
 func TestLocalstack(t *testing.T) {
 	t.Parallel()
 
@@ -65,7 +64,7 @@ func TestLocalstack(t *testing.T) {
 	listInput := &s3.ListObjectsV2Input{Bucket: aws.String("some-bucket")}
 	files, err := svc.ListObjectsV2(listInput)
 	require.NoError(t, err)
-	require.Len(t, files.Contents, 1000)
+	require.Len(t, files.Contents, 100)
 	require.False(t, *files.IsTruncated)
 
 	for _, f := range files.Contents {
