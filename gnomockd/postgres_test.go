@@ -62,6 +62,11 @@ func TestPostgres(t *testing.T) {
 	require.NoError(t, row.Scan(&value))
 	require.Equal(t, 42, value)
 
+	row = db.QueryRow(`select max(foo) from things limit 1`)
+	value = 0
+	require.NoError(t, row.Scan(&value))
+	require.Equal(t, 3, value)
+
 	bs, err = json.Marshal(c)
 	require.NoError(t, err)
 

@@ -35,12 +35,12 @@ func Preset(opts ...Option) gnomock.Preset {
 
 // P is a Gnomock Preset implementation of Microsoft SQL Server database
 type P struct {
-	DB          string   `json:"db"`
-	Password    string   `json:"password"`
-	Queries     []string `json:"queries"`
-	QueriesFile string   `json:"queries_file"`
-	License     bool     `json:"license"`
-	Version     string   `json:"version"`
+	DB           string   `json:"db"`
+	Password     string   `json:"password"`
+	Queries      []string `json:"queries"`
+	QueriesFiles []string `json:"queries_files"`
+	License      bool     `json:"license"`
+	Version      string   `json:"version"`
 }
 
 // Image returns an image that should be pulled to create this container
@@ -107,9 +107,7 @@ func (p *P) initf() gnomock.InitFunc {
 			return err
 		}
 
-		defer func() {
-			_ = db.Close()
-		}()
+		defer func() { _ = db.Close() }()
 
 		_, err = db.Exec("create database " + p.DB)
 		if err != nil {
@@ -121,13 +119,15 @@ func (p *P) initf() gnomock.InitFunc {
 			return err
 		}
 
-		if p.QueriesFile != "" {
-			bs, err := ioutil.ReadFile(p.QueriesFile)
-			if err != nil {
-				return fmt.Errorf("can't read queries file '%s': %w", p.QueriesFile, err)
-			}
+		if len(p.QueriesFiles) > 0 {
+			for _, f := range p.QueriesFiles {
+				bs, err := ioutil.ReadFile(f) // nolint:gosec
+				if err != nil {
+					return fmt.Errorf("can't read queries file '%s': %w", f, err)
+				}
 
-			p.Queries = append([]string{string(bs)}, p.Queries...)
+				p.Queries = append([]string{string(bs)}, p.Queries...)
+			}
 		}
 
 		for _, q := range p.Queries {

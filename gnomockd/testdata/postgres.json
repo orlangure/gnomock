@@ -1,6 +1,8 @@
 {
     "preset": {
-        "queries_file": "./testdata/postgres/customers.sql",
+        "queries_files": [
+            "./testdata/postgres/customers.sql"
+        ],
         "queries": [
             "create table tbl(a int)",
             "insert into tbl(a) values (42)"

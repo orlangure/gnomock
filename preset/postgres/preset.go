@@ -33,12 +33,12 @@ func Preset(opts ...Option) gnomock.Preset {
 
 // P is a Gnomock Preset implementation of PostgreSQL database
 type P struct {
-	DB          string   `json:"db"`
-	Queries     []string `json:"queries"`
-	QueriesFile string   `json:"queries_file"`
-	User        string   `json:"user"`
-	Password    string   `json:"password"`
-	Version     string   `json:"version"`
+	DB           string   `json:"db"`
+	Queries      []string `json:"queries"`
+	QueriesFiles []string `json:"queries_files"`
+	User         string   `json:"user"`
+	Password     string   `json:"password"`
+	Version      string   `json:"version"`
 }
 
 // Image returns an image that should be pulled to create this container
@@ -120,17 +120,17 @@ func (p *P) initf() gnomock.InitFunc {
 			return err
 		}
 
-		defer func() {
-			_ = db.Close()
-		}()
+		defer func() { _ = db.Close() }()
 
-		if p.QueriesFile != "" {
-			bs, err := ioutil.ReadFile(p.QueriesFile)
-			if err != nil {
-				return fmt.Errorf("can't read queries file '%s': %w", p.QueriesFile, err)
+		if len(p.QueriesFiles) > 0 {
+			for _, f := range p.QueriesFiles {
+				bs, err := ioutil.ReadFile(f) // nolint:gosec
+				if err != nil {
+					return fmt.Errorf("can't read queries file '%s': %w", f, err)
+				}
+
+				p.Queries = append([]string{string(bs)}, p.Queries...)
 			}
-
-			p.Queries = append([]string{string(bs)}, p.Queries...)
 		}
 
 		for _, q := range p.Queries {

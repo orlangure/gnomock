@@ -33,7 +33,7 @@ func WithQueries(queries ...string) Option {
 // this file are executed before any other queries provided in WithQueries
 func WithQueriesFile(file string) Option {
 	return func(p *P) {
-		p.QueriesFile = file
+		p.QueriesFiles = append(p.QueriesFiles, file)
 	}
 }
 
