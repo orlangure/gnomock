@@ -7,7 +7,7 @@ info:
     testing toolkit. It allows to use Gnomock outside of Go ecosystem. Not all
     Gnomock features exist in this wrapper, but official presets, as well as
     basic general configuration, are supported.
-  version: 1.2.0
+  version: 1.3.0
   contact:
     url: https://github.com/orlangure/gnomock/
   license:
@@ -413,10 +413,13 @@ components:
           example:
             - create table foo(bar int)
             - insert into foo(bar) values(1)
-        queries_file:
-          type: string
-          description: A SQL file to execute while setting up container state.
-          example: /home/gnomock/project/testdata/mssql/queries
+        queries_files:
+          type: array
+          items:
+            type: string
+          description: SQL files to execute while setting up container state.
+          example:
+            - /home/gnomock/project/testdata/mssql/queries.sql
         license:
           type: boolean
           description: Accept or decline Microsoft SQL Server license.
@@ -467,10 +470,13 @@ components:
           example:
             - create table foo(bar int)
             - insert into foo(bar) values(1)
-        queries_file:
-          type: string
-          description: A SQL file to execute while setting up container state.
-          example: /home/gnomock/project/testdata/mysql/queries
+        queries_files:
+          type: array
+          items:
+            type: string
+          description: SQL files to execute while setting up container state.
+          example:
+            - /home/gnomock/project/testdata/mysql/queries.sql
         version:
           type: string
           description: Docker image tag (version)
@@ -514,10 +520,13 @@ components:
           example:
             - create table foo(bar int)
             - insert into foo(bar) values(1)
-        queries_file:
-          type: string
-          description: A SQL file to execute while setting up container state.
-          example: /home/gnomock/project/testdata/postgres/queries
+        queries_files:
+          type: array
+          items:
+            type: string
+          description: SQL files to execute while setting up container state.
+          example:
+            - /home/gnomock/project/testdata/postgres/queries.sql
         version:
           type: string
           description: Docker image tag (version)

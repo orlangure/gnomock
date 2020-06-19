@@ -18,7 +18,7 @@ import (
 
 //nolint:funlen
 func TestWithS3Files(t *testing.T) {
-	// testdata/s3 includes 2500 files in my-bucket/dir folder
+	// testdata/s3 includes 100 files in my-bucket/dir folder
 	p := localstack.Preset(
 		localstack.WithServices(localstack.S3),
 		localstack.WithS3Files("testdata/s3"),
@@ -42,40 +42,43 @@ func TestWithS3Files(t *testing.T) {
 
 	svc := s3.New(sess)
 
-	// my-bucket is automatically created, and now includes 2500 files
-	// s3 pagination allows to pull 1000 files at a time
-	listInput := &s3.ListObjectsV2Input{Bucket: aws.String("my-bucket")}
+	// my-bucket is automatically created, and now includes 100 files
+	listInput := &s3.ListObjectsV2Input{
+		Bucket:  aws.String("my-bucket"),
+		MaxKeys: aws.Int64(40),
+	}
 	files, err := svc.ListObjectsV2(listInput)
 	require.NoError(t, err)
-	require.Len(t, files.Contents, 1000)
+	require.Len(t, files.Contents, 40)
 	require.True(t, *files.IsTruncated)
 
 	for _, f := range files.Contents {
 		require.True(t, strings.HasPrefix(*f.Key, "dir/f-"))
 	}
 
-	// list next 1000 files
 	listInput = &s3.ListObjectsV2Input{
 		Bucket:            aws.String("my-bucket"),
 		ContinuationToken: files.NextContinuationToken,
+		MaxKeys:           aws.Int64(50),
 	}
 	files, err = svc.ListObjectsV2(listInput)
 	require.NoError(t, err)
-	require.Len(t, files.Contents, 1000)
+	require.Len(t, files.Contents, 50)
 	require.True(t, *files.IsTruncated)
 
 	for _, f := range files.Contents {
 		require.True(t, strings.HasPrefix(*f.Key, "dir/f-"))
 	}
 
-	// list last batch of files, only 500 left
+	// list last batch of files, only 10 left
 	listInput = &s3.ListObjectsV2Input{
 		Bucket:            aws.String("my-bucket"),
 		ContinuationToken: files.NextContinuationToken,
+		MaxKeys:           aws.Int64(100),
 	}
 	files, err = svc.ListObjectsV2(listInput)
 	require.NoError(t, err)
-	require.Len(t, files.Contents, 500)
+	require.Len(t, files.Contents, 10)
 	require.False(t, *files.IsTruncated)
 
 	for _, f := range files.Contents {

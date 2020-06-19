@@ -33,7 +33,7 @@ class TestSDK(unittest.TestCase):
     def test_mysql(self):
         options = gnomock.Options()
         file_name = os.path.abspath("./test/testdata/mysql/schema.sql")
-        preset = gnomock.Mysql(queries_file=file_name, version="8")
+        preset = gnomock.Mysql(queries_files=[file_name], version="8")
         mysql_request = gnomock.MysqlRequest(options=options, preset=preset)
         id = ""
 
@@ -51,7 +51,7 @@ class TestSDK(unittest.TestCase):
     def test_mssql(self):
         options = gnomock.Options()
         file_name = os.path.abspath("./test/testdata/mssql/schema.sql")
-        preset = gnomock.Mssql(queries_file=file_name, license=True, version="2019-latest")
+        preset = gnomock.Mssql(queries_files=[file_name], license=True, version="2019-latest")
         mssql_request = gnomock.MssqlRequest(options=options, preset=preset)
         id = ""
 
@@ -69,7 +69,7 @@ class TestSDK(unittest.TestCase):
     def test_postgres(self):
         options = gnomock.Options()
         file_name = os.path.abspath("./test/testdata/postgres/schema.sql")
-        preset = gnomock.Postgres(queries_file=file_name, version="12")
+        preset = gnomock.Postgres(queries_files=[file_name], version="12")
         postgres_request = gnomock.PostgresRequest(options=options, preset=preset)
         id = ""
 
