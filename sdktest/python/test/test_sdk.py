@@ -136,6 +136,23 @@ class TestSDK(unittest.TestCase):
                 stop_request = gnomock.StopRequest(id=id)
                 self.api.stop(stop_request)
 
+    def test_rabbitmq(self):
+        options = gnomock.Options()
+        preset = gnomock.Rabbitmq(version="3.8.5-alpine")
+        rabbitmq_request = gnomock.RabbitmqRequest(options=options,
+                preset=preset)
+        id = ""
+
+        try:
+            response = self.api.start_rabbit_mq(rabbitmq_request)
+            id = response.id
+            self.assertEqual("127.0.0.1", response.host)
+
+        finally:
+            if id is not "":
+                stop_request = gnomock.StopRequest(id=id)
+                self.api.stop(stop_request)
+
 
 if __name__ == "__main__":
     unittest.main()

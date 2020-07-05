@@ -8,6 +8,7 @@ import (
 	"github.com/orlangure/gnomock/preset/mssql"
 	"github.com/orlangure/gnomock/preset/mysql"
 	"github.com/orlangure/gnomock/preset/postgres"
+	"github.com/orlangure/gnomock/preset/rabbitmq"
 	"github.com/orlangure/gnomock/preset/redis"
 	"github.com/orlangure/gnomock/preset/splunk"
 )
@@ -35,6 +36,8 @@ func (r registry) Preset(name string) gnomock.Preset {
 		return &redis.P{}
 	case "splunk":
 		return &splunk.P{}
+	case "rabbitmq":
+		return &rabbitmq.P{}
 	}
 
 	return nil
