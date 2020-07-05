@@ -7,7 +7,7 @@ info:
     testing toolkit. It allows to use Gnomock outside of Go ecosystem. Not all
     Gnomock features exist in this wrapper, but official presets, as well as
     basic general configuration, are supported.
-  version: 1.3.0
+  version: 1.4.0
   contact:
     url: https://github.com/orlangure/gnomock/
   license:
@@ -142,6 +142,25 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/splunk-request'
+      responses:
+        '200':
+          $ref: '#/components/responses/container-created'
+        '400':
+          $ref: '#/components/responses/invalid-configuration'
+        '500':
+          $ref: '#/components/responses/start-failed'
+      tags:
+        - presets
+  /start/rabbitmq:
+    post:
+      summary: Start a new Gnomock RabbitMQ container
+      operationId: startRabbitMq
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/rabbitmq-request'
       responses:
         '200':
           $ref: '#/components/responses/container-created'
@@ -634,6 +653,37 @@ components:
         - admin_password
       description: >
         This object describes Splunk container.
+
+    rabbitmq-request:
+      type: object
+      properties:
+        preset:
+          $ref: '#/components/schemas/rabbitmq'
+        options:
+          $ref: '#/components/schemas/options'
+      description: >
+        This request includes RabbitMQ and general configuration.
+
+    rabbitmq:
+      type: object
+      properties:
+        user:
+          type: string
+          description: Set a user name
+          example: gnomock
+          default: guest
+        password:
+          type: string
+          description: Set a password for a created user
+          example: p@s$w0rD
+          default: guest
+        version:
+          type: string
+          description: RabbitMQ version.
+          default: 3.8.5-alpine
+          example: latest
+      description: >
+        This object describes a RabbitMQ container.
 
     stop-request:
       type: object

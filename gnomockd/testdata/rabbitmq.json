@@ -1,0 +1,8 @@
+{
+    "preset": {
+        "version": "3.8.5-alpine"
+    },
+    "options": {
+        "debug": true
+    }
+}
