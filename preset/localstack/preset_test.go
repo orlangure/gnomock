@@ -22,7 +22,10 @@ import (
 func TestPreset_s3(t *testing.T) {
 	t.Parallel()
 
-	p := localstack.Preset(localstack.WithServices(localstack.S3))
+	p := localstack.Preset(
+		localstack.WithServices(localstack.S3),
+		localstack.WithVersion("0.11.0"),
+	)
 	c, err := gnomock.Start(p)
 
 	defer func() { require.NoError(t, gnomock.Stop(c)) }()
@@ -72,6 +75,7 @@ func TestPreset_sqs_sns(t *testing.T) {
 
 	p := localstack.Preset(
 		localstack.WithServices(localstack.SNS, localstack.SQS),
+		localstack.WithVersion("0.11.0"),
 	)
 	c, err := gnomock.Start(p)
 
