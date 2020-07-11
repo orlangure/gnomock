@@ -8,6 +8,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"strconv"
 	"strings"
 
 	"github.com/orlangure/gnomock"
@@ -86,7 +87,7 @@ func (p *P) setDefaults() {
 
 func (p *P) healthcheck(services []string) gnomock.HealthcheckFunc {
 	return func(ctx context.Context, c *gnomock.Container) (err error) {
-		addr := fmt.Sprintf("http://%s/health", c.Address(webPort))
+		addr := p.healthCheckAddress(c)
 
 		res, err := http.Get(addr) //nolint:gosec
 		if err != nil {
@@ -125,6 +126,51 @@ func (p *P) healthcheck(services []string) gnomock.HealthcheckFunc {
 
 		return nil
 	}
+}
+
+// healthCheckAddress returns the address of `/health` endpoint of a running
+// localstack container. Before version 0.11.3, the endpoint was available at
+// port 8080. In 0.11.3, the endpoint was moved to the default port (4566).
+func (p *P) healthCheckAddress(c *gnomock.Container) string {
+	defaultPath := fmt.Sprintf("http://%s/health", c.Address(APIPort))
+
+	if p.Version == defaultVersion {
+		return defaultPath
+	}
+
+	versionParts := strings.Split(p.Version, ".")
+	if len(versionParts) != 3 {
+		return defaultPath
+	}
+
+	major, err := strconv.Atoi(versionParts[0])
+	if err != nil {
+		return defaultPath
+	}
+
+	if major > 0 {
+		return defaultPath
+	}
+
+	minor, err := strconv.Atoi(versionParts[1])
+	if err != nil {
+		return defaultPath
+	}
+
+	if minor > 11 {
+		return defaultPath
+	}
+
+	patch, err := strconv.Atoi(versionParts[2])
+	if err != nil {
+		return defaultPath
+	}
+
+	if minor == 11 && patch > 2 {
+		return defaultPath
+	}
+
+	return fmt.Sprintf("http://%s/health", c.Address(webPort))
 }
 
 type healthResponse struct {
