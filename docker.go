@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io"
 	"io/ioutil"
+	"regexp"
 	"strconv"
 	"time"
 
@@ -17,6 +18,7 @@ import (
 
 const localhostAddr = "127.0.0.1"
 const defaultStopTimeout = time.Second * 1
+const duplicateContainerPattern = `Conflict. The container name "(?:.+?)" is already in use by container "(\w+)". You have to remove \(or rename\) that container to be able to reuse that name.` // nolint:lll
 
 type docker struct {
 	client *client.Client
@@ -65,19 +67,7 @@ func (d *docker) pullImage(ctx context.Context, image string) error {
 func (d *docker) startContainer(ctx context.Context, image string, ports NamedPorts, cfg *Options) (*Container, error) {
 	d.log.Info("starting container")
 
-	exposedPorts := d.exposedPorts(ports)
-	containerConfig := &container.Config{
-		Image:        image,
-		ExposedPorts: exposedPorts,
-		Env:          cfg.Env,
-	}
-	portBindings := d.portBindings(exposedPorts)
-	hostConfig := &container.HostConfig{
-		PortBindings: portBindings,
-		AutoRemove:   true,
-	}
-
-	resp, err := d.client.ContainerCreate(ctx, containerConfig, hostConfig, nil, "")
+	resp, err := d.createContainer(ctx, image, ports, cfg)
 	if err != nil {
 		return nil, fmt.Errorf("can't create container: %w", err)
 	}
@@ -140,6 +130,46 @@ func (d *docker) portBindings(exposedPorts nat.PortSet) nat.PortMap {
 	}
 
 	return portBindings
+}
+
+func (d *docker) createContainer(ctx context.Context, image string, ports NamedPorts, cfg *Options) (*container.ContainerCreateCreatedBody, error) { // nolint:lll
+	exposedPorts := d.exposedPorts(ports)
+	containerConfig := &container.Config{
+		Image:        image,
+		ExposedPorts: exposedPorts,
+		Env:          cfg.Env,
+	}
+	portBindings := d.portBindings(exposedPorts)
+	hostConfig := &container.HostConfig{
+		PortBindings: portBindings,
+		AutoRemove:   true,
+	}
+
+	resp, err := d.client.ContainerCreate(ctx, containerConfig, hostConfig, nil, cfg.ContainerName)
+	if err == nil {
+		return &resp, nil
+	}
+
+	rxp, rxpErr := regexp.Compile(duplicateContainerPattern)
+	if rxpErr != nil {
+		return nil, fmt.Errorf("can't find conflicting container id: %w", err)
+	}
+
+	matches := rxp.FindStringSubmatch(err.Error())
+	if len(matches) == 2 {
+		d.log.Infow("duplicate container found, stopping", "container", matches[1])
+
+		err = d.client.ContainerRemove(ctx, matches[1], types.ContainerRemoveOptions{
+			Force: true,
+		})
+		if err != nil {
+			return nil, fmt.Errorf("can't remove existing container: %w", err)
+		}
+
+		resp, err = d.client.ContainerCreate(ctx, containerConfig, hostConfig, nil, cfg.ContainerName)
+	}
+
+	return &resp, err
 }
 
 func (d *docker) boundNamedPorts(json types.ContainerJSON, namedPorts NamedPorts) (NamedPorts, error) {

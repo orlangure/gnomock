@@ -7,7 +7,7 @@ info:
     testing toolkit. It allows to use Gnomock outside of Go ecosystem. Not all
     Gnomock features exist in this wrapper, but official presets, as well as
     basic general configuration, are supported.
-  version: 1.4.0
+  version: 1.4.1
   contact:
     url: https://github.com/orlangure/gnomock/
   license:
@@ -295,6 +295,13 @@ components:
           type: boolean
           description: Set to true to see logs inside the Gnomock container
           default: false
+        container_name:
+          type: string
+          description: >
+            Use a specific container name instead of a random one. In case a
+            container with this name already exists, it is killed and replaced
+            by a new container.
+          example: gnomock
       description: >
         This object includes general Gnomock configuration, similar to all
         presets. Timeout configuration is especially useful for
