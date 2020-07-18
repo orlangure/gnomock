@@ -1,21 +1,34 @@
-// Package rabbitmq provides a Gnomock Preset for RabbitMQ
+// Package rabbitmq provides a Gnomock Preset for RabbitMQ.
 package rabbitmq
 
 import (
 	"context"
 	"fmt"
+	"net/http"
+	"strings"
 
 	"github.com/orlangure/gnomock"
 	"github.com/streadway/amqp"
 )
 
+// ManagementPort is a name of the port exposed by RabbitMQ management plugin.
+// This port is only available when an appropriate version of RabbitMQ docker
+// image is used. See `Preset` docs for more info.
+const ManagementPort = "management"
+
 const defaultUser = "guest"
 const defaultPassword = "guest"
 const defaultVersion = "alpine"
 const defaultPort = 5672
+const managementPort = 15672
 
-// Preset creates a new Gmomock RabbitMQ preset. This preset includes a RabbitMQ
-// specific healthcheck function and default RabbitMQ image and port.
+// Preset creates a new Gmomock RabbitMQ preset. This preset includes a
+// RabbitMQ specific healthcheck function and default RabbitMQ image and port.
+//
+// By default, this preset does not use RabbitMQ Management plugin. To enable
+// it, use one of the management tags with `WithVersion` option. Management
+// port will be accessible using `container.Port(rabbitmq.ManagementPort)`. See
+// https://hub.docker.com/_/rabbitmq/?tab=tags for a list of available tags.
 func Preset(opts ...Option) gnomock.Preset {
 	p := &P{}
 
@@ -33,17 +46,23 @@ type P struct {
 	Version  string `json:"version"`
 }
 
-// Image returns an image that should be pulled to create this container
+// Image returns an image that should be pulled to create this container.
 func (p *P) Image() string {
 	return fmt.Sprintf("docker.io/library/rabbitmq:%s", p.Version)
 }
 
-// Ports returns ports that should be used to access this container
+// Ports returns ports that should be used to access this container.
 func (p *P) Ports() gnomock.NamedPorts {
-	return gnomock.DefaultTCP(defaultPort)
+	namedPorts := gnomock.DefaultTCP(defaultPort)
+
+	if p.isManagement() {
+		namedPorts[ManagementPort] = gnomock.Port{Protocol: "tcp", Port: managementPort}
+	}
+
+	return namedPorts
 }
 
-// Options returns a list of options to configure this container
+// Options returns a list of options to configure this container.
 func (p *P) Options() []gnomock.Option {
 	p.setDefaults()
 
@@ -75,6 +94,19 @@ func (p *P) healthcheck(ctx context.Context, c *gnomock.Container) error {
 		return fmt.Errorf("can't close connection: %w", err)
 	}
 
+	if p.isManagement() {
+		addr := c.Address(ManagementPort)
+		url := fmt.Sprintf("http://%s/api/overview", addr)
+
+		// any non-err response is valid, it is most likely 401 Unauthorized
+		resp, err := http.Get(url) // nolint:gosec
+		if err != nil {
+			return err
+		}
+
+		_ = resp.Body.Close()
+	}
+
 	return nil
 }
 
@@ -87,4 +119,8 @@ func (p *P) setDefaults() {
 		p.User = defaultUser
 		p.Password = defaultPassword
 	}
+}
+
+func (p *P) isManagement() bool {
+	return strings.Contains(p.Version, "management")
 }
