@@ -14,7 +14,7 @@
 
 🕹️ Test actual program behavior and side effects
 
-## <div align="center">![Build](https://github.com/orlangure/gnomock/workflows/Build/badge.svg) [![Go Report Card](https://goreportcard.com/badge/github.com/orlangure/gnomock)](https://goreportcard.com/report/github.com/orlangure/gnomock)</div>
+## <div align="center">[![PkgGoDev](https://pkg.go.dev/badge/github.com/orlangure/gnomock)](https://pkg.go.dev/github.com/orlangure/gnomock) ![Build](https://github.com/orlangure/gnomock/workflows/Build/badge.svg) [![Go Report Card](https://goreportcard.com/badge/github.com/orlangure/gnomock)](https://goreportcard.com/report/github.com/orlangure/gnomock)</div>
 
 Gnomock is an integration and end-to-end testing toolkit. It uses Docker to
 create **temporary containers** for application dependencies, **setup** their
@@ -41,7 +41,7 @@ Zolotov](https://www.mzolotov.com/))
 ## Getting started
 
 Gnomock runs exposes an API over HTTP. This API is defined using OpenAPI 3.0
-[specification](https://app.swaggerhub.com/apis/orlangure/gnomock/1.4.0). Go
+[specification](https://app.swaggerhub.com/apis/orlangure/gnomock/1.4.1). Go
 programs can use an extended Gnomock package directly, without the HTTP layer,
 while other languages require communication with a Gnomock server.
 
@@ -176,14 +176,14 @@ listed below:
 
 | Preset | Go package | HTTP API | Go API | Latest stable image |
 |--------|------------|----------|--------|---------------------|
-Localstack | [Go package](https://github.com/orlangure/gnomock/tree/master/preset/localstack) | [Docs](https://app.swaggerhub.com/apis/orlangure/gnomock/1.4.0#/presets/startLocalstack) | [Reference](https://pkg.go.dev/github.com/orlangure/gnomock/preset/localstack?tab=doc) | 0.11.0
-Splunk | [Go package](https://github.com/orlangure/gnomock/tree/master/preset/splunk) | [Docs](https://app.swaggerhub.com/apis/orlangure/gnomock/1.4.0#/presets/startSplunk) | [Reference](https://pkg.go.dev/github.com/orlangure/gnomock/preset/splunk?tab=doc) | 8.0.2
-Redis | [Go package](https://github.com/orlangure/gnomock/tree/master/preset/redis) | [Docs](https://app.swaggerhub.com/apis/orlangure/gnomock/1.4.0#/presets/startRedis) | [Reference](https://pkg.go.dev/github.com/orlangure/gnomock/preset/redis?tab=doc) | 5
-MySQL | [Go package](https://github.com/orlangure/gnomock/tree/master/preset/mysql) | [Docs](https://app.swaggerhub.com/apis/orlangure/gnomock/1.4.0#/presets/startMysql) | [Reference](https://pkg.go.dev/github.com/orlangure/gnomock/preset/mysql?tab=doc) | 8
-PostgreSQL | [Go package](https://github.com/orlangure/gnomock/tree/master/preset/postgres) | [Docs](https://app.swaggerhub.com/apis/orlangure/gnomock/1.4.0#/presets/startPostgres) | [Reference](https://pkg.go.dev/github.com/orlangure/gnomock/preset/postgres?tab=doc) | 12
-Microsoft SQL Server | [Go package](https://github.com/orlangure/gnomock/tree/master/preset/mssql) | [Docs](https://app.swaggerhub.com/apis/orlangure/gnomock/1.4.0#/presets/startMssql) | [Reference](https://pkg.go.dev/github.com/orlangure/gnomock/preset/mssql?tab=doc) | 2019-latest
-MongoDB | [Go package](https://github.com/orlangure/gnomock/tree/master/preset/mongo) | [Docs](https://app.swaggerhub.com/apis/orlangure/gnomock/1.4.0#/presets/startMongo) | [Reference](https://pkg.go.dev/github.com/orlangure/gnomock/preset/mongo?tab=doc) | 4
-RabbitMQ | [Go package](https://github.com/orlangure/gnomock/tree/master/preset/rabbitmq) | [Docs](https://app.swaggerhub.com/apis/orlangure/gnomock/1.4.0#/presets/startRabbitMq) | [Reference](https://pkg.go.dev/github.com/orlangure/gnomock/preset/rabbitmq?tab=doc) | 3.8.5-alpine
+Localstack | [Go package](https://github.com/orlangure/gnomock/tree/master/preset/localstack) | [Docs](https://app.swaggerhub.com/apis/orlangure/gnomock/1.4.1#/presets/startLocalstack) | [Reference](https://pkg.go.dev/github.com/orlangure/gnomock/preset/localstack?tab=doc) | 0.11.0
+Splunk | [Go package](https://github.com/orlangure/gnomock/tree/master/preset/splunk) | [Docs](https://app.swaggerhub.com/apis/orlangure/gnomock/1.4.1#/presets/startSplunk) | [Reference](https://pkg.go.dev/github.com/orlangure/gnomock/preset/splunk?tab=doc) | 8.0.2
+Redis | [Go package](https://github.com/orlangure/gnomock/tree/master/preset/redis) | [Docs](https://app.swaggerhub.com/apis/orlangure/gnomock/1.4.1#/presets/startRedis) | [Reference](https://pkg.go.dev/github.com/orlangure/gnomock/preset/redis?tab=doc) | 5
+MySQL | [Go package](https://github.com/orlangure/gnomock/tree/master/preset/mysql) | [Docs](https://app.swaggerhub.com/apis/orlangure/gnomock/1.4.1#/presets/startMysql) | [Reference](https://pkg.go.dev/github.com/orlangure/gnomock/preset/mysql?tab=doc) | 8
+PostgreSQL | [Go package](https://github.com/orlangure/gnomock/tree/master/preset/postgres) | [Docs](https://app.swaggerhub.com/apis/orlangure/gnomock/1.4.1#/presets/startPostgres) | [Reference](https://pkg.go.dev/github.com/orlangure/gnomock/preset/postgres?tab=doc) | 12
+Microsoft SQL Server | [Go package](https://github.com/orlangure/gnomock/tree/master/preset/mssql) | [Docs](https://app.swaggerhub.com/apis/orlangure/gnomock/1.4.1#/presets/startMssql) | [Reference](https://pkg.go.dev/github.com/orlangure/gnomock/preset/mssql?tab=doc) | 2019-latest
+MongoDB | [Go package](https://github.com/orlangure/gnomock/tree/master/preset/mongo) | [Docs](https://app.swaggerhub.com/apis/orlangure/gnomock/1.4.1#/presets/startMongo) | [Reference](https://pkg.go.dev/github.com/orlangure/gnomock/preset/mongo?tab=doc) | 4
+RabbitMQ | [Go package](https://github.com/orlangure/gnomock/tree/master/preset/rabbitmq) | [Docs](https://app.swaggerhub.com/apis/orlangure/gnomock/1.4.1#/presets/startRabbitMq) | [Reference](https://pkg.go.dev/github.com/orlangure/gnomock/preset/rabbitmq?tab=doc) | 3.8.5-alpine
 Elasticsearch | |
 DynamoDB | |
 Cassandra | |

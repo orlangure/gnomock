@@ -87,6 +87,14 @@ func WithDebugMode() Option {
 	}
 }
 
+// WithContainerName allows to give a specific name to a new container. If a
+// container with the same name already exists, it is killed.
+func WithContainerName(name string) Option {
+	return func(o *Options) {
+		o.ContainerName = name
+	}
+}
+
 // WithOptions allows to provide an existing set of Options instead of using
 // optional configuration.
 //
@@ -137,6 +145,10 @@ type Options struct {
 
 	// Debug flag allows Gnomock to be verbose about steps it takes
 	Debug bool `json:"debug"`
+
+	// ContainerName allows to use a specific name for a new container. In case
+	// a container with the same name already exists, Gnomock kills it.
+	ContainerName string `json:"container_name"`
 
 	ctx                 context.Context
 	init                InitFunc

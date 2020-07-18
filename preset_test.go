@@ -83,6 +83,32 @@ func TestPreset_containerRemainsIfDebug(t *testing.T) {
 	require.Error(t, err)
 }
 
+func TestPreset_duplicateContainerName(t *testing.T) {
+	t.Parallel()
+
+	p := &testPreset{testImage}
+	originalContainer, err := gnomock.Start(
+		p,
+		gnomock.WithTimeout(time.Second*15),
+		gnomock.WithContainerName("gnomock"),
+		gnomock.WithHealthCheck(healthcheck),
+		gnomock.WithDebugMode(),
+	)
+	require.NoError(t, err)
+
+	newContainer, err := gnomock.Start(
+		p,
+		gnomock.WithTimeout(time.Second*15),
+		gnomock.WithContainerName("gnomock"),
+		gnomock.WithHealthCheck(healthcheck),
+		gnomock.WithDebugMode(),
+	)
+	require.NoError(t, err)
+
+	require.Error(t, gnomock.Stop(originalContainer))
+	require.NoError(t, gnomock.Stop(newContainer))
+}
+
 type testPreset struct {
 	image string
 }
