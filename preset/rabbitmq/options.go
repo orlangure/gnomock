@@ -13,7 +13,10 @@ func WithUser(user, password string) Option {
 	}
 }
 
-// WithVersion sets image version.
+// WithVersion sets image version. See
+// https://hub.docker.com/_/rabbitmq/?tab=tags for a list of available tags.
+// Use ones with "management" to enable RabbitMQ management plugin, and get the
+// mapped port using `container.Port(rabbitmq.ManagementPort)`.
 func WithVersion(version string) Option {
 	return func(o *P) {
 		o.Version = version

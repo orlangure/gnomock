@@ -4,6 +4,7 @@ package rabbitmq_test
 
 import (
 	"fmt"
+	"net/http"
 	"testing"
 
 	"github.com/orlangure/gnomock"
@@ -78,4 +79,29 @@ func TestPreset(t *testing.T) {
 
 	m := <-msgs
 	require.Equal(t, msgBody, m.Body)
+}
+
+func TestPreset_withManagement(t *testing.T) {
+	t.Parallel()
+
+	// gnomock setup
+	p := rabbitmq.Preset(
+		rabbitmq.WithUser("gnomock", "strong-password"),
+		rabbitmq.WithVersion("management-alpine"),
+	)
+
+	container, err := gnomock.Start(p)
+	require.NoError(t, err)
+
+	defer func() { require.NoError(t, gnomock.Stop(container)) }()
+
+	addr := container.Address(rabbitmq.ManagementPort)
+	url := fmt.Sprintf("http://%s/api/overview", addr)
+
+	resp, err := http.Get(url) // nolint:gosec
+	require.NoError(t, err)
+
+	defer require.NoError(t, resp.Body.Close())
+
+	require.Equal(t, http.StatusUnauthorized, resp.StatusCode)
 }
