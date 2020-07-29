@@ -4,9 +4,8 @@ package memcached
 // Options to configure the container
 type Option func(*P)
 
-// WithValues initializes Redis with the provided key/value pairs. These values
-// never expire. See go-redis/redis package for information on supported value
-// types
+// WithValues initializes Memcached with the provided key/value pairs. These values
+// never expire. Only byte slices are supported.
 func WithValues(vs map[string][]byte) Option {
 	return func(p *P) {
 		p.Values = vs
