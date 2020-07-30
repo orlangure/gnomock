@@ -3,10 +3,11 @@
 Contributions to Gnomock and its ecosystem can be of any kind, but most of them
 will probably be one of these:
 
-1. [Bug reports](#bug-reports)
-2. [Feature requests](#feature-requests)
-3. [Pull requests](#pull-requests)
-4. [Code review](#code-review)
+- [Bug reports](#bug-reports)
+- [Feature requests](#feature-requests)
+- [Pull requests](#pull-requests)
+    - [New presets](#new-presets)
+- [Code review](#code-review)
 
 ## Bug reports
 
@@ -52,6 +53,47 @@ you follow existing conventions:
    request description, linked issue, etc.
 
 5. Avoid breaking changes
+
+### New presets
+
+The obvious way to contribute to Gnomock is to implement a new Preset. Due to
+an ambitious approach to development and distribution, this process goes beyond
+writing the actual code that does the actual thing (implements a Preset). Below
+are the steps that need to be taken care of in order to add a new Preset to
+Gnomock:
+
+> Please note that nobody has to go all the way alone. Adding a new Preset can
+> be a collective effort, where some of the task are delegated to somebody else
+> (to me, for example, I'm happy to help)
+
+1. Write an actual preset code with a test. The code goes into
+   [`preset`](https://github.com/orlangure/gnomock/tree/master/preset) package.
+   You can use existing presets for reference, and are encouraged to do so.
+
+1. Add the preset to the [preset
+   registry](https://github.com/orlangure/gnomock/tree/master/preset/registry.go).
+   This is the place used by
+   [`gnomockd`](https://github.com/orlangure/gnomock/tree/master/gnomockd) to
+   figure out what to do on incoming HTTP requests. This is required to allow
+   projects in languages other than Go communicate with Gnomock container. Each
+   preset in the registry has a test, which is different from the regular
+   preset test: here the configuration comes from an HTTP request.
+
+1. Update [swagger
+   spec](https://github.com/orlangure/gnomock/blob/master/swagger/swagger.yaml)
+   with the new endpoint. For example, for `memcached` preset the endpoint is
+   `/preset/memcached`.
+
+1. Generate [client SDK
+   code](https://github.com/orlangure/gnomock#using-gnomock-server). Gnomock
+   uses OpenAPI to generate client code from swagger specification.
+
+1. Add client SDK tests for the new preset. These tests go into
+   [`sdktest`](https://github.com/orlangure/gnomock/tree/master/sdktest)
+   package. They allow to make sure that client code in languages other than Go
+   does not break after each update.
+
+1. Update [README](README.md) using the links to the new packages/docs.
 
 ## Code review
 
