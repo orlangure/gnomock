@@ -1,0 +1,12 @@
+{
+    "preset": {
+        "values": {
+            "answer": "NDI=",
+            "bar": "Zm9v"
+        },
+        "version": "1.6.6-alpine"
+    },
+    "options": {
+        "debug": true
+    }
+}
