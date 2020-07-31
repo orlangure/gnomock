@@ -4,6 +4,7 @@ package preset
 import (
 	"github.com/orlangure/gnomock"
 	"github.com/orlangure/gnomock/preset/localstack"
+	"github.com/orlangure/gnomock/preset/memcached"
 	"github.com/orlangure/gnomock/preset/mongo"
 	"github.com/orlangure/gnomock/preset/mssql"
 	"github.com/orlangure/gnomock/preset/mysql"
@@ -34,6 +35,8 @@ func (r registry) Preset(name string) gnomock.Preset {
 		return &postgres.P{}
 	case "redis":
 		return &redis.P{}
+	case "memcached":
+		return &memcached.P{}
 	case "splunk":
 		return &splunk.P{}
 	case "rabbitmq":
