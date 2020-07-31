@@ -4,6 +4,7 @@ package memcached_test
 
 import (
 	"encoding/binary"
+	"strconv"
 	"testing"
 
 	memcachedclient "github.com/bradfitz/gomemcache/memcache"
@@ -19,10 +20,12 @@ func TestPreset(t *testing.T) {
 
 	// String
 	vs["a"] = []byte("foo")
-	// Number
+	// Number as byte slice
 	vsb := make([]byte, 4)
 	binary.LittleEndian.PutUint32(vsb, 42)
 	vs["b"] = vsb
+	// Number as string
+	vs["c"] = []byte(strconv.FormatInt(42, 10))
 
 	p := memcached.Preset(memcached.WithValues(vs))
 	container, err := gnomock.Start(p)
@@ -40,5 +43,11 @@ func TestPreset(t *testing.T) {
 
 	itemB, err := client.Get("b")
 	require.NoError(t, err)
-	require.Equal(t, uint32(42), binary.LittleEndian.Uint32(itemB.Value))
+	require.Equal(t, 42, int(binary.LittleEndian.Uint32(itemB.Value)))
+
+	itemC, err := client.Get("c")
+	require.NoError(t, err)
+	valueC, err := strconv.ParseInt(string(itemC.Value), 10, 32)
+	require.NoError(t, err)
+	require.Equal(t, 42, int(valueC))
 }
