@@ -101,6 +101,23 @@ class TestSDK(unittest.TestCase):
                 self.api.stop(stop_request)
 
 
+    def test_memcached(self):
+        options = gnomock.Options()
+        preset = gnomock.Memcached(version="1.6.6-alpine")
+        memcached_request = gnomock.MemcachedRequest(options=options, preset=preset)
+        id = ""
+
+        try:
+            response = self.api.start_memcached(memcached_request)
+            id = response.id
+            self.assertEqual("127.0.0.1", response.host)
+
+        finally:
+            if id is not "":
+                stop_request = gnomock.StopRequest(id=id)
+                self.api.stop(stop_request)
+
+
     def test_splunk(self):
         options = gnomock.Options()
         file_name = os.path.abspath("./test/testdata/splunk/events.jsonl")
