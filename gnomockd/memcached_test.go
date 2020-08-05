@@ -55,6 +55,10 @@ func TestMemcached(t *testing.T) {
 	require.NoError(t, err)
 	require.Equal(t, "foo", string(itemB.Value))
 
+	itemC, err := client.Get("computer")
+	require.NoError(t, err)
+	require.Equal(t, "hal9000", string(itemC.Value))
+
 	bs, err = json.Marshal(c)
 	require.NoError(t, err)
 

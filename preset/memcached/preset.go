@@ -28,8 +28,9 @@ func Preset(opts ...Option) gnomock.Preset {
 
 // P is a Gnomock Preset implementation for Memcached storage
 type P struct {
-	Values  map[string][]byte `json:"values"`
-	Version string            `json:"version"`
+	Values     map[string]string `json:"values"`
+	ByteValues map[string][]byte `json:"byteValues"`
+	Version    string            `json:"version"`
 }
 
 // Image returns an image that should be pulled to create this container
@@ -50,15 +51,29 @@ func (p *P) Options() []gnomock.Option {
 		gnomock.WithHealthCheck(healthcheck),
 	}
 
-	if p.Values != nil {
+	if p.ByteValues != nil || p.Values != nil {
 		initf := func(ctx context.Context, c *gnomock.Container) error {
-			addr := c.Address(gnomock.DefaultPort)
-			client := memcache.New(addr)
+			if p.ByteValues != nil {
+				addr := c.Address(gnomock.DefaultPort)
+				client := memcache.New(addr)
 
-			for k, v := range p.Values {
-				err := client.Set(&memcache.Item{Key: k, Value: v, Expiration: 0})
-				if err != nil {
-					return fmt.Errorf("can't set '%s'='%v': %w", k, v, err)
+				for k, v := range p.ByteValues {
+					err := client.Set(&memcache.Item{Key: k, Value: v, Expiration: 0})
+					if err != nil {
+						return fmt.Errorf("can't set '%s'='%v': %w", k, v, err)
+					}
+				}
+			}
+
+			if p.Values != nil {
+				addr := c.Address(gnomock.DefaultPort)
+				client := memcache.New(addr)
+
+				for k, v := range p.Values {
+					err := client.Set(&memcache.Item{Key: k, Value: []byte(v), Expiration: 0})
+					if err != nil {
+						return fmt.Errorf("can't set '%s'='%v': %w", k, v, err)
+					}
 				}
 			}
 

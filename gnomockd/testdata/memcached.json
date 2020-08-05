@@ -1,6 +1,9 @@
 {
     "preset": {
         "values": {
+            "computer": "hal9000"
+        },
+        "byteValues": {
             "answer": "NDI=",
             "bar": "Zm9v"
         },
