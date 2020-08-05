@@ -16,22 +16,24 @@ import (
 func TestPreset(t *testing.T) {
 	t.Parallel()
 
-	vs1 := make(map[string][]byte)
+	// Byte Values
+	bvs := make(map[string][]byte)
 
 	// String
-	vs1["a"] = []byte("foo")
+	bvs["a"] = []byte("foo")
 	// Number as byte slice
-	vs1b := make([]byte, 4)
-	binary.LittleEndian.PutUint32(vs1b, 42)
-	vs1["b"] = vs1b
+	bvsB := make([]byte, 4)
+	binary.LittleEndian.PutUint32(bvsB, 42)
+	bvs["b"] = bvsB
 	// Number as string
-	vs1["c"] = []byte(strconv.FormatInt(42, 10))
+	bvs["c"] = []byte(strconv.FormatInt(42, 10))
 
-	vs2 := make(map[string]string)
+	// Values (string)
+	vs := make(map[string]string)
 
-	vs2["d"] = "foo"
+	vs["d"] = "foo"
 
-	p := memcached.Preset(memcached.WithByteValues(vs1), memcached.WithValues(vs2))
+	p := memcached.Preset(memcached.WithByteValues(bvs), memcached.WithValues(vs))
 	container, err := gnomock.Start(p)
 
 	defer func() { require.NoError(t, gnomock.Stop(container)) }()
