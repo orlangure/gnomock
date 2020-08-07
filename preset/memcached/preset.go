@@ -53,10 +53,10 @@ func (p *P) Options() []gnomock.Option {
 
 	if p.ByteValues != nil || p.Values != nil {
 		initf := func(ctx context.Context, c *gnomock.Container) error {
-			if p.ByteValues != nil {
-				addr := c.Address(gnomock.DefaultPort)
-				client := memcache.New(addr)
+			addr := c.Address(gnomock.DefaultPort)
+			client := memcache.New(addr)
 
+			if p.ByteValues != nil {
 				for k, v := range p.ByteValues {
 					err := client.Set(&memcache.Item{Key: k, Value: v, Expiration: 0})
 					if err != nil {
@@ -66,9 +66,6 @@ func (p *P) Options() []gnomock.Option {
 			}
 
 			if p.Values != nil {
-				addr := c.Address(gnomock.DefaultPort)
-				client := memcache.New(addr)
-
 				for k, v := range p.Values {
 					err := client.Set(&memcache.Item{Key: k, Value: []byte(v), Expiration: 0})
 					if err != nil {
