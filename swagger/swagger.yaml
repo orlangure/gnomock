@@ -7,7 +7,7 @@ info:
     testing toolkit. It allows to use Gnomock outside of Go ecosystem. Not all
     Gnomock features exist in this wrapper, but official presets, as well as
     basic general configuration, are supported.
-  version: 1.4.1
+  version: 1.4.2
   contact:
     url: https://github.com/orlangure/gnomock/
   license:
@@ -123,6 +123,25 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/redis-request'
+      responses:
+        '200':
+          $ref: '#/components/responses/container-created'
+        '400':
+          $ref: '#/components/responses/invalid-configuration'
+        '500':
+          $ref: '#/components/responses/start-failed'
+      tags:
+        - presets
+  /start/memcached:
+    post:
+      summary: Start a new Gnomock Memcached container
+      operationId: startMemcached
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/memcached-request'
       responses:
         '200':
           $ref: '#/components/responses/container-created'
@@ -592,6 +611,46 @@ components:
           default: latest
       description: >
         This object describes Redis container.
+
+    memcached-request:
+      type: object
+      properties:
+        preset:
+          $ref: '#/components/schemas/memcached'
+        options:
+          $ref: '#/components/schemas/options'
+      description: >
+        This request includes Memcached and general configuration.
+
+    memcached:
+      type: object
+      properties:
+        values:
+          type: object
+          description: A list of key/value pairs to create in the container.
+          additionalProperties:
+            oneOf:
+              - type: string
+          example:
+            computer: hal9000
+        byteValues:
+          type: object
+          description: A list of key/value pairs to create in the container. Values are base64 strings.
+          additionalProperties:
+            oneOf:
+              -
+                type: string
+                format: byte
+          example:
+            foo: YmFy
+            baz: NDI=
+            meh: My4xNA==
+        version:
+          type: string
+          description: Docker image tag (version)
+          default: latest
+      description: >
+        This object describes Memcached container.
 
     splunk-request:
       type: object
