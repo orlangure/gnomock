@@ -3,6 +3,7 @@ package preset
 
 import (
 	"github.com/orlangure/gnomock"
+	"github.com/orlangure/gnomock/preset/kafka"
 	"github.com/orlangure/gnomock/preset/localstack"
 	"github.com/orlangure/gnomock/preset/memcached"
 	"github.com/orlangure/gnomock/preset/mongo"
@@ -41,6 +42,8 @@ func (r registry) Preset(name string) gnomock.Preset {
 		return &splunk.P{}
 	case "rabbitmq":
 		return &rabbitmq.P{}
+	case "kafka":
+		return &kafka.P{}
 	}
 
 	return nil

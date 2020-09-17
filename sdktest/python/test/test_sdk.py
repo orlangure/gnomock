@@ -171,5 +171,23 @@ class TestSDK(unittest.TestCase):
                 self.api.stop(stop_request)
 
 
+    def test_kafka(self):
+        options = gnomock.Options()
+        preset = gnomock.Kafka(version="2.5.1-L0")
+        kafka_request = gnomock.KafkaRequest(options=options,
+                preset=preset)
+        id = ""
+
+        try:
+            response = self.api.start_kafka(kafka_request)
+            id = response.id
+            self.assertEqual("127.0.0.1", response.host)
+
+        finally:
+            if id is not "":
+                stop_request = gnomock.StopRequest(id=id)
+                self.api.stop(stop_request)
+
+
 if __name__ == "__main__":
     unittest.main()
