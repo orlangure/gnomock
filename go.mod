@@ -18,6 +18,7 @@ require (
 	github.com/gorilla/mux v1.7.4
 	github.com/lib/pq v1.5.1
 	github.com/opencontainers/go-digest v1.0.0-rc1 // indirect
+	github.com/segmentio/kafka-go v0.4.2
 	github.com/streadway/amqp v1.0.0
 	github.com/stretchr/testify v1.5.1
 	go.mongodb.org/mongo-driver v1.3.2

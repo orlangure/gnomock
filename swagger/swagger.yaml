@@ -7,7 +7,7 @@ info:
     testing toolkit. It allows to use Gnomock outside of Go ecosystem. Not all
     Gnomock features exist in this wrapper, but official presets, as well as
     basic general configuration, are supported.
-  version: 1.4.2
+  version: 1.4.3
   contact:
     url: https://github.com/orlangure/gnomock/
   license:
@@ -180,6 +180,25 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/rabbitmq-request'
+      responses:
+        '200':
+          $ref: '#/components/responses/container-created'
+        '400':
+          $ref: '#/components/responses/invalid-configuration'
+        '500':
+          $ref: '#/components/responses/start-failed'
+      tags:
+        - presets
+  /start/kafka:
+    post:
+      summary: Start a new Gnomock Kafka container
+      operationId: startKafka
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/kafka-request'
       responses:
         '200':
           $ref: '#/components/responses/container-created'
@@ -750,6 +769,63 @@ components:
           example: latest
       description: >
         This object describes a RabbitMQ container.
+
+    kafka-request:
+      type: object
+      properties:
+        preset:
+          $ref: '#/components/schemas/kafka'
+        options:
+          $ref: '#/components/schemas/options'
+      description: >
+        This request includes Kafka and general configuration.
+
+    kafka:
+      type: object
+      properties:
+        messages:
+          type: array
+          description: A list of messages to send to Kafka.
+          items:
+            type: object
+            properties:
+              topic:
+                type: string
+                example: alerts
+              key:
+                type: string
+                example: cpu
+              value:
+                type: string
+                example: "high"
+              time:
+                type: number
+                format: double
+                description: timestamp in seconds
+                example: 1588269752
+            required:
+              - topic
+              - key
+              - value
+        messages_files:
+          type: array
+          items:
+            type: string
+        topics:
+          type: array
+          items:
+            type: string
+          description: Topic names to create in Kafka.
+          example:
+            - alerts
+            - events
+        version:
+          type: string
+          description: Kafka version.
+          default: 2.5.1-L0
+          example: latest
+      description: >
+        This object describes a Kafka container.
 
     stop-request:
       type: object

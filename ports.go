@@ -16,11 +16,14 @@ var ErrPortNotFound = errors.New("port not found")
 // Port is a combination of port number and protocol that are exposed in a
 // container
 type Port struct {
-	// Protocol of the exposed port (TCP/UDP)
+	// Protocol of the exposed port (TCP/UDP).
 	Protocol string `json:"protocol"`
 
-	// Port number of the exposed port
+	// Port number of the exposed port.
 	Port int `json:"port"`
+
+	// HostPort is an optional value to set mapped host port explicitly.
+	HostPort int `json:"host_port"`
 }
 
 // DefaultTCP is a utility function to use with simple containers exposing a

@@ -110,7 +110,7 @@ func (d *docker) exposedPorts(namedPorts NamedPorts) nat.PortSet {
 	return exposedPorts
 }
 
-func (d *docker) portBindings(exposedPorts nat.PortSet) nat.PortMap {
+func (d *docker) portBindings(exposedPorts nat.PortSet, ports NamedPorts) nat.PortMap {
 	portBindings := make(nat.PortMap)
 
 	// for the container to be accessible from another container, it cannot
@@ -122,11 +122,18 @@ func (d *docker) portBindings(exposedPorts nat.PortSet) nat.PortMap {
 	}
 
 	for port := range exposedPorts {
-		portBindings[port] = []nat.PortBinding{
-			{
-				HostIP: hostAddr,
-			},
+		binding := nat.PortBinding{
+			HostIP: hostAddr,
 		}
+
+		if pName, err := ports.Find(port.Proto(), port.Int()); err == nil {
+			namedPort := ports.Get(pName)
+			if namedPort.HostPort > 0 {
+				binding.HostPort = strconv.Itoa(namedPort.HostPort)
+			}
+		}
+
+		portBindings[port] = []nat.PortBinding{binding}
 	}
 
 	return portBindings
@@ -139,7 +146,7 @@ func (d *docker) createContainer(ctx context.Context, image string, ports NamedP
 		ExposedPorts: exposedPorts,
 		Env:          cfg.Env,
 	}
-	portBindings := d.portBindings(exposedPorts)
+	portBindings := d.portBindings(exposedPorts, ports)
 	hostConfig := &container.HostConfig{
 		PortBindings: portBindings,
 		AutoRemove:   true,
@@ -190,7 +197,10 @@ func (d *docker) boundNamedPorts(json types.ContainerJSON, namedPorts NamedPorts
 			return nil, err
 		}
 
-		boundNamedPorts[portName] = Port{containerPort.Proto(), hostPortNum}
+		boundNamedPorts[portName] = Port{
+			Protocol: containerPort.Proto(),
+			Port:     hostPortNum,
+		}
 	}
 
 	return boundNamedPorts, nil

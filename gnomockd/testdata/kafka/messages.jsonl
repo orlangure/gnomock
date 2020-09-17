@@ -1,0 +1,10 @@
+{
+	"topic": "events",
+	"key": "registration",
+	"value": "abc"
+}
+{
+	"topic": "events",
+	"key": "order",
+	"value": "42"
+}
