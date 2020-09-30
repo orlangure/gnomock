@@ -30,6 +30,13 @@ The name "Gnomock" stands for "no mock", with a "G" for "Go" 😼. It also sound
 like "gnome", that's why the friendly garden gnome artwork (by [Michael
 Zolotov](https://www.mzolotov.com/))
 
+## Demo
+
+See for yourself how easy and fast it is to write tests that use actual
+services running in ephemeral Docker containers:
+
+[![asciicast](https://asciinema.org/a/jSJJGk0n3q1g4Fc4bvZYYyifN.svg)](https://asciinema.org/a/jSJJGk0n3q1g4Fc4bvZYYyifN)
+
 ## Table of contents
 
 - [Getting started](#getting-started)
