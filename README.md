@@ -47,13 +47,13 @@ services running in ephemeral Docker containers:
 
 ## Getting started
 
-Gnomock runs exposes an API over HTTP. This API is defined using OpenAPI 3.0
-[specification](https://app.swaggerhub.com/apis/orlangure/gnomock/1.4.3). Go
-programs can use an extended Gnomock package directly, without the HTTP layer,
-while other languages require communication with a Gnomock server.
+Gnomock can be uses in two different ways:
 
-Gnomock **requires** a running and working Docker daemon running locally in the
-same environment.
+- Imported directly as a package in any **Go** project
+- Accessed over HTTP running as a daemon in any other project
+
+⚠️ Both ways **require** a running and working Docker daemon running locally in
+the same environment.
 
 ### Using Gnomock in Go applications
 
@@ -164,7 +164,6 @@ There are auto-generated wrappers for the available API:
 |--------|-------------|
 | [Python SDK](https://github.com/orlangure/gnomock-python-sdk) | [Code](https://github.com/orlangure/gnomock/blob/master/sdktest/python/test/test_sdk.py) |
 | JavaScript SDK | |
-| PHP SDK | |
 | Ruby SDK | |
 | PHP SDK | |
 | Java SDK | |
@@ -172,9 +171,6 @@ There are auto-generated wrappers for the available API:
 
 **For more details and a full specification, see
 [documentation](https://app.swaggerhub.com/apis/orlangure/gnomock/).**
-
-Installation instruction, as well as pre-compiled binaries for MacOS and Linux,
-are coming soon.
 
 ## Official presets
 
