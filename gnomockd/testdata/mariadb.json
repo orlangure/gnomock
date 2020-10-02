@@ -1,0 +1,18 @@
+{
+    "preset": {
+        "queries_files": [
+            "./testdata/mysql/customers.sql"
+        ],
+        "queries": [
+            "create table tbl(a int)",
+            "insert into tbl(a) values (42)"
+        ],
+        "user": "gnomock",
+        "password": "foobar",
+        "db": "gnomockd_db",
+        "version": "10"
+    },
+    "options": {
+        "debug": true
+    }
+}
