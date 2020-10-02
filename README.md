@@ -47,12 +47,12 @@ services running in ephemeral Docker containers:
 
 ## Getting started
 
-Gnomock can be uses in two different ways:
+Gnomock can be used in two different ways:
 
 - Imported directly as a package in any **Go** project
 - Accessed over HTTP running as a daemon in any other project
 
-⚠️ Both ways **require** a running and working Docker daemon running locally in
+⚠️ Both ways **require** an active Docker daemon running locally in
 the same environment.
 
 ### Using Gnomock in Go applications
