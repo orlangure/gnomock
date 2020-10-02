@@ -5,6 +5,7 @@ import (
 	"github.com/orlangure/gnomock"
 	"github.com/orlangure/gnomock/preset/kafka"
 	"github.com/orlangure/gnomock/preset/localstack"
+	"github.com/orlangure/gnomock/preset/mariadb"
 	"github.com/orlangure/gnomock/preset/memcached"
 	"github.com/orlangure/gnomock/preset/mongo"
 	"github.com/orlangure/gnomock/preset/mssql"
@@ -32,6 +33,8 @@ func (r registry) Preset(name string) gnomock.Preset {
 		return &mssql.P{}
 	case "mysql":
 		return &mysql.P{}
+	case "mariadb":
+		return &mariadb.P{}
 	case "postgres":
 		return &postgres.P{}
 	case "redis":
