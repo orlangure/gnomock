@@ -43,6 +43,7 @@ services running in ephemeral Docker containers:
   - [Using Gnomock in Go applications](#using-gnomock-in-go-applications)
   - [Using Gnomock server](#using-gnomock-server)
 - [Official presets](#official-presets)
+- [Similar projects](#similar-projects)
 - [Troubleshooting](#troubleshooting)
 
 ## Getting started
@@ -197,6 +198,44 @@ MariaDB | |
 It is possible to use Gnomock directly from Go code without any presets. HTTP
 API only allows to setup containers using presets that exist in this
 repository.
+
+## Similar projects
+
+Gnomock is not the only project that aims to simplify integration and
+end-to-end testing by using ephemeral docker containers:
+
+- `testcontainers/testcontainers-go`
+- `ory/dockertest`
+
+These projects are amazing, and they give plenty of flexibility and power to
+their users. There are many things that are possible with them, but are
+impossible with Gnomock. Still, below is a short list of things that sometimes
+give Gnomock an advantage:
+
+- **Gnomock tries to provide a batteries-included solution**. Gnomock has a
+  growing number of Presets, each one implementing an integration with a
+  popular external service. For every Preset, there already is a number of
+  "invisible" utilities that transparently relieve you from implementing them
+  yourself: 
+  - __Built-in health check function__ that you don't even need to know it
+    exists. It makes sure you only get control over a container when it is
+    ready to use.
+  - __Wrappers for some of the configuration__ exposed by the container, such
+    as default username/password. You can easily provide your own credentials
+    to connect to the container.
+  - __Seed data ingestion__ for your convenience. Sometimes you just need to
+    make sure your queries work given some data. Gnomock puts your data in
+    there with a single line of code. Sometimes you only test a program that
+    consumes messages from Kafka, and Gnomock produces the messages for you
+    with another line of code.
+- **Simple API** that does not expose anything that happens "under the hood"
+  most of the time. Yet Gnomock allows some additional configuration and custom
+  Preset implementation whenever necessary.
+- Gnomock's vision includes **being useful not only in Go** projects, but in
+  any projects via HTTP. It already supports almost all its features over HTTP
+  layer, has a clear OpenAPI spec, and even a proof of concept wrapper in
+  Python. 
+- Gnomock has a friendly **garden gnome mascot**😻
 
 ## Troubleshooting
 
