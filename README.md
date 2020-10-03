@@ -2,7 +2,7 @@
     <img src="https://github.com/orlangure/gnomock/blob/master/gnomock.png">
 </div>
 
-# <div align="center">Gnomock – test your code without mocks</div>
+# <div align="center">Gnomock – tests without mocks</div>
 
 🏗️ Spin up entire dependency stack
 
