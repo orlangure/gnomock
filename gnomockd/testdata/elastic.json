@@ -1,0 +1,13 @@
+{
+    "preset": {
+        "input_files": [
+            "./testdata/elastic/names",
+            "./testdata/elastic/titles"
+        ],
+        "version": "7.9.2"
+    },
+    "options": {
+        "debug": true,
+        "container_name": "elastic"
+    }
+}

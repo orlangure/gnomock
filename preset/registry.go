@@ -3,6 +3,7 @@ package preset
 
 import (
 	"github.com/orlangure/gnomock"
+	"github.com/orlangure/gnomock/preset/elastic"
 	"github.com/orlangure/gnomock/preset/kafka"
 	"github.com/orlangure/gnomock/preset/localstack"
 	"github.com/orlangure/gnomock/preset/memcached"
@@ -15,13 +16,14 @@ import (
 	"github.com/orlangure/gnomock/preset/splunk"
 )
 
-// Preseter is a type that creates Gnomock Presets given their name
+// Preseter is a type that creates Gnomock Presets given their name.
 type Preseter interface {
 	Preset(string) gnomock.Preset
 }
 
 type registry struct{}
 
+// Preset implements gnomock.Preset interface.
 func (r registry) Preset(name string) gnomock.Preset {
 	switch name {
 	case "localstack":
@@ -44,6 +46,8 @@ func (r registry) Preset(name string) gnomock.Preset {
 		return &rabbitmq.P{}
 	case "kafka":
 		return &kafka.P{}
+	case "elastic":
+		return &elastic.P{}
 	}
 
 	return nil
@@ -53,5 +57,5 @@ func (r registry) Preset(name string) gnomock.Preset {
 // hard-coded: every new Preset must be added to the implementation and
 // compiled again
 func Registry() Preseter {
-	return registry{}
+	return &registry{}
 }
