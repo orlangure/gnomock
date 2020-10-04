@@ -48,6 +48,24 @@ class TestSDK(unittest.TestCase):
                 self.api.stop(stop_request)
 
 
+    def test_mariadb(self):
+        options = gnomock.Options()
+        file_name = os.path.abspath("./test/testdata/mysql/schema.sql")
+        preset = gnomock.Mariadb(queries_files=[file_name], version="10")
+        mariadb_request = gnomock.MariadbRequest(options=options, preset=preset)
+        id = ""
+
+        try:
+            response = self.api.start_mariadb(mariadb_request)
+            id = response.id
+            self.assertEqual("127.0.0.1", response.host)
+
+        finally:
+            if id is not "":
+                stop_request = gnomock.StopRequest(id=id)
+                self.api.stop(stop_request)
+
+
     def test_mssql(self):
         options = gnomock.Options()
         file_name = os.path.abspath("./test/testdata/mssql/schema.sql")
