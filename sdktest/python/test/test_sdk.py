@@ -189,5 +189,23 @@ class TestSDK(unittest.TestCase):
                 self.api.stop(stop_request)
 
 
+    def test_elastic(self):
+        options = gnomock.Options()
+        preset = gnomock.Elastic(version="7.9.2")
+        elastic_request = gnomock.ElasticRequest(options=options,
+                preset=preset)
+        id = ""
+
+        try:
+            response = self.api.start_elastic(elastic_request)
+            id = response.id
+            self.assertEqual("127.0.0.1", response.host)
+
+        finally:
+            if id is not "":
+                stop_request = gnomock.StopRequest(id=id)
+                self.api.stop(stop_request)
+
+
 if __name__ == "__main__":
     unittest.main()
