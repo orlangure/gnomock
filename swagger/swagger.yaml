@@ -94,6 +94,26 @@ paths:
           $ref: '#/components/responses/start-failed'
       tags:
         - presets
+
+  /start/mariadb:
+    post:
+      summary: Start a new Gnomock MariaDB container
+      operationId: startMariadb
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/mariadb-request'
+      responses:
+        '200':
+          $ref: '#/components/responses/container-created'
+        '400':
+          $ref: '#/components/responses/invalid-configuration'
+        '500':
+          $ref: '#/components/responses/start-failed'
+      tags:
+        - presets
   /start/postgres:
     post:
       summary: Start a new Gnomock Postgres container
