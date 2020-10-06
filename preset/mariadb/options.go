@@ -5,7 +5,7 @@ package mariadb
 type Option func(*P)
 
 // WithUser creates a new superuser with the provided credentials in the
-// container. If not used, the default credentials are gnomock:gnomick
+// container. If not used, the default credentials are gnomock:gnoria
 func WithUser(user, password string) Option {
 	return func(p *P) {
 		p.User = user
