@@ -3,8 +3,12 @@ package rabbitmq
 
 import (
 	"context"
+	"encoding/json"
+	"errors"
 	"fmt"
+	"io"
 	"net/http"
+	"os"
 	"strings"
 
 	"github.com/orlangure/gnomock"
@@ -21,6 +25,13 @@ const defaultPassword = "guest"
 const defaultVersion = "alpine"
 const defaultPort = 5672
 const managementPort = 15672
+
+// Message is a single message sent to RabbitMQ.
+type Message struct {
+	Queue       string `json:"queue"`
+	ContentType string `json:"contentType"`
+	Body        string `json:"body"`
+}
 
 // Preset creates a new Gmomock RabbitMQ preset. This preset includes a
 // RabbitMQ specific healthcheck function and default RabbitMQ image and port.
@@ -41,9 +52,12 @@ func Preset(opts ...Option) gnomock.Preset {
 
 // P is a Gnomock Preset implementation of RabbitMQ.
 type P struct {
-	User     string `json:"user"`
-	Password string `json:"password"`
-	Version  string `json:"version"`
+	User          string    `json:"user"`
+	Password      string    `json:"password"`
+	Version       string    `json:"version"`
+	Queues        []string  `json:"queues"`
+	Messages      []Message `json:"messages"`
+	MessagesFiles []string  `json:"messages_files"`
 }
 
 // Image returns an image that should be pulled to create this container.
@@ -78,13 +92,15 @@ func (p *P) Options() []gnomock.Option {
 		)
 	}
 
+	if len(p.Queues)+len(p.Messages)+len(p.MessagesFiles) > 0 {
+		opts = append(opts, gnomock.WithInit(p.initf))
+	}
+
 	return opts
 }
 
 func (p *P) healthcheck(ctx context.Context, c *gnomock.Container) error {
-	uri := fmt.Sprintf("amqp://%s:%s@%s:%d", p.User, p.Password, c.Host, c.DefaultPort())
-
-	conn, err := amqp.Dial(uri)
+	conn, err := p.connect(c)
 	if err != nil {
 		return fmt.Errorf("connection failed: %w", err)
 	}
@@ -121,6 +137,132 @@ func (p *P) setDefaults() {
 	}
 }
 
+func (p *P) initf(ctx context.Context, c *gnomock.Container) (err error) {
+	conn, err := p.connect(c)
+	if err != nil {
+		return fmt.Errorf("can't connect to rabbitmq: %w", err)
+	}
+
+	defer func() {
+		closeErr := conn.Close()
+		if err == nil && closeErr != nil {
+			err = closeErr
+		}
+	}()
+
+	if len(p.MessagesFiles) > 0 {
+		for _, fName := range p.MessagesFiles {
+			msgs, err := p.loadMessagesFromFile(fName)
+			if err != nil {
+				return fmt.Errorf("can't read messages from file '%s': %w", fName, err)
+			}
+
+			p.Messages = append(p.Messages, msgs...)
+		}
+	}
+
+	messagesByQueue := make(map[string][]Message)
+
+	for _, m := range p.Messages {
+		messagesByQueue[m.Queue] = append(messagesByQueue[m.Queue], m)
+	}
+
+	for queue := range messagesByQueue {
+		p.Queues = append(p.Queues, queue)
+	}
+
+	ch, err := conn.Channel()
+	if err != nil {
+		return fmt.Errorf("can't open channel: %w", err)
+	}
+
+	defer func() {
+		closeErr := ch.Close()
+		if err == nil && closeErr != nil {
+			err = closeErr
+		}
+	}()
+
+	for _, queue := range p.Queues {
+		_, err := ch.QueueDeclare(
+			queue, // name
+			false, // durable
+			false, // delete when unused
+			false, // exclusive
+			false, // no-wait
+			nil,   // arguments
+		)
+		if err != nil {
+			return fmt.Errorf("can't open queue '%s': %w", queue, err)
+		}
+	}
+
+	for queue, messages := range messagesByQueue {
+		if err := p.sendMessagesIntoQueue(ctx, c, ch, queue, messages); err != nil {
+			return fmt.Errorf("can't send messages into queue '%s': %w", queue, err)
+		}
+	}
+
+	return nil
+}
+
 func (p *P) isManagement() bool {
 	return strings.Contains(p.Version, "management")
+}
+
+// nolint:gosec
+func (p *P) loadMessagesFromFile(fName string) (msgs []Message, err error) {
+	f, err := os.Open(fName)
+	if err != nil {
+		return nil, fmt.Errorf("can't open messages file '%s': %w", fName, err)
+	}
+
+	defer func() {
+		closeErr := f.Close()
+		if err == nil && closeErr != nil {
+			err = closeErr
+		}
+	}()
+
+	decoder := json.NewDecoder(f)
+
+	for {
+		var m Message
+
+		err = decoder.Decode(&m)
+		if errors.Is(err, io.EOF) {
+			break
+		}
+
+		if err != nil {
+			return nil, fmt.Errorf("can't read message from file '%s': %w", fName, err)
+		}
+
+		msgs = append(msgs, m)
+	}
+
+	return msgs, nil
+}
+
+func (p *P) connect(c *gnomock.Container) (*amqp.Connection, error) {
+	return amqp.Dial(fmt.Sprintf("amqp://%s:%s@%s:%d", p.User, p.Password, c.Host, c.DefaultPort()))
+}
+
+func (p *P) sendMessagesIntoQueue(ctx context.Context, c *gnomock.Container, channel *amqp.Channel, queue string, messages []Message) (err error) {
+	for _, m := range messages {
+		if err := channel.Publish(
+			"",
+			queue,
+			false,
+			false,
+			amqp.Publishing{
+				ContentType: m.ContentType,
+				Body:        []byte(m.Body),
+			},
+		); err != nil {
+			return fmt.Errorf("publish message failed: %w", err)
+		}
+	}
+
+	return nil
 }

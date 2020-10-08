@@ -105,3 +105,62 @@ func TestPreset_withManagement(t *testing.T) {
 
 	require.Equal(t, http.StatusUnauthorized, resp.StatusCode)
 }
+
+func TestPreset_withMessages(t *testing.T) {
+	t.Parallel()
+
+	messages := []rabbitmq.Message{
+		{
+			Queue:       "events",
+			ContentType: "text/plain",
+			Body:        "order: 1",
+		},
+		{
+			Queue:       "alerts",
+			ContentType: "text/plain",
+			Body:        "CPU: 92",
+		},
+	}
+
+	// gnomock setup
+	p := rabbitmq.Preset(
+		rabbitmq.WithUser("gnomock", "strong-password"),
+		rabbitmq.WithQueues("topic-1", "topic-2"),
+		rabbitmq.WithMessages(messages...),
+	)
+
+	container, err := gnomock.Start(p)
+	require.NoError(t, err)
+
+	defer func() { require.NoError(t, gnomock.Stop(container)) }()
+
+	// actual test code
+	uri := fmt.Sprintf(
+		"amqp://%s:%s@%s",
+		"gnomock", "strong-password",
+		container.DefaultAddress(),
+	)
+	conn, err := amqp.Dial(uri)
+	require.NoError(t, err)
+
+	defer func() { require.NoError(t, conn.Close()) }()
+
+	ch, err := conn.Channel()
+	require.NoError(t, err)
+
+	defer func() { require.NoError(t, ch.Close()) }()
+
+	msgs, err := ch.Consume("events", "", true, false, false, false, nil)
+	require.NoError(t, err)
+
+	m, ok := <-msgs
+	require.Equal(t, true, ok)
+	require.Equal(t, []byte(messages[0].Body), m.Body)
+
+	msgs, err = ch.Consume("alerts", "", true, false, false, false, nil)
+	require.NoError(t, err)
+
+	m, ok = <-msgs
+	require.Equal(t, true, ok)
+	require.Equal(t, []byte(messages[1].Body), m.Body)
+}
