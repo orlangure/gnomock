@@ -184,21 +184,14 @@ func (p *P) initf(ctx context.Context, c *gnomock.Container) (err error) {
 	}()
 
 	for _, queue := range p.Queues {
-		_, err := ch.QueueDeclare(
-			queue, // name
-			false, // durable
-			false, // delete when unused
-			false, // exclusive
-			false, // no-wait
-			nil,   // arguments
-		)
+		_, err := ch.QueueDeclare(queue, false, false, false, false, nil)
 		if err != nil {
 			return fmt.Errorf("can't open queue '%s': %w", queue, err)
 		}
 	}
 
 	for queue, messages := range messagesByQueue {
-		if err := p.sendMessagesIntoQueue(ctx, c, ch, queue, messages); err != nil {
+		if err := p.sendMessagesIntoQueue(ch, queue, messages); err != nil {
 			return fmt.Errorf("can't send messages into queue '%s': %w", queue, err)
 		}
 	}
@@ -248,11 +241,11 @@ func (p *P) connect(c *gnomock.Container) (*amqp.Connection, error) {
 	return amqp.Dial(fmt.Sprintf("amqp://%s:%s@%s:%d", p.User, p.Password, c.Host, c.DefaultPort()))
 }
 
-func (p *P) sendMessagesIntoQueue(ctx context.Context, c *gnomock.Container, channel *amqp.Channel, queue string, messages []Message) (err error) {
-	for _, m := range messages {
-		if err := channel.Publish(
+func (p *P) sendMessagesIntoQueue(ch *amqp.Channel, q string, msgs []Message) (err error) {
+	for _, m := range msgs {
+		if err := ch.Publish(
 			"",
-			queue,
+			q,
 			false,
 			false,
 			amqp.Publishing{
