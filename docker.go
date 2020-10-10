@@ -150,6 +150,7 @@ func (d *docker) createContainer(ctx context.Context, image string, ports NamedP
 	hostConfig := &container.HostConfig{
 		PortBindings: portBindings,
 		AutoRemove:   true,
+		Privileged:   cfg.Privileged,
 	}
 
 	resp, err := d.client.ContainerCreate(ctx, containerConfig, hostConfig, nil, cfg.ContainerName)

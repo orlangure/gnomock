@@ -225,5 +225,23 @@ class TestSDK(unittest.TestCase):
                 self.api.stop(stop_request)
 
 
+    def test_kubernetes(self):
+        options = gnomock.Options(debug=True)
+        preset = gnomock.Kubernetes(version="latest")
+        kubernetes_request = gnomock.KubernetesRequest(options=options,
+                preset=preset)
+        id = ""
+
+        try:
+            response = self.api.start_kubernetes(kubernetes_request)
+            id = response.id
+            self.assertEqual("127.0.0.1", response.host)
+
+        finally:
+            if id is not "":
+                stop_request = gnomock.StopRequest(id=id)
+                self.api.stop(stop_request)
+
+
 if __name__ == "__main__":
     unittest.main()

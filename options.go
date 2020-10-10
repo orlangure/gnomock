@@ -95,6 +95,16 @@ func WithContainerName(name string) Option {
 	}
 }
 
+// WithPrivileged starts a container in privileged mode (like `docker run
+// --privileged`). This option should not be used unless you really need it.
+// One use case for this option would be to run a Preset that has some kind of
+// docker-in-docker functionality.
+func WithPrivileged() Option {
+	return func(o *Options) {
+		o.Privileged = true
+	}
+}
+
 // WithOptions allows to provide an existing set of Options instead of using
 // optional configuration.
 //
@@ -146,6 +156,9 @@ type Options struct {
 
 	// Debug flag allows Gnomock to be verbose about steps it takes
 	Debug bool `json:"debug"`
+
+	// Privileged starts a container in privileged mode.
+	Privileged bool `json:"privileged"`
 
 	// ContainerName allows to use a specific name for a new container. In case
 	// a container with the same name already exists, Gnomock kills it.

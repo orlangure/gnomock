@@ -7,7 +7,7 @@ info:
     testing toolkit. It allows to use Gnomock outside of Go ecosystem. Not all
     Gnomock features exist in this wrapper, but official presets, as well as
     basic general configuration, are supported.
-  version: 1.4.5
+  version: 1.4.6
   contact:
     url: https://github.com/orlangure/gnomock/
   license:
@@ -247,6 +247,25 @@ paths:
           $ref: '#/components/responses/start-failed'
       tags:
         - presets
+  /start/kubernetes:
+    post:
+      summary: Start a new Gnomock lightweight kubernetes (k3s) preset.
+      operationId: startKubernetes
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/kubernetes-request'
+      responses:
+        '200':
+          $ref: '#/components/responses/container-created'
+        '400':
+          $ref: '#/components/responses/invalid-configuration'
+        '500':
+          $ref: '#/components/responses/start-failed'
+      tags:
+        - presets
   /stop:
     post:
       summary: Stop an existing Gnomock container
@@ -379,6 +398,9 @@ components:
             container with this name already exists, it is killed and replaced
             by a new container.
           example: gnomock
+        privileged:
+          type: boolean
+          description: Runs a container in privileged mode.
       description: >
         This object includes general Gnomock configuration, similar to all
         presets. Timeout configuration is especially useful for
@@ -946,6 +968,28 @@ components:
       description: >
         This object describes a Elasticsearch container.
 
+    kubernetes-request:
+      type: object
+      properties:
+        preset:
+          $ref: '#/components/schemas/kubernetes'
+        options:
+          $ref: '#/components/schemas/options'
+      description: >
+        This request includes k3s and general configuration.
+
+    kubernetes:
+      type: object
+      properties:
+        version:
+          type: string
+          description: >
+            k3s version (see
+            https://hub.docker.com/repository/docker/orlangure/k3s)
+          default: latest
+          example: latest
+      description: >
+        This object describes a k3s container.
 
     stop-request:
       type: object

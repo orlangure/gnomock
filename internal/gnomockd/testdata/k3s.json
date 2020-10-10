@@ -1,0 +1,9 @@
+{
+    "preset": {
+        "version": "latest"
+    },
+    "options": {
+        "debug": true
+    }
+}
+

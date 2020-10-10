@@ -20,7 +20,7 @@ jobs:
       - name: Get golangci-lint
         run: curl -sfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh| sh -s -- -b $(go env GOPATH)/bin v1.23.8
       - name: Lint
-        run: $(go env GOPATH)/bin/golangci-lint run ./...
+        run: $(go env GOPATH)/bin/golangci-lint run --timeout 2m0s ./...
 
   test-core:
     name: "[core] gnomock, gnomockd"
@@ -49,6 +49,8 @@ jobs:
         run: |
           cd sdktest/python
           pip3 install -r requirements.txt
+      - name: Generate python sdk
+        run: swagger/bin/generate-python.sh
       - name: Build docker image
         run: docker build --tag gnomock .
       - name: Run gnomock
@@ -61,7 +63,7 @@ jobs:
       - name: Test
         run: |
           cd sdktest/python
-          python3 -m pytest -n 2 -v
+          python3 -m pytest -n 3 -v -k TestSDK
 
   test-localstack:
     name: "[preset] localstack"
@@ -266,4 +268,21 @@ jobs:
         run: go test -race -cover -v ./preset/mongo/...
       - name: Test server
         run: go test -race -cover -v ./internal/gnomockd -run TestMongo
+
+  test-k3s:
+    name: "[preset] k3s"
+    runs-on: ubuntu-latest
+    steps:
+      - name: Set up Go 1.15
+        uses: actions/setup-go@v1
+        with:
+          go-version: 1.15
+      - name: Check out code into the Go module directory
+        uses: actions/checkout@v1
+      - name: Get dependencies
+        run: go get -v -t -d ./...
+      - name: Test preset
+        run: go test -race -cover -v ./preset/k3s/...
+      - name: Test server
+        run: go test -race -cover -v ./internal/gnomockd -run TestK3s
 
