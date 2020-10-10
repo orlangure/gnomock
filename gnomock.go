@@ -257,6 +257,7 @@ func (g *g) wait(ctx context.Context, c *Container, config *Options) error {
 				return nil
 			}
 
+			g.log.Infof("healthcheck failed: %s", err.Error())
 			lastErr = err
 		}
 	}

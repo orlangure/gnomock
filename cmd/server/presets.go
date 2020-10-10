@@ -4,6 +4,7 @@ package main
 // requested over HTTP:
 import (
 	_ "github.com/orlangure/gnomock/preset/elastic"
+	_ "github.com/orlangure/gnomock/preset/k3s"
 	_ "github.com/orlangure/gnomock/preset/kafka"
 	_ "github.com/orlangure/gnomock/preset/localstack"
 	_ "github.com/orlangure/gnomock/preset/mariadb"
