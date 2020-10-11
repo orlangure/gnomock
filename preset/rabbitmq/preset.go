@@ -30,7 +30,8 @@ const managementPort = 15672
 type Message struct {
 	Queue       string `json:"queue"`
 	ContentType string `json:"contentType"`
-	Body        string `json:"body"`
+	StringBody  string `json:"stringBody"`
+	Body        []byte `json:"body"`
 }
 
 // Preset creates a new Gmomock RabbitMQ preset. This preset includes a
@@ -55,7 +56,6 @@ type P struct {
 	User          string    `json:"user"`
 	Password      string    `json:"password"`
 	Version       string    `json:"version"`
-	Queues        []string  `json:"queues"`
 	Messages      []Message `json:"messages"`
 	MessagesFiles []string  `json:"messages_files"`
 }
@@ -92,7 +92,7 @@ func (p *P) Options() []gnomock.Option {
 		)
 	}
 
-	if len(p.Queues)+len(p.Messages)+len(p.MessagesFiles) > 0 {
+	if len(p.Messages)+len(p.MessagesFiles) > 0 {
 		opts = append(opts, gnomock.WithInit(p.initf))
 	}
 
@@ -167,8 +167,10 @@ func (p *P) initf(ctx context.Context, c *gnomock.Container) (err error) {
 		messagesByQueue[m.Queue] = append(messagesByQueue[m.Queue], m)
 	}
 
-	for queue := range messagesByQueue {
-		p.Queues = append(p.Queues, queue)
+	var queues []string
+
+	for q := range messagesByQueue {
+		queues = append(queues, q)
 	}
 
 	ch, err := conn.Channel()
@@ -183,7 +185,7 @@ func (p *P) initf(ctx context.Context, c *gnomock.Container) (err error) {
 		}
 	}()
 
-	for _, queue := range p.Queues {
+	for _, queue := range queues {
 		_, err := ch.QueueDeclare(queue, false, false, false, false, nil)
 		if err != nil {
 			return fmt.Errorf("can't open queue '%s': %w", queue, err)
@@ -243,6 +245,13 @@ func (p *P) connect(c *gnomock.Container) (*amqp.Connection, error) {
 
 func (p *P) sendMessagesIntoQueue(ch *amqp.Channel, q string, msgs []Message) (err error) {
 	for _, m := range msgs {
+		var body []byte
+		if m.Body != nil {
+			body = m.Body
+		} else {
+			body = []byte(m.StringBody)
+		}
+
 		if err := ch.Publish(
 			"",
 			q,
@@ -250,7 +259,7 @@ func (p *P) sendMessagesIntoQueue(ch *amqp.Channel, q string, msgs []Message) (e
 			false,
 			amqp.Publishing{
 				ContentType: m.ContentType,
-				Body:        []byte(m.Body),
+				Body:        body,
 			},
 		); err != nil {
 			return fmt.Errorf("publish message failed: %w", err)

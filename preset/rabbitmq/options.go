@@ -23,14 +23,6 @@ func WithVersion(version string) Option {
 	}
 }
 
-// WithQueues makes sure that the provided queues are available when RabbitMQ is up and
-// running.
-func WithQueues(queues ...string) Option {
-	return func(p *P) {
-		p.Queues = append(p.Queues, queues...)
-	}
-}
-
 // WithMessages makes sure that these messages can be consumed during the test once the
 // container is ready.
 func WithMessages(messages ...Message) Option {
