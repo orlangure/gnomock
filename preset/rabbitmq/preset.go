@@ -137,6 +137,32 @@ func (p *P) setDefaults() {
 	}
 }
 
+func (p *P) loadFiles() error {
+	if len(p.MessagesFiles) > 0 {
+		for _, fName := range p.MessagesFiles {
+			msgs, err := p.loadMessagesFromFile(fName)
+			if err != nil {
+				return fmt.Errorf("can't read messages from file '%s': %w", fName, err)
+			}
+
+			p.Messages = append(p.Messages, msgs...)
+		}
+	}
+
+	return nil
+}
+
+func declareQueues(ch *amqp.Channel, qs []string) error {
+	for _, queue := range qs {
+		_, err := ch.QueueDeclare(queue, false, false, false, false, nil)
+		if err != nil {
+			return fmt.Errorf("can't open queue '%s': %w", queue, err)
+		}
+	}
+
+	return nil
+}
+
 func (p *P) initf(ctx context.Context, c *gnomock.Container) (err error) {
 	conn, err := p.connect(c)
 	if err != nil {
@@ -150,25 +176,16 @@ func (p *P) initf(ctx context.Context, c *gnomock.Container) (err error) {
 		}
 	}()
 
-	if len(p.MessagesFiles) > 0 {
-		for _, fName := range p.MessagesFiles {
-			msgs, err := p.loadMessagesFromFile(fName)
-			if err != nil {
-				return fmt.Errorf("can't read messages from file '%s': %w", fName, err)
-			}
-
-			p.Messages = append(p.Messages, msgs...)
-		}
+	if err := p.loadFiles(); err != nil {
+		return err
 	}
 
 	messagesByQueue := make(map[string][]Message)
-
 	for _, m := range p.Messages {
 		messagesByQueue[m.Queue] = append(messagesByQueue[m.Queue], m)
 	}
 
-	var queues []string
-
+	queues := make([]string, len(messagesByQueue))
 	for q := range messagesByQueue {
 		queues = append(queues, q)
 	}
@@ -185,11 +202,8 @@ func (p *P) initf(ctx context.Context, c *gnomock.Container) (err error) {
 		}
 	}()
 
-	for _, queue := range queues {
-		_, err := ch.QueueDeclare(queue, false, false, false, false, nil)
-		if err != nil {
-			return fmt.Errorf("can't open queue '%s': %w", queue, err)
-		}
+	if err := declareQueues(ch, queues); err != nil {
+		return err
 	}
 
 	for queue, messages := range messagesByQueue {
