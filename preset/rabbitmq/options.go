@@ -22,3 +22,19 @@ func WithVersion(version string) Option {
 		o.Version = version
 	}
 }
+
+// WithMessages makes sure that these messages can be consumed during the test once the
+// container is ready.
+func WithMessages(messages ...Message) Option {
+	return func(p *P) {
+		p.Messages = append(p.Messages, messages...)
+	}
+}
+
+// WithMessagesFile allows to load messages to be sent into RabbitMQ from one or multible
+// files.
+func WithMessagesFile(file string) Option {
+	return func(p *P) {
+		p.MessagesFiles = append(p.MessagesFiles, file)
+	}
+}
