@@ -7,7 +7,7 @@ info:
     testing toolkit. It allows to use Gnomock outside of Go ecosystem. Not all
     Gnomock features exist in this wrapper, but official presets, as well as
     basic general configuration, are supported.
-  version: 1.4.3
+  version: 1.4.5
   contact:
     url: https://github.com/orlangure/gnomock/
   license:
@@ -85,6 +85,26 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/mysql-request'
+      responses:
+        '200':
+          $ref: '#/components/responses/container-created'
+        '400':
+          $ref: '#/components/responses/invalid-configuration'
+        '500':
+          $ref: '#/components/responses/start-failed'
+      tags:
+        - presets
+
+  /start/mariadb:
+    post:
+      summary: Start a new Gnomock MariaDB container
+      operationId: startMariadb
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/mariadb-request'
       responses:
         '200':
           $ref: '#/components/responses/container-created'
@@ -199,6 +219,25 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/kafka-request'
+      responses:
+        '200':
+          $ref: '#/components/responses/container-created'
+        '400':
+          $ref: '#/components/responses/invalid-configuration'
+        '500':
+          $ref: '#/components/responses/start-failed'
+      tags:
+        - presets
+  /start/elastic:
+    post:
+      summary: Start a new Gnomock Elasticsearch container
+      operationId: startElastic
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/elastic-request'
       responses:
         '200':
           $ref: '#/components/responses/container-created'
@@ -548,6 +587,57 @@ components:
       description: >
         This object describes MySQL container.
 
+    mariadb-request:
+      type: object
+      properties:
+        preset:
+          $ref: '#/components/schemas/mariadb'
+        options:
+          $ref: '#/components/schemas/options'
+      description: >
+        This request includes MariaDB and general configuration.
+
+    mariadb:
+      type: object
+      properties:
+        db:
+          type: string
+          description: Database name to create.
+          example: mydb
+          default: mydb
+        user:
+          type: string
+          description: User to create in the container.
+          example: gnomock
+          default: gnomock
+        password:
+          type: string
+          description: New user's password.
+          example: p@s$w0rD
+          default: gnoria
+        queries:
+          type: array
+          description: >
+            A list of queries to execute while setting up the container.
+          items:
+            type: string
+          example:
+            - create table foo(bar int)
+            - insert into foo(bar) values(1)
+        queries_files:
+          type: array
+          items:
+            type: string
+          description: SQL files to execute while setting up container state.
+          example:
+            - /home/gnomock/project/testdata/mysql/queries.sql
+        version:
+          type: string
+          description: Docker image tag (version)
+          default: latest
+      description: >
+        This object describes MariaDB container.
+
     postgres-request:
       type: object
       properties:
@@ -826,6 +916,36 @@ components:
           example: latest
       description: >
         This object describes a Kafka container.
+
+    elastic-request:
+      type: object
+      properties:
+        preset:
+          $ref: '#/components/schemas/elastic'
+        options:
+          $ref: '#/components/schemas/options'
+      description: >
+        This request includes Elasticsearch and general configuration.
+
+    elastic:
+      type: object
+      properties:
+        input_files:
+          type: array
+          items:
+            type: string
+          description: >
+            A list of files to ingest into Elasticsearch. File names are used
+            as index names. Contents of the files need to be JSON objects
+            placed one after the other.
+        version:
+          type: string
+          description: Elasticsearch version.
+          default: 7.9.2
+          example: latest
+      description: >
+        This object describes a Elasticsearch container.
+
 
     stop-request:
       type: object
