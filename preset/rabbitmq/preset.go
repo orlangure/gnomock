@@ -29,8 +29,8 @@ const managementPort = 15672
 // Message is a single message sent to RabbitMQ.
 type Message struct {
 	Queue       string `json:"queue"`
-	ContentType string `json:"contentType"`
-	StringBody  string `json:"stringBody"`
+	ContentType string `json:"content_type"`
+	StringBody  string `json:"string_body"`
 	Body        []byte `json:"body"`
 }
 
@@ -137,32 +137,6 @@ func (p *P) setDefaults() {
 	}
 }
 
-func (p *P) loadFiles() error {
-	if len(p.MessagesFiles) > 0 {
-		for _, fName := range p.MessagesFiles {
-			msgs, err := p.loadMessagesFromFile(fName)
-			if err != nil {
-				return fmt.Errorf("can't read messages from file '%s': %w", fName, err)
-			}
-
-			p.Messages = append(p.Messages, msgs...)
-		}
-	}
-
-	return nil
-}
-
-func declareQueues(ch *amqp.Channel, qs []string) error {
-	for _, queue := range qs {
-		_, err := ch.QueueDeclare(queue, false, false, false, false, nil)
-		if err != nil {
-			return fmt.Errorf("can't open queue '%s': %w", queue, err)
-		}
-	}
-
-	return nil
-}
-
 func (p *P) initf(ctx context.Context, c *gnomock.Container) (err error) {
 	conn, err := p.connect(c)
 	if err != nil {
@@ -209,6 +183,32 @@ func (p *P) initf(ctx context.Context, c *gnomock.Container) (err error) {
 	for queue, messages := range messagesByQueue {
 		if err := p.sendMessagesIntoQueue(ch, queue, messages); err != nil {
 			return fmt.Errorf("can't send messages into queue '%s': %w", queue, err)
+		}
+	}
+
+	return nil
+}
+
+func (p *P) loadFiles() error {
+	if len(p.MessagesFiles) > 0 {
+		for _, fName := range p.MessagesFiles {
+			msgs, err := p.loadMessagesFromFile(fName)
+			if err != nil {
+				return fmt.Errorf("can't read messages from file '%s': %w", fName, err)
+			}
+
+			p.Messages = append(p.Messages, msgs...)
+		}
+	}
+
+	return nil
+}
+
+func declareQueues(ch *amqp.Channel, qs []string) error {
+	for _, queue := range qs {
+		_, err := ch.QueueDeclare(queue, false, false, false, false, nil)
+		if err != nil {
+			return fmt.Errorf("can't open queue '%s': %w", queue, err)
 		}
 	}
 
