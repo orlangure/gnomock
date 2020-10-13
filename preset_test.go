@@ -1,5 +1,3 @@
-// +build !nognomock
-
 package gnomock_test
 
 import (

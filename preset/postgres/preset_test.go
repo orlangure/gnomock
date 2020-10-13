@@ -1,5 +1,3 @@
-// +build !nopreset
-
 package postgres_test
 
 import (

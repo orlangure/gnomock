@@ -95,6 +95,9 @@ Gnomock:
 
 1. Update [README](README.md) using the links to the new packages/docs.
 
+1. Add a job to test the new preset to Github Actions ([here is the
+   workflow](https://github.com/orlangure/gnomock/blob/master/.github/workflows/test.yaml)).
+
 ## Code review
 
 You are welcome to review existing pull requests, or existing code. Please be

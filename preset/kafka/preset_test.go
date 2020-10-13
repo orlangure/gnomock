@@ -1,5 +1,3 @@
-// +build !nopreset
-
 package kafka_test
 
 import (

@@ -1,5 +1,3 @@
-// +build !nopreset
-
 package elastic_test
 
 import (

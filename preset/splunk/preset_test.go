@@ -1,5 +1,3 @@
-// +build !nopreset
-
 package splunk_test
 
 import (
