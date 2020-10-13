@@ -1,5 +1,3 @@
-// +build !nopreset
-
 package redis_test
 
 import (

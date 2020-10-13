@@ -1,5 +1,3 @@
-// +build !noserver
-
 package gnomockd_test
 
 import (

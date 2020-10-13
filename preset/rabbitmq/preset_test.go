@@ -1,5 +1,3 @@
-// +build !nopreset
-
 package rabbitmq_test
 
 import (

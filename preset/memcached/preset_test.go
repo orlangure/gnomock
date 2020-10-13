@@ -1,5 +1,3 @@
-// +build !nopreset
-
 package memcached_test
 
 import (

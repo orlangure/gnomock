@@ -1,5 +1,3 @@
-// +build !nopreset
-
 package mariadb_test
 
 import (

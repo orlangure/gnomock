@@ -1,12 +1,12 @@
-name: Build
+name: Test
 on:
   push:
     branches:
       - master
   pull_request:
 jobs:
-  test-gnomock:
-    name: Test Gnomock
+  lint:
+    name: "[core] lint"
     runs-on: ubuntu-latest
     steps:
       - name: Set up Go 1.15
@@ -17,11 +17,30 @@ jobs:
         uses: actions/checkout@v1
       - name: Get dependencies
         run: go get -v -t -d ./...
-      - name: Test
-        run: go test -race -cover -v -p 1 -tags "nosdk nopreset noserver" ./...
+      - name: Get golangci-lint
+        run: curl -sfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh| sh -s -- -b $(go env GOPATH)/bin v1.23.8
+      - name: Lint
+        run: $(go env GOPATH)/bin/golangci-lint run ./...
+
+  test-core:
+    name: "[core] gnomock, gnomockd"
+    runs-on: ubuntu-latest
+    steps:
+      - name: Set up Go 1.15
+        uses: actions/setup-go@v1
+        with:
+          go-version: 1.15
+      - name: Check out code into the Go module directory
+        uses: actions/checkout@v1
+      - name: Get dependencies
+        run: go get -v -t -d ./...
+      - name: Test Gnomock
+        run: go test -race -cover -v .
+      - name: Test gnomockd
+        run: go test -race -cover -v ./gnomockd -run TestGnomockd
 
   test-sdk:
-    name: Test Python SDK
+    name: "[sdk] python"
     runs-on: ubuntu-latest
     steps:
       - name: Check out code into the Go module directory
@@ -44,8 +63,8 @@ jobs:
           cd sdktest/python
           python3 -m pytest -n 2 -v
 
-  test-preset:
-    name: Test Presets
+  test-localstack:
+    name: "[preset] localstack"
     runs-on: ubuntu-latest
     steps:
       - name: Set up Go 1.15
@@ -56,13 +75,13 @@ jobs:
         uses: actions/checkout@v1
       - name: Get dependencies
         run: go get -v -t -d ./...
-      - name: Test with race detector
-        run: go test -race -cover -v -p 1 -tags "nognomock nosdk noserver" ./...
-      - name: Test without race detector
-        run: go test -cover -v -p 1 -tags "nognomock nosdk noserver" ./...
+      - name: Test preset
+        run: go test -race -cover -v ./preset/localstack/...
+      - name: Test server
+        run: go test -race -cover -v ./gnomockd -run TestLocalstack
 
-  test-server:
-    name: Test Server
+  test-elastic:
+    name: "[preset] elastic"
     runs-on: ubuntu-latest
     steps:
       - name: Set up Go 1.15
@@ -73,13 +92,13 @@ jobs:
         uses: actions/checkout@v1
       - name: Get dependencies
         run: go get -v -t -d ./...
-      - name: Test with race detector
-        run: go test -race -cover -v -p 1 -tags "nognomock nosdk nopreset" ./...
-      - name: Test without race detector
-        run: go test -cover -v -p 1 -tags "nognomock nosdk nopreset" ./...
+      - name: Test preset
+        run: go test -cover -v ./preset/elastic/...
+      - name: Test server
+        run: go test -v ./gnomockd -run TestElastic
 
-  lint:
-    name: Lint
+  test-memcached:
+    name: "[preset] memcached"
     runs-on: ubuntu-latest
     steps:
       - name: Set up Go 1.15
@@ -90,7 +109,161 @@ jobs:
         uses: actions/checkout@v1
       - name: Get dependencies
         run: go get -v -t -d ./...
-      - name: Get golangci-lint
-        run: curl -sfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh| sh -s -- -b $(go env GOPATH)/bin v1.23.8
-      - name: Lint
-        run: $(go env GOPATH)/bin/golangci-lint run ./...
+      - name: Test preset
+        run: go test -race -cover -v ./preset/memcached/...
+      - name: Test server
+        run: go test -race -cover -v ./gnomockd -run TestMemcached
+
+  test-rabbitmq:
+    name: "[preset] rabbitmq"
+    runs-on: ubuntu-latest
+    steps:
+      - name: Set up Go 1.15
+        uses: actions/setup-go@v1
+        with:
+          go-version: 1.15
+      - name: Check out code into the Go module directory
+        uses: actions/checkout@v1
+      - name: Get dependencies
+        run: go get -v -t -d ./...
+      - name: Test preset
+        run: go test -race -cover -v ./preset/rabbitmq/...
+      - name: Test server
+        run: go test -race -cover -v ./gnomockd -run TestRabbitMQ
+
+  test-kafka:
+    name: "[preset] kafka"
+    runs-on: ubuntu-latest
+    steps:
+      - name: Set up Go 1.15
+        uses: actions/setup-go@v1
+        with:
+          go-version: 1.15
+      - name: Check out code into the Go module directory
+        uses: actions/checkout@v1
+      - name: Get dependencies
+        run: go get -v -t -d ./...
+      - name: Test preset
+        run: go test -race -cover -v ./preset/kafka/...
+      - name: Test server
+        run: go test -race -cover -v ./gnomockd -run TestKafka
+
+  test-postgres:
+    name: "[preset] postgres"
+    runs-on: ubuntu-latest
+    steps:
+      - name: Set up Go 1.15
+        uses: actions/setup-go@v1
+        with:
+          go-version: 1.15
+      - name: Check out code into the Go module directory
+        uses: actions/checkout@v1
+      - name: Get dependencies
+        run: go get -v -t -d ./...
+      - name: Test preset
+        run: go test -race -cover -v ./preset/postgres/...
+      - name: Test server
+        run: go test -race -cover -v ./gnomockd -run TestPostgres
+
+  test-mariadb:
+    name: "[preset] mariadb"
+    runs-on: ubuntu-latest
+    steps:
+      - name: Set up Go 1.15
+        uses: actions/setup-go@v1
+        with:
+          go-version: 1.15
+      - name: Check out code into the Go module directory
+        uses: actions/checkout@v1
+      - name: Get dependencies
+        run: go get -v -t -d ./...
+      - name: Test preset
+        run: go test -race -cover -v ./preset/mariadb/...
+      - name: Test server
+        run: go test -race -cover -v ./gnomockd -run TestMariaDB
+
+  test-splunk:
+    name: "[preset] splunk"
+    runs-on: ubuntu-latest
+    steps:
+      - name: Set up Go 1.15
+        uses: actions/setup-go@v1
+        with:
+          go-version: 1.15
+      - name: Check out code into the Go module directory
+        uses: actions/checkout@v1
+      - name: Get dependencies
+        run: go get -v -t -d ./...
+      - name: Test preset
+        run: go test -race -cover -v ./preset/splunk/...
+      - name: Test server
+        run: go test -race -cover -v ./gnomockd -run TestSplunk
+
+  test-redis:
+    name: "[preset] redis"
+    runs-on: ubuntu-latest
+    steps:
+      - name: Set up Go 1.15
+        uses: actions/setup-go@v1
+        with:
+          go-version: 1.15
+      - name: Check out code into the Go module directory
+        uses: actions/checkout@v1
+      - name: Get dependencies
+        run: go get -v -t -d ./...
+      - name: Test preset
+        run: go test -race -cover -v ./preset/redis/...
+      - name: Test server
+        run: go test -race -cover -v ./gnomockd -run TestRedis
+
+  test-mysql:
+    name: "[preset] mysql"
+    runs-on: ubuntu-latest
+    steps:
+      - name: Set up Go 1.15
+        uses: actions/setup-go@v1
+        with:
+          go-version: 1.15
+      - name: Check out code into the Go module directory
+        uses: actions/checkout@v1
+      - name: Get dependencies
+        run: go get -v -t -d ./...
+      - name: Test preset
+        run: go test -race -cover -v ./preset/mysql/...
+      - name: Test server
+        run: go test -race -cover -v ./gnomockd -run TestMySQL
+
+  test-mssql:
+    name: "[preset] mssql"
+    runs-on: ubuntu-latest
+    steps:
+      - name: Set up Go 1.15
+        uses: actions/setup-go@v1
+        with:
+          go-version: 1.15
+      - name: Check out code into the Go module directory
+        uses: actions/checkout@v1
+      - name: Get dependencies
+        run: go get -v -t -d ./...
+      - name: Test preset
+        run: go test -race -cover -v ./preset/mssql/...
+      - name: Test server
+        run: go test -race -cover -v ./gnomockd -run TestMSSQL
+
+  test-mongo:
+    name: "[preset] mongo"
+    runs-on: ubuntu-latest
+    steps:
+      - name: Set up Go 1.15
+        uses: actions/setup-go@v1
+        with:
+          go-version: 1.15
+      - name: Check out code into the Go module directory
+        uses: actions/checkout@v1
+      - name: Get dependencies
+        run: go get -v -t -d ./...
+      - name: Test preset
+        run: go test -race -cover -v ./preset/mongo/...
+      - name: Test server
+        run: go test -race -cover -v ./gnomockd -run TestMongo
+

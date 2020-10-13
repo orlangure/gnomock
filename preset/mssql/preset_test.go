@@ -1,5 +1,3 @@
-// +build !nopreset
-
 package mssql_test
 
 import (

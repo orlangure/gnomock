@@ -1,5 +1,3 @@
-// +build !nopreset
-
 package mysql_test
 
 import (
