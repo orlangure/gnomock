@@ -11,4 +11,5 @@ RUN CGO_ENABLED=0 GOARCH=amd64 GOOS=linux go build -a -installsuffix cgo -ldflag
 FROM scratch
 
 COPY --from=builder /gnomockd /gnomockd
+ENV GNOMOCK_ENV=gnomockd
 ENTRYPOINT ["/gnomockd"]
