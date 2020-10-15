@@ -51,6 +51,6 @@ func (c *Container) DefaultPort() int {
 }
 
 func isInDocker() bool {
-	_, err := os.Stat("/.dockerenv")
-	return err == nil
+	env := os.Getenv("GNOMOCK_ENV")
+	return env == "gnomockd"
 }

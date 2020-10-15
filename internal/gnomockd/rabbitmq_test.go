@@ -50,12 +50,8 @@ func TestRabbitMQ(t *testing.T) {
 	conn, err := amqp.Dial(uri)
 	require.NoError(t, err)
 
-	defer func() { require.NoError(t, conn.Close()) }()
-
 	ch, err := conn.Channel()
 	require.NoError(t, err)
-
-	defer func() { require.NoError(t, ch.Close()) }()
 
 	q, err := ch.QueueDeclare(
 		"gnomock",
@@ -93,4 +89,17 @@ func TestRabbitMQ(t *testing.T) {
 
 	m := <-msgs
 	require.Equal(t, msgBody, m.Body)
+
+	require.NoError(t, ch.Close())
+	require.NoError(t, conn.Close())
+
+	bs, err = json.Marshal(c)
+	require.NoError(t, err)
+
+	buf = bytes.NewBuffer(bs)
+	w, r = httptest.NewRecorder(), httptest.NewRequest(http.MethodPost, "/stop", buf)
+	h.ServeHTTP(w, r)
+
+	res = w.Result()
+	require.Equal(t, http.StatusOK, res.StatusCode)
 }
