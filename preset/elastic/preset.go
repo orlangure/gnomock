@@ -14,10 +14,15 @@ import (
 
 	"github.com/elastic/go-elasticsearch/v7"
 	"github.com/orlangure/gnomock"
+	"github.com/orlangure/gnomock/internal/registry"
 )
 
 const defaultVersion = "7.9.2"
 const defaultPort = 9200
+
+func init() {
+	registry.Register("elastic", func() gnomock.Preset { return &P{} })
+}
 
 // Preset creates a new Gmomock Elasticsearch preset. This preset includes an
 // Elasticsearch specific healthcheck function and default Elasticsearch image

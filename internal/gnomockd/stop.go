@@ -6,7 +6,7 @@ import (
 	"net/http"
 
 	"github.com/orlangure/gnomock"
-	"github.com/orlangure/gnomock/errors"
+	"github.com/orlangure/gnomock/internal/errors"
 )
 
 func stopHandler() http.HandlerFunc {

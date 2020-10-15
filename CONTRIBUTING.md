@@ -71,13 +71,13 @@ Gnomock:
    You can use existing presets for reference, and are encouraged to do so.
 
 1. Add the preset to the [preset
-   registry](https://github.com/orlangure/gnomock/tree/master/preset/registry.go).
+   registry](https://github.com/orlangure/gnomock/tree/master/cmd/server/presets.go).
    This is the place used by
-   [`gnomockd`](https://github.com/orlangure/gnomock/tree/master/gnomockd) to
-   figure out what to do on incoming HTTP requests. This is required to allow
-   projects in languages other than Go communicate with Gnomock container. Each
-   preset in the registry has a test, which is different from the regular
-   preset test: here the configuration comes from an HTTP request.
+   [`gnomockd`](https://github.com/orlangure/gnomock/tree/master/internal/gnomockd)
+   to figure out what to do on incoming HTTP requests. This is required to
+   allow projects in languages other than Go communicate with Gnomock
+   container. Each preset in the registry has a test, which is different from
+   the regular preset test: here the configuration comes from an HTTP request.
 
 1. Update [swagger
    spec](https://github.com/orlangure/gnomock/blob/master/swagger/swagger.yaml)

@@ -2,7 +2,7 @@ package gnomockd_test
 
 import (
 	"bytes"
-	"database/sql"
+	"context"
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
@@ -11,20 +11,23 @@ import (
 	"testing"
 
 	"github.com/orlangure/gnomock"
-	"github.com/orlangure/gnomock/gnomockd"
+	"github.com/orlangure/gnomock/internal/gnomockd"
 	"github.com/stretchr/testify/require"
+	"go.mongodb.org/mongo-driver/bson"
+	mongodb "go.mongodb.org/mongo-driver/mongo"
+	mongooptions "go.mongodb.org/mongo-driver/mongo/options"
 )
 
 //nolint:bodyclose
-func TestPostgres(t *testing.T) {
+func TestMongo(t *testing.T) {
 	t.Parallel()
 
 	h := gnomockd.Handler()
-	bs, err := ioutil.ReadFile("./testdata/postgres.json")
+	bs, err := ioutil.ReadFile("./testdata/mongo.json")
 	require.NoError(t, err)
 
 	buf := bytes.NewBuffer(bs)
-	w, r := httptest.NewRecorder(), httptest.NewRequest(http.MethodPost, "/start/postgres", buf)
+	w, r := httptest.NewRecorder(), httptest.NewRequest(http.MethodPost, "/start/mongo", buf)
 	h.ServeHTTP(w, r)
 
 	res := w.Result()
@@ -41,29 +44,19 @@ func TestPostgres(t *testing.T) {
 	err = json.Unmarshal(body, &c)
 	require.NoError(t, err)
 
-	connStr := fmt.Sprintf(
-		"host=%s port=%d user=%s password=%s  dbname=%s sslmode=disable",
-		c.Host, c.DefaultPort(),
-		"gnomock", "foobar", "gnomockd_db",
-	)
+	uri := fmt.Sprintf("mongodb://gnomock:foobar@%s", c.DefaultAddress())
+	clientOptions := mongooptions.Client().ApplyURI(uri)
 
-	db, err := sql.Open("postgres", connStr)
+	client, err := mongodb.NewClient(clientOptions)
 	require.NoError(t, err)
 
-	row := db.QueryRow(`select count(distinct ip_address) from customers`)
-	count := 0
-	require.NoError(t, row.Scan(&count))
-	require.Equal(t, 1000, count)
+	ctx := context.Background()
 
-	row = db.QueryRow(`select a from tbl`)
-	value := 0
-	require.NoError(t, row.Scan(&value))
-	require.Equal(t, 42, value)
+	require.NoError(t, client.Connect(ctx))
 
-	row = db.QueryRow(`select max(foo) from things limit 1`)
-	value = 0
-	require.NoError(t, row.Scan(&value))
-	require.Equal(t, 3, value)
+	count, err := client.Database("db").Collection("data").CountDocuments(ctx, bson.D{})
+	require.NoError(t, err)
+	require.Equal(t, int64(5), count)
 
 	bs, err = json.Marshal(c)
 	require.NoError(t, err)

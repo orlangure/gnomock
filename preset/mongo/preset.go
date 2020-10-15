@@ -14,6 +14,7 @@ import (
 	"strings"
 
 	"github.com/orlangure/gnomock"
+	"github.com/orlangure/gnomock/internal/registry"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/bsonrw"
 	mongodb "go.mongodb.org/mongo-driver/mongo"
@@ -21,6 +22,10 @@ import (
 )
 
 const defaultVersion = "latest"
+
+func init() {
+	registry.Register("mongo", func() gnomock.Preset { return &P{} })
+}
 
 // Preset creates a new Gmomock MongoDB preset. This preset includes a MongoDB
 // specific healthcheck function, default MongoDB image and port, and allows to

@@ -37,7 +37,7 @@ jobs:
       - name: Test Gnomock
         run: go test -race -cover -v .
       - name: Test gnomockd
-        run: go test -race -cover -v ./gnomockd -run TestGnomockd
+        run: go test -race -cover -v ./internal/gnomockd -run TestGnomockd
 
   test-sdk:
     name: "[sdk] python"
@@ -78,7 +78,7 @@ jobs:
       - name: Test preset
         run: go test -race -cover -v ./preset/localstack/...
       - name: Test server
-        run: go test -race -cover -v ./gnomockd -run TestLocalstack
+        run: go test -race -cover -v ./internal/gnomockd -run TestLocalstack
 
   test-elastic:
     name: "[preset] elastic"
@@ -95,7 +95,7 @@ jobs:
       - name: Test preset
         run: go test -cover -v ./preset/elastic/...
       - name: Test server
-        run: go test -v ./gnomockd -run TestElastic
+        run: go test -v ./internal/gnomockd -run TestElastic
 
   test-memcached:
     name: "[preset] memcached"
@@ -112,7 +112,7 @@ jobs:
       - name: Test preset
         run: go test -race -cover -v ./preset/memcached/...
       - name: Test server
-        run: go test -race -cover -v ./gnomockd -run TestMemcached
+        run: go test -race -cover -v ./internal/gnomockd -run TestMemcached
 
   test-rabbitmq:
     name: "[preset] rabbitmq"
@@ -129,7 +129,7 @@ jobs:
       - name: Test preset
         run: go test -race -cover -v ./preset/rabbitmq/...
       - name: Test server
-        run: go test -race -cover -v ./gnomockd -run TestRabbitMQ
+        run: go test -race -cover -v ./internal/gnomockd -run TestRabbitMQ
 
   test-kafka:
     name: "[preset] kafka"
@@ -146,7 +146,7 @@ jobs:
       - name: Test preset
         run: go test -race -cover -v ./preset/kafka/...
       - name: Test server
-        run: go test -race -cover -v ./gnomockd -run TestKafka
+        run: go test -race -cover -v ./internal/gnomockd -run TestKafka
 
   test-postgres:
     name: "[preset] postgres"
@@ -163,7 +163,7 @@ jobs:
       - name: Test preset
         run: go test -race -cover -v ./preset/postgres/...
       - name: Test server
-        run: go test -race -cover -v ./gnomockd -run TestPostgres
+        run: go test -race -cover -v ./internal/gnomockd -run TestPostgres
 
   test-mariadb:
     name: "[preset] mariadb"
@@ -180,7 +180,7 @@ jobs:
       - name: Test preset
         run: go test -race -cover -v ./preset/mariadb/...
       - name: Test server
-        run: go test -race -cover -v ./gnomockd -run TestMariaDB
+        run: go test -race -cover -v ./internal/gnomockd -run TestMariaDB
 
   test-splunk:
     name: "[preset] splunk"
@@ -197,7 +197,7 @@ jobs:
       - name: Test preset
         run: go test -race -cover -v ./preset/splunk/...
       - name: Test server
-        run: go test -race -cover -v ./gnomockd -run TestSplunk
+        run: go test -race -cover -v ./internal/gnomockd -run TestSplunk
 
   test-redis:
     name: "[preset] redis"
@@ -214,7 +214,7 @@ jobs:
       - name: Test preset
         run: go test -race -cover -v ./preset/redis/...
       - name: Test server
-        run: go test -race -cover -v ./gnomockd -run TestRedis
+        run: go test -race -cover -v ./internal/gnomockd -run TestRedis
 
   test-mysql:
     name: "[preset] mysql"
@@ -231,7 +231,7 @@ jobs:
       - name: Test preset
         run: go test -race -cover -v ./preset/mysql/...
       - name: Test server
-        run: go test -race -cover -v ./gnomockd -run TestMySQL
+        run: go test -race -cover -v ./internal/gnomockd -run TestMySQL
 
   test-mssql:
     name: "[preset] mssql"
@@ -248,7 +248,7 @@ jobs:
       - name: Test preset
         run: go test -race -cover -v ./preset/mssql/...
       - name: Test server
-        run: go test -race -cover -v ./gnomockd -run TestMSSQL
+        run: go test -race -cover -v ./internal/gnomockd -run TestMSSQL
 
   test-mongo:
     name: "[preset] mongo"
@@ -265,5 +265,5 @@ jobs:
       - name: Test preset
         run: go test -race -cover -v ./preset/mongo/...
       - name: Test server
-        run: go test -race -cover -v ./gnomockd -run TestMongo
+        run: go test -race -cover -v ./internal/gnomockd -run TestMongo
 

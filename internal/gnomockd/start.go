@@ -10,15 +10,15 @@ import (
 
 	"github.com/gorilla/mux"
 	"github.com/orlangure/gnomock"
-	"github.com/orlangure/gnomock/errors"
-	"github.com/orlangure/gnomock/preset"
+	"github.com/orlangure/gnomock/internal/errors"
+	"github.com/orlangure/gnomock/internal/registry"
 )
 
-func startHandler(presets preset.Preseter) http.HandlerFunc {
+func startHandler() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		vars := mux.Vars(r)
 		name := vars["name"]
-		p := presets.Preset(name)
+		p := registry.Find(name)
 
 		if p == nil {
 			respondWithError(w, errors.NewPresetNotFoundError(name))

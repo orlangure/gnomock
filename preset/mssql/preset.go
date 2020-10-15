@@ -9,6 +9,7 @@ import (
 
 	_ "github.com/denisenkom/go-mssqldb" // mssql driver
 	"github.com/orlangure/gnomock"
+	"github.com/orlangure/gnomock/internal/registry"
 )
 
 const masterDB = "master"
@@ -16,6 +17,10 @@ const defaultPassword = "Gn0m!ck~"
 const defaultDatabase = "mydb"
 const defaultPort = 1433
 const defaultVersion = "latest"
+
+func init() {
+	registry.Register("mssql", func() gnomock.Preset { return &P{} })
+}
 
 // Preset creates a new Gmomock Microsoft SQL Server preset. This preset
 // includes a mssql specific healthcheck function, default mssql image and

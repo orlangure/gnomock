@@ -11,7 +11,8 @@ import (
 	"testing"
 
 	"github.com/orlangure/gnomock"
-	"github.com/orlangure/gnomock/gnomockd"
+	"github.com/orlangure/gnomock/internal/gnomockd"
+	_ "github.com/orlangure/gnomock/preset/mariadb"
 	"github.com/stretchr/testify/require"
 )
 

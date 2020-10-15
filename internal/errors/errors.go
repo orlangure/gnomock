@@ -1,4 +1,4 @@
-// Package errors exposes errors types used by gnomockd endpoints
+// Package errors exposes errors types used by gnomockd endpoints.
 package errors
 
 import (

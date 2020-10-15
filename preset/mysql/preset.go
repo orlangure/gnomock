@@ -10,6 +10,7 @@ import (
 
 	mysqldriver "github.com/go-sql-driver/mysql"
 	"github.com/orlangure/gnomock"
+	"github.com/orlangure/gnomock/internal/registry"
 )
 
 const defaultUser = "gnomock"
@@ -17,6 +18,10 @@ const defaultPassword = "gnomick"
 const defaultDatabase = "mydb"
 const defaultPort = 3306
 const defaultVersion = "latest"
+
+func init() {
+	registry.Register("mysql", func() gnomock.Preset { return &P{} })
+}
 
 // Preset creates a new Gmomock MySQL preset. This preset includes a MySQL
 // specific healthcheck function, default MySQL image and port, and allows to

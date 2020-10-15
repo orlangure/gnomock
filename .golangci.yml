@@ -14,7 +14,6 @@ linters:
     - depguard
     - dogsled
     - funlen
-    - gochecknoinits
     - gocognit
     - goconst
     - gocritic

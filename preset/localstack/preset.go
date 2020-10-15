@@ -12,6 +12,7 @@ import (
 	"strings"
 
 	"github.com/orlangure/gnomock"
+	"github.com/orlangure/gnomock/internal/registry"
 )
 
 const (
@@ -22,6 +23,10 @@ const (
 )
 
 const defaultVersion = "latest"
+
+func init() {
+	registry.Register("localstack", func() gnomock.Preset { return &P{} })
+}
 
 // Preset creates a new localstack preset to use with gnomock.Start. See
 // package docs for a list of exposed ports and services. It is legal to not
