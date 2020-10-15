@@ -9,6 +9,7 @@ import (
 
 	_ "github.com/lib/pq" // postgres driver
 	"github.com/orlangure/gnomock"
+	"github.com/orlangure/gnomock/internal/registry"
 )
 
 const defaultUser = "postgres"
@@ -17,6 +18,10 @@ const defaultDatabase = "postgres"
 const defaultSSLMode = "disable"
 const defaultPort = 5432
 const defaultVersion = "latest"
+
+func init() {
+	registry.Register("postgres", func() gnomock.Preset { return &P{} })
+}
 
 // Preset creates a new Gmomock Postgres preset. This preset includes a Postgres
 // specific healthcheck function, default Postgres image and port, and allows to

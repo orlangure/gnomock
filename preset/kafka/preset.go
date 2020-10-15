@@ -11,6 +11,7 @@ import (
 	"time"
 
 	"github.com/orlangure/gnomock"
+	"github.com/orlangure/gnomock/internal/registry"
 	"github.com/segmentio/kafka-go"
 )
 
@@ -32,6 +33,10 @@ type Message struct {
 	Key   string `json:"key"`
 	Value string `json:"value"`
 	Time  int64  `json:"time"`
+}
+
+func init() {
+	registry.Register("kafka", func() gnomock.Preset { return &P{} })
 }
 
 // Preset creates a new Gmomock Kafka preset. This preset includes a

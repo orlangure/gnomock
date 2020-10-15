@@ -9,9 +9,14 @@ import (
 
 	redisclient "github.com/go-redis/redis/v7"
 	"github.com/orlangure/gnomock"
+	"github.com/orlangure/gnomock/internal/registry"
 )
 
 const defaultVersion = "latest"
+
+func init() {
+	registry.Register("redis", func() gnomock.Preset { return &P{} })
+}
 
 // Preset creates a new Gmomock Redis preset. This preset includes a Redis
 // specific healthcheck function, default Redis image and port, and allows to

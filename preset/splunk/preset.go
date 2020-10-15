@@ -15,6 +15,7 @@ import (
 	"net/url"
 
 	"github.com/orlangure/gnomock"
+	"github.com/orlangure/gnomock/internal/registry"
 )
 
 const (
@@ -29,6 +30,10 @@ const (
 )
 
 const defaultVersion = "latest"
+
+func init() {
+	registry.Register("splunk", func() gnomock.Preset { return &P{} })
+}
 
 // Preset creates a new Gnomock Splunk preset. This preset includes a Splunk
 // specific healthcheck function, default Splunk image and ports, and allows to

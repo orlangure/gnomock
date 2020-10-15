@@ -12,6 +12,7 @@ import (
 	"strings"
 
 	"github.com/orlangure/gnomock"
+	"github.com/orlangure/gnomock/internal/registry"
 	"github.com/streadway/amqp"
 )
 
@@ -32,6 +33,10 @@ type Message struct {
 	ContentType string `json:"content_type"`
 	StringBody  string `json:"string_body"`
 	Body        []byte `json:"body"`
+}
+
+func init() {
+	registry.Register("rabbitmq", func() gnomock.Preset { return &P{} })
 }
 
 // Preset creates a new Gmomock RabbitMQ preset. This preset includes a

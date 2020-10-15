@@ -6,7 +6,7 @@ ADD go.sum .
 RUN go mod download
 RUN go mod verify
 ADD . .
-RUN CGO_ENABLED=0 GOARCH=amd64 GOOS=linux go build -a -installsuffix cgo -ldflags '-extldflags "-static"' -o /gnomockd ./server
+RUN CGO_ENABLED=0 GOARCH=amd64 GOOS=linux go build -a -installsuffix cgo -ldflags '-extldflags "-static"' -o /gnomockd ./cmd/server
 
 FROM scratch
 

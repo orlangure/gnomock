@@ -10,6 +10,7 @@ import (
 
 	mysqldriver "github.com/go-sql-driver/mysql"
 	"github.com/orlangure/gnomock"
+	"github.com/orlangure/gnomock/internal/registry"
 )
 
 const defaultUser = "gnomock"
@@ -17,6 +18,10 @@ const defaultPassword = "gnoria"
 const defaultDatabase = "mydb"
 const defaultPort = 3306
 const defaultVersion = "latest"
+
+func init() {
+	registry.Register("mariadb", func() gnomock.Preset { return &P{} })
+}
 
 // Preset creates a new Gmomock MariaDB preset. This preset includes a MariaDB
 // specific healthcheck function, default MariaDB image and port, and allows to

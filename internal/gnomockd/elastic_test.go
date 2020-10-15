@@ -11,8 +11,9 @@ import (
 
 	"github.com/elastic/go-elasticsearch/v7"
 	"github.com/orlangure/gnomock"
-	"github.com/orlangure/gnomock/gnomockd"
-	"github.com/orlangure/gnomock/israce"
+	"github.com/orlangure/gnomock/internal/gnomockd"
+	"github.com/orlangure/gnomock/internal/israce"
+	_ "github.com/orlangure/gnomock/preset/elastic"
 	"github.com/stretchr/testify/require"
 )
 

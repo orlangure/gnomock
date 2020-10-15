@@ -7,14 +7,13 @@ import (
 	"net/http"
 
 	"github.com/gorilla/mux"
-	"github.com/orlangure/gnomock/errors"
-	"github.com/orlangure/gnomock/preset"
+	"github.com/orlangure/gnomock/internal/errors"
 )
 
 // Handler returns an HTTP handler ready to serve incoming connections
 func Handler() http.Handler {
 	router := mux.NewRouter()
-	router.HandleFunc("/start/{name}", startHandler(preset.Registry())).Methods(http.MethodPost)
+	router.HandleFunc("/start/{name}", startHandler()).Methods(http.MethodPost)
 	router.HandleFunc("/stop", stopHandler()).Methods(http.MethodPost).Methods(http.MethodPost)
 
 	return router

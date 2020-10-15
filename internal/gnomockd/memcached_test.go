@@ -2,29 +2,30 @@ package gnomockd_test
 
 import (
 	"bytes"
-	"database/sql"
 	"encoding/json"
-	"fmt"
 	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
+	"strconv"
 	"testing"
 
+	"github.com/bradfitz/gomemcache/memcache"
 	"github.com/orlangure/gnomock"
-	"github.com/orlangure/gnomock/gnomockd"
+	"github.com/orlangure/gnomock/internal/gnomockd"
+	_ "github.com/orlangure/gnomock/preset/memcached"
 	"github.com/stretchr/testify/require"
 )
 
 //nolint:bodyclose
-func TestMySQL(t *testing.T) {
+func TestMemcached(t *testing.T) {
 	t.Parallel()
 
 	h := gnomockd.Handler()
-	bs, err := ioutil.ReadFile("./testdata/mysql.json")
+	bs, err := ioutil.ReadFile("./testdata/memcached.json")
 	require.NoError(t, err)
 
 	buf := bytes.NewBuffer(bs)
-	w, r := httptest.NewRecorder(), httptest.NewRequest(http.MethodPost, "/start/mysql", buf)
+	w, r := httptest.NewRecorder(), httptest.NewRequest(http.MethodPost, "/start/memcached", buf)
 	h.ServeHTTP(w, r)
 
 	res := w.Result()
@@ -41,24 +42,21 @@ func TestMySQL(t *testing.T) {
 	err = json.Unmarshal(body, &c)
 	require.NoError(t, err)
 
-	addr := c.DefaultAddress()
-	connStr := fmt.Sprintf(
-		"%s:%s@tcp(%s)/%s",
-		"gnomock", "foobar", addr, "gnomockd_db",
-	)
+	client := memcache.New(c.DefaultAddress())
 
-	db, err := sql.Open("mysql", connStr)
+	itemA, err := client.Get("answer")
 	require.NoError(t, err)
+	valueA, err := strconv.ParseInt(string(itemA.Value), 10, 32)
+	require.NoError(t, err)
+	require.Equal(t, 42, int(valueA))
 
-	row := db.QueryRow(`select count(distinct ip_address) from customers`)
-	count := 0
-	require.NoError(t, row.Scan(&count))
-	require.Equal(t, 1000, count)
+	itemB, err := client.Get("bar")
+	require.NoError(t, err)
+	require.Equal(t, "foo", string(itemB.Value))
 
-	row = db.QueryRow(`select a from tbl`)
-	value := 0
-	require.NoError(t, row.Scan(&value))
-	require.Equal(t, 42, value)
+	itemC, err := client.Get("computer")
+	require.NoError(t, err)
+	require.Equal(t, "hal9000", string(itemC.Value))
 
 	bs, err = json.Marshal(c)
 	require.NoError(t, err)
