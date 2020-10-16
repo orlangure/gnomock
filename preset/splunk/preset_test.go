@@ -18,7 +18,6 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-//nolint:funlen
 func TestPreset(t *testing.T) {
 	events := make([]splunk.Event, 1000)
 
@@ -65,7 +64,7 @@ func TestPreset(t *testing.T) {
 	t.Run("initial values ingested", func(t *testing.T) {
 		client := &http.Client{
 			Transport: &http.Transport{
-				TLSClientConfig: &tls.Config{InsecureSkipVerify: true}, //nolint:gosec
+				TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
 			},
 		}
 

@@ -16,7 +16,6 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-//nolint:bodyclose
 func TestPostgres(t *testing.T) {
 	t.Parallel()
 

@@ -20,7 +20,6 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-//nolint:bodyclose
 func TestLocalstack(t *testing.T) {
 	t.Parallel()
 

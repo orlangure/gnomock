@@ -1,4 +1,3 @@
-//nolint:gosec
 package gnomock_test
 
 import (

@@ -17,7 +17,6 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-// nolint:bodyclose,funlen
 func TestElastic(t *testing.T) {
 	if israce.Enabled {
 		t.Skip("elastic tests can't run with race detector due to https://github.com/elastic/go-elasticsearch/issues/147")

@@ -18,7 +18,6 @@ import (
 	mongooptions "go.mongodb.org/mongo-driver/mongo/options"
 )
 
-//nolint:bodyclose
 func TestMongo(t *testing.T) {
 	t.Parallel()
 
