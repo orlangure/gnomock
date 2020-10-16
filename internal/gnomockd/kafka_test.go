@@ -17,7 +17,6 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-// nolint:bodyclose,funlen
 func TestKafka(t *testing.T) {
 	t.Parallel()
 

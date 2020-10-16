@@ -17,7 +17,6 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-//nolint:funlen,bodyclose
 func TestSplunk(t *testing.T) {
 	t.Parallel()
 
@@ -45,7 +44,7 @@ func TestSplunk(t *testing.T) {
 
 	client := &http.Client{
 		Transport: &http.Transport{
-			TLSClientConfig: &tls.Config{InsecureSkipVerify: true}, //nolint:gosec
+			TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
 		},
 	}
 

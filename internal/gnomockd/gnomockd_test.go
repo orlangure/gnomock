@@ -11,7 +11,6 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-//nolint:bodyclose
 func TestGnomockd(t *testing.T) {
 	t.Run("start with preset not found", func(t *testing.T) {
 		t.Parallel()

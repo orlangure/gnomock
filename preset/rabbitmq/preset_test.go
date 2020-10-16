@@ -11,7 +11,6 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-// nolint:funlen
 func TestPreset(t *testing.T) {
 	t.Parallel()
 
@@ -149,7 +148,7 @@ func TestPreset_withManagement(t *testing.T) {
 	addr := container.Address(rabbitmq.ManagementPort)
 	url := fmt.Sprintf("http://%s/api/overview", addr)
 
-	resp, err := http.Get(url) // nolint:gosec
+	resp, err := http.Get(url)
 	require.NoError(t, err)
 
 	defer require.NoError(t, resp.Body.Close())

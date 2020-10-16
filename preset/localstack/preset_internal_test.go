@@ -7,7 +7,6 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-// nolint:funlen
 func TestHealthCheckAddress(t *testing.T) {
 	legacyPath := "http://127.0.0.1:33333/health"
 	newPath := "http://127.0.0.1:44444/health"

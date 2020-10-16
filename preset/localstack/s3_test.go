@@ -14,7 +14,6 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-//nolint:funlen
 func TestWithS3Files(t *testing.T) {
 	// testdata/s3 includes 100 files in my-bucket/dir folder
 	p := localstack.Preset(

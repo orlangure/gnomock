@@ -16,7 +16,6 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-// nolint:funlen,bodyclose
 func TestRabbitMQ(t *testing.T) {
 	t.Parallel()
 

@@ -66,7 +66,6 @@ func TestPreset_s3(t *testing.T) {
 	require.Equal(t, 1, len(out.Contents))
 }
 
-//nolint:funlen
 func TestPreset_sqs_sns(t *testing.T) {
 	t.Parallel()
 

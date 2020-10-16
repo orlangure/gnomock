@@ -12,7 +12,6 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-// nolint:funlen
 func TestPreset(t *testing.T) {
 	t.Parallel()
 

@@ -15,7 +15,6 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-//nolint:bodyclose
 func TestRedis(t *testing.T) {
 	t.Parallel()
 
