@@ -879,8 +879,33 @@ components:
           description: RabbitMQ version.
           default: 3.8.5-alpine
           example: latest
+        messages:
+          type: array
+          description: A list of messages to send to RabbitMQ
+          items:
+            $ref: '#/components/schemas/rabbitmqMessage'
+        messages_files:
+          type: array
+          items:
+            type: string
       description: >
         This object describes a RabbitMQ container.
+
+    rabbitmqMessage:
+      type: object
+      properties:
+        queue:
+          type: string
+          example: alerts
+        content_type:
+          type: string
+          example: text/plain
+        string_body:
+          type: string
+          example: high cpu
+        body:
+          type: string
+          format: byte
 
     kafka-request:
       type: object

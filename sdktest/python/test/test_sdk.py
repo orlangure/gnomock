@@ -25,7 +25,7 @@ class TestSDK(unittest.TestCase):
             self.assertEqual("127.0.0.1", response.host)
 
         finally:
-            if id is not "":
+            if id != "":
                 stop_request = gnomock.StopRequest(id=id)
                 self.api.stop(stop_request)
 
@@ -43,7 +43,7 @@ class TestSDK(unittest.TestCase):
             self.assertEqual("127.0.0.1", response.host)
 
         finally:
-            if id is not "":
+            if id != "":
                 stop_request = gnomock.StopRequest(id=id)
                 self.api.stop(stop_request)
 
@@ -61,7 +61,7 @@ class TestSDK(unittest.TestCase):
             self.assertEqual("127.0.0.1", response.host)
 
         finally:
-            if id is not "":
+            if id != "":
                 stop_request = gnomock.StopRequest(id=id)
                 self.api.stop(stop_request)
 
@@ -79,7 +79,7 @@ class TestSDK(unittest.TestCase):
             self.assertEqual("127.0.0.1", response.host)
 
         finally:
-            if id is not "":
+            if id != "":
                 stop_request = gnomock.StopRequest(id=id)
                 self.api.stop(stop_request)
 
@@ -97,7 +97,7 @@ class TestSDK(unittest.TestCase):
             self.assertEqual("127.0.0.1", response.host)
 
         finally:
-            if id is not "":
+            if id != "":
                 stop_request = gnomock.StopRequest(id=id)
                 self.api.stop(stop_request)
 
@@ -114,7 +114,7 @@ class TestSDK(unittest.TestCase):
             self.assertEqual("127.0.0.1", response.host)
 
         finally:
-            if id is not "":
+            if id != "":
                 stop_request = gnomock.StopRequest(id=id)
                 self.api.stop(stop_request)
 
@@ -131,7 +131,7 @@ class TestSDK(unittest.TestCase):
             self.assertEqual("127.0.0.1", response.host)
 
         finally:
-            if id is not "":
+            if id != "":
                 stop_request = gnomock.StopRequest(id=id)
                 self.api.stop(stop_request)
 
@@ -150,7 +150,7 @@ class TestSDK(unittest.TestCase):
             self.assertEqual("127.0.0.1", response.host)
 
         finally:
-            if id is not "":
+            if id != "":
                 stop_request = gnomock.StopRequest(id=id)
                 self.api.stop(stop_request)
 
@@ -167,13 +167,17 @@ class TestSDK(unittest.TestCase):
             self.assertEqual("127.0.0.1", response.host)
 
         finally:
-            if id is not "":
+            if id != "":
                 stop_request = gnomock.StopRequest(id=id)
                 self.api.stop(stop_request)
 
     def test_rabbitmq(self):
+        file_name = os.path.abspath("./test/testdata/rabbitmq/messages.jsonl")
         options = gnomock.Options()
-        preset = gnomock.Rabbitmq(version="3.8.5-alpine")
+        message = gnomock.RabbitmqMessage(queue="alerts",
+                content_type="text/plain", string_body="python")
+        preset = gnomock.Rabbitmq(version="3.8.5-alpine",
+                messages_files=[file_name], messages=[message])
         rabbitmq_request = gnomock.RabbitmqRequest(options=options,
                 preset=preset)
         id = ""
@@ -184,7 +188,7 @@ class TestSDK(unittest.TestCase):
             self.assertEqual("127.0.0.1", response.host)
 
         finally:
-            if id is not "":
+            if id != "":
                 stop_request = gnomock.StopRequest(id=id)
                 self.api.stop(stop_request)
 
@@ -202,7 +206,7 @@ class TestSDK(unittest.TestCase):
             self.assertEqual("127.0.0.1", response.host)
 
         finally:
-            if id is not "":
+            if id != "":
                 stop_request = gnomock.StopRequest(id=id)
                 self.api.stop(stop_request)
 
@@ -220,7 +224,7 @@ class TestSDK(unittest.TestCase):
             self.assertEqual("127.0.0.1", response.host)
 
         finally:
-            if id is not "":
+            if id != "":
                 stop_request = gnomock.StopRequest(id=id)
                 self.api.stop(stop_request)
 
@@ -238,7 +242,7 @@ class TestSDK(unittest.TestCase):
             self.assertEqual("127.0.0.1", response.host)
 
         finally:
-            if id is not "":
+            if id != "":
                 stop_request = gnomock.StopRequest(id=id)
                 self.api.stop(stop_request)
 

@@ -1,6 +1,24 @@
 {
     "preset": {
-        "version": "3.8.5-alpine"
+        "version": "3.8.5-alpine",
+        "messages": [
+            {
+                "queue": "events",
+                "content_type": "text/plain",
+                "string_body": "something"
+            },
+            {
+                "queue": "alerts",
+                "content_type": "text/plain",
+                "string_body": "high cpu"
+            },
+            {
+                "queue": "events",
+                "content_type": "text/binary",
+                "body": "Zm9vYmFy"
+            }
+        ],
+        "messages_files": ["./testdata/rabbitmq/messages.jsonl"]
     },
     "options": {
         "debug": true
