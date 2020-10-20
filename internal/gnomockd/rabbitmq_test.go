@@ -52,42 +52,45 @@ func TestRabbitMQ(t *testing.T) {
 	ch, err := conn.Channel()
 	require.NoError(t, err)
 
-	q, err := ch.QueueDeclare(
-		"gnomock",
-		false, // Durable
-		false, // Delete when unused
-		false, // Exclusive
-		false, // No-wait
-		nil,   // Arguments
-	)
-	require.NoError(t, err)
-
-	msgBody := []byte("hello from Gnomock!")
-	err = ch.Publish(
-		"",     // exchange
-		q.Name, // routing key
-		false,  // mandatory
-		false,  // immediate
-		amqp.Publishing{
-			ContentType: "text/plain",
-			Body:        msgBody,
-		},
-	)
-	require.NoError(t, err)
-
 	msgs, err := ch.Consume(
-		q.Name, // queue
-		"",     // consumer
-		true,   // auto-ack
-		false,  // exclusive
-		false,  // no-local
-		false,  // no-wait
-		nil,    // args
+		"events", // queue
+		"",       // consumer
+		true,     // auto-ack
+		false,    // exclusive
+		false,    // no-local
+		false,    // no-wait
+		nil,      // args
 	)
 	require.NoError(t, err)
 
 	m := <-msgs
-	require.Equal(t, msgBody, m.Body)
+	require.Equal(t, []byte("something"), m.Body)
+
+	m = <-msgs
+	require.Equal(t, "foobar", string(m.Body))
+
+	m = <-msgs
+	require.Equal(t, []byte("something else"), m.Body)
+
+	msgs, err = ch.Consume(
+		"alerts", // queue
+		"",       // consumer
+		true,     // auto-ack
+		false,    // exclusive
+		false,    // no-local
+		false,    // no-wait
+		nil,      // args
+	)
+	require.NoError(t, err)
+
+	m = <-msgs
+	require.Equal(t, []byte("high cpu"), m.Body)
+
+	m = <-msgs
+	require.Equal(t, []byte("memory pressure"), m.Body)
+
+	m = <-msgs
+	require.Equal(t, "gnomock", string(m.Body))
 
 	require.NoError(t, ch.Close())
 	require.NoError(t, conn.Close())

@@ -1,0 +1,3 @@
+{ "queue": "events", "content_type": "text/plain", "string_body": "something else" }
+{ "queue": "alerts", "content_type": "text/plain", "string_body": "memory pressure" }
+{ "queue": "alerts", "content_type": "text/binary", "body": "Z25vbW9jaw==" }
