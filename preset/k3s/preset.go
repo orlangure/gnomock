@@ -1,4 +1,25 @@
-// Package k3s provides a Gnomock Preset for lightweight kubernetes (k3s).
+// Package k3s provides a Gnomock Preset for lightweight kubernetes (k3s). This
+// preset by no means should be used in any kind of deployment, and no other
+// presets are supposed to be deployed in it. The goal of this preset is to
+// allow easier testing of Kubernetes automation tools.
+//
+// This preset does not use a well-known docker image like most other presets
+// do. Instead, it uses a custom built and adapted image that runs lightweight
+// Kubernetes (k3s) in a docker container:
+// https://github.com/orlangure/k3s-dind.
+//
+// Please make sure to pick a version here:
+// https://hub.docker.com/repository/docker/orlangure/k3s. At some point k3s
+// version tags should start to appear. If only `latest` tag is available, it
+// comes with k3s v1.18.4.
+//
+// Keep in mind that k3s runs in a single docker container, meaning it might be
+// limited in memory, CPU and storage. Also remember that this cluster always
+// runs on a single node.
+//
+// To connect to this cluster, use `Config` function that can be used together
+// with Kubernetes client for Go, or `ConfigBytes` that can be saved as
+// `kubeconfig` file and used by `kubectl`.
 package k3s
 
 import (
