@@ -24,9 +24,9 @@ jobs:
 
   test-core:
     name: "[core] gnomock, gnomockd"
+    runs-on: ubuntu-latest
     env:
       CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
-    runs-on: ubuntu-latest
     steps:
       - name: Set up Go 1.15
         uses: actions/setup-go@v1
@@ -48,6 +48,8 @@ jobs:
   test-sdk:
     name: "[sdk] python"
     runs-on: ubuntu-latest
+    env:
+      CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
     steps:
       - name: Check out code into the Go module directory
         uses: actions/checkout@v1
@@ -74,6 +76,8 @@ jobs:
   test-localstack:
     name: "[preset] localstack"
     runs-on: ubuntu-latest
+    env:
+      CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
     steps:
       - name: Set up Go 1.15
         uses: actions/setup-go@v1
@@ -84,13 +88,19 @@ jobs:
       - name: Get dependencies
         run: go get -v -t -d ./...
       - name: Test preset
-        run: go test -race -cover -v ./preset/localstack/...
+        run: go test -race -cover -coverprofile=preset-cover.txt -v ./preset/localstack/...
       - name: Test server
-        run: go test -race -cover -v ./internal/gnomockd -run TestLocalstack
+        run: go test -race -cover -coverprofile=server-cover.txt -v ./internal/gnomockd -run TestLocalstack
+      - name: Report coverage
+        run: |
+          cat preset-cover.txt server-cover.txt > coverage.txt
+          bash <(curl -s https://codecov.io/bash)
 
   test-elastic:
     name: "[preset] elastic"
     runs-on: ubuntu-latest
+    env:
+      CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
     steps:
       - name: Set up Go 1.15
         uses: actions/setup-go@v1
@@ -101,13 +111,19 @@ jobs:
       - name: Get dependencies
         run: go get -v -t -d ./...
       - name: Test preset
-        run: go test -cover -v ./preset/elastic/...
+        run: go test -cover -coverprofile=preset-cover.txt -v ./preset/elastic/...
       - name: Test server
-        run: go test -v ./internal/gnomockd -run TestElastic
+        run: go test -cover -coverprofile=server-cover.txt -v ./internal/gnomockd -run TestElastic
+      - name: Report coverage
+        run: |
+          cat preset-cover.txt server-cover.txt > coverage.txt
+          bash <(curl -s https://codecov.io/bash)
 
   test-memcached:
     name: "[preset] memcached"
     runs-on: ubuntu-latest
+    env:
+      CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
     steps:
       - name: Set up Go 1.15
         uses: actions/setup-go@v1
@@ -118,13 +134,15 @@ jobs:
       - name: Get dependencies
         run: go get -v -t -d ./...
       - name: Test preset
-        run: go test -race -cover -v ./preset/memcached/...
+        run: go test -race -cover -coverprofile=preset-cover.txt -v ./preset/memcached/...
       - name: Test server
-        run: go test -race -cover -v ./internal/gnomockd -run TestMemcached
+        run: go test -race -cover -coverprofile=server-cover.txt -v ./internal/gnomockd -run TestMemcached
 
   test-rabbitmq:
     name: "[preset] rabbitmq"
     runs-on: ubuntu-latest
+    env:
+      CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
     steps:
       - name: Set up Go 1.15
         uses: actions/setup-go@v1
@@ -135,13 +153,19 @@ jobs:
       - name: Get dependencies
         run: go get -v -t -d ./...
       - name: Test preset
-        run: go test -race -cover -v ./preset/rabbitmq/...
+        run: go test -race -cover -coverprofile=preset-cover.txt -v ./preset/rabbitmq/...
       - name: Test server
-        run: go test -race -cover -v ./internal/gnomockd -run TestRabbitMQ
+        run: go test -race -cover -coverprofile=server-cover.txt -v ./internal/gnomockd -run TestRabbitMQ
+      - name: Report coverage
+        run: |
+          cat preset-cover.txt server-cover.txt > coverage.txt
+          bash <(curl -s https://codecov.io/bash)
 
   test-kafka:
     name: "[preset] kafka"
     runs-on: ubuntu-latest
+    env:
+      CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
     steps:
       - name: Set up Go 1.15
         uses: actions/setup-go@v1
@@ -152,13 +176,19 @@ jobs:
       - name: Get dependencies
         run: go get -v -t -d ./...
       - name: Test preset
-        run: go test -race -cover -v ./preset/kafka/...
+        run: go test -race -cover -coverprofile=preset-cover.txt -v ./preset/kafka/...
       - name: Test server
-        run: go test -race -cover -v ./internal/gnomockd -run TestKafka
+        run: go test -race -cover -coverprofile=server-cover.txt -v ./internal/gnomockd -run TestKafka
+      - name: Report coverage
+        run: |
+          cat preset-cover.txt server-cover.txt > coverage.txt
+          bash <(curl -s https://codecov.io/bash)
 
   test-postgres:
     name: "[preset] postgres"
     runs-on: ubuntu-latest
+    env:
+      CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
     steps:
       - name: Set up Go 1.15
         uses: actions/setup-go@v1
@@ -169,13 +199,19 @@ jobs:
       - name: Get dependencies
         run: go get -v -t -d ./...
       - name: Test preset
-        run: go test -race -cover -v ./preset/postgres/...
+        run: go test -race -cover -coverprofile=preset-cover.txt -v ./preset/postgres/...
       - name: Test server
-        run: go test -race -cover -v ./internal/gnomockd -run TestPostgres
+        run: go test -race -cover -coverprofile=server-cover.txt -v ./internal/gnomockd -run TestPostgres
+      - name: Report coverage
+        run: |
+          cat preset-cover.txt server-cover.txt > coverage.txt
+          bash <(curl -s https://codecov.io/bash)
 
   test-mariadb:
     name: "[preset] mariadb"
     runs-on: ubuntu-latest
+    env:
+      CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
     steps:
       - name: Set up Go 1.15
         uses: actions/setup-go@v1
@@ -186,13 +222,19 @@ jobs:
       - name: Get dependencies
         run: go get -v -t -d ./...
       - name: Test preset
-        run: go test -race -cover -v ./preset/mariadb/...
+        run: go test -race -cover -coverprofile=preset-cover.txt -v ./preset/mariadb/...
       - name: Test server
-        run: go test -race -cover -v ./internal/gnomockd -run TestMariaDB
+        run: go test -race -cover -coverprofile=server-cover.txt -v ./internal/gnomockd -run TestMariaDB
+      - name: Report coverage
+        run: |
+          cat preset-cover.txt server-cover.txt > coverage.txt
+          bash <(curl -s https://codecov.io/bash)
 
   test-splunk:
     name: "[preset] splunk"
     runs-on: ubuntu-latest
+    env:
+      CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
     steps:
       - name: Set up Go 1.15
         uses: actions/setup-go@v1
@@ -203,13 +245,19 @@ jobs:
       - name: Get dependencies
         run: go get -v -t -d ./...
       - name: Test preset
-        run: go test -race -cover -v ./preset/splunk/...
+        run: go test -race -cover -coverprofile=preset-cover.txt -v ./preset/splunk/...
       - name: Test server
-        run: go test -race -cover -v ./internal/gnomockd -run TestSplunk
+        run: go test -race -cover -coverprofile=server-cover.txt -v ./internal/gnomockd -run TestSplunk
+      - name: Report coverage
+        run: |
+          cat preset-cover.txt server-cover.txt > coverage.txt
+          bash <(curl -s https://codecov.io/bash)
 
   test-redis:
     name: "[preset] redis"
     runs-on: ubuntu-latest
+    env:
+      CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
     steps:
       - name: Set up Go 1.15
         uses: actions/setup-go@v1
@@ -220,13 +268,19 @@ jobs:
       - name: Get dependencies
         run: go get -v -t -d ./...
       - name: Test preset
-        run: go test -race -cover -v ./preset/redis/...
+        run: go test -race -cover -coverprofile=preset-cover.txt -v ./preset/redis/...
       - name: Test server
-        run: go test -race -cover -v ./internal/gnomockd -run TestRedis
+        run: go test -race -cover -coverprofile=server-cover.txt -v ./internal/gnomockd -run TestRedis
+      - name: Report coverage
+        run: |
+          cat preset-cover.txt server-cover.txt > coverage.txt
+          bash <(curl -s https://codecov.io/bash)
 
   test-mysql:
     name: "[preset] mysql"
     runs-on: ubuntu-latest
+    env:
+      CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
     steps:
       - name: Set up Go 1.15
         uses: actions/setup-go@v1
@@ -237,13 +291,19 @@ jobs:
       - name: Get dependencies
         run: go get -v -t -d ./...
       - name: Test preset
-        run: go test -race -cover -v ./preset/mysql/...
+        run: go test -race -cover -coverprofile=preset-cover.txt -v ./preset/mysql/...
       - name: Test server
-        run: go test -race -cover -v ./internal/gnomockd -run TestMySQL
+        run: go test -race -cover -coverprofile=server-cover.txt -v ./internal/gnomockd -run TestMySQL
+      - name: Report coverage
+        run: |
+          cat preset-cover.txt server-cover.txt > coverage.txt
+          bash <(curl -s https://codecov.io/bash)
 
   test-mssql:
     name: "[preset] mssql"
     runs-on: ubuntu-latest
+    env:
+      CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
     steps:
       - name: Set up Go 1.15
         uses: actions/setup-go@v1
@@ -254,13 +314,19 @@ jobs:
       - name: Get dependencies
         run: go get -v -t -d ./...
       - name: Test preset
-        run: go test -race -cover -v ./preset/mssql/...
+        run: go test -race -cover -coverprofile=preset-cover.txt -v ./preset/mssql/...
       - name: Test server
-        run: go test -race -cover -v ./internal/gnomockd -run TestMSSQL
+        run: go test -race -cover -coverprofile=server-cover.txt -v ./internal/gnomockd -run TestMSSQL
+      - name: Report coverage
+        run: |
+          cat preset-cover.txt server-cover.txt > coverage.txt
+          bash <(curl -s https://codecov.io/bash)
 
   test-mongo:
     name: "[preset] mongo"
     runs-on: ubuntu-latest
+    env:
+      CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
     steps:
       - name: Set up Go 1.15
         uses: actions/setup-go@v1
@@ -271,13 +337,19 @@ jobs:
       - name: Get dependencies
         run: go get -v -t -d ./...
       - name: Test preset
-        run: go test -race -cover -v ./preset/mongo/...
+        run: go test -race -cover -coverprofile=preset-cover.txt -v ./preset/mongo/...
       - name: Test server
-        run: go test -race -cover -v ./internal/gnomockd -run TestMongo
+        run: go test -race -cover -coverprofile=server-cover.txt -v ./internal/gnomockd -run TestMongo
+      - name: Report coverage
+        run: |
+          cat preset-cover.txt server-cover.txt > coverage.txt
+          bash <(curl -s https://codecov.io/bash)
 
   test-k3s:
     name: "[preset] k3s"
     runs-on: ubuntu-latest
+    env:
+      CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
     steps:
       - name: Set up Go 1.15
         uses: actions/setup-go@v1
@@ -288,7 +360,11 @@ jobs:
       - name: Get dependencies
         run: go get -v -t -d ./...
       - name: Test preset
-        run: go test -race -cover -v ./preset/k3s/...
+        run: go test -race -cover -coverprofile=preset-cover.txt -v ./preset/k3s/...
       - name: Test server
-        run: go test -race -cover -v ./internal/gnomockd -run TestK3s
+        run: go test -race -cover -coverprofile=server-cover.txt -v ./internal/gnomockd -run TestK3s
+      - name: Report coverage
+        run: |
+          cat preset-cover.txt server-cover.txt > coverage.txt
+          bash <(curl -s https://codecov.io/bash)
 
