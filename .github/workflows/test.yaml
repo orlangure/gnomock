@@ -24,6 +24,8 @@ jobs:
 
   test-core:
     name: "[core] gnomock, gnomockd"
+    env:
+      CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
     runs-on: ubuntu-latest
     steps:
       - name: Set up Go 1.15
@@ -35,9 +37,13 @@ jobs:
       - name: Get dependencies
         run: go get -v -t -d ./...
       - name: Test Gnomock
-        run: go test -race -cover -v .
+        run: go test -race -cover -coverprofile=gnomock-cover.txt -v .
       - name: Test gnomockd
-        run: go test -race -cover -v ./internal/gnomockd -run TestGnomockd
+        run: go test -race -cover -coverprofile=gnomockd-cover.txt -v ./internal/gnomockd -run TestGnomockd
+      - name: Report coverage
+        run: |
+          cat gnomock-cover.txt gnomockd-cover.txt > coverage.txt
+          bash <(curl -s https://codecov.io/bash)
 
   test-sdk:
     name: "[sdk] python"
