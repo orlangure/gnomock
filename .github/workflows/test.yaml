@@ -37,7 +37,7 @@ jobs:
       - name: Get dependencies
         run: go get -v -t -d ./...
       - name: Test Gnomock
-        run: go test -race -cover -coverprofile=gnomock-cover.txt -v .
+        run: go test -race -cover -coverprofile=gnomock-cover.txt -coverpkg=./... -v .
       - name: Test gnomockd
         run: go test -race -cover -coverprofile=gnomockd-cover.txt -v ./internal/gnomockd -run TestGnomockd
       - name: Report coverage
@@ -88,9 +88,9 @@ jobs:
       - name: Get dependencies
         run: go get -v -t -d ./...
       - name: Test preset
-        run: go test -race -cover -coverprofile=preset-cover.txt -v ./preset/localstack/...
+        run: go test -race -cover -coverprofile=preset-cover.txt -coverpkg=./... -v ./preset/localstack/...
       - name: Test server
-        run: go test -race -cover -coverprofile=server-cover.txt -v ./internal/gnomockd -run TestLocalstack
+        run: go test -race -cover -coverprofile=server-cover.txt -coverpkg=./... -v ./internal/gnomockd -run TestLocalstack
       - name: Report coverage
         run: |
           cat preset-cover.txt server-cover.txt > coverage.txt
@@ -111,9 +111,9 @@ jobs:
       - name: Get dependencies
         run: go get -v -t -d ./...
       - name: Test preset
-        run: go test -cover -coverprofile=preset-cover.txt -v ./preset/elastic/...
+        run: go test -cover -coverprofile=preset-cover.txt -coverpkg=./... -v ./preset/elastic/...
       - name: Test server
-        run: go test -cover -coverprofile=server-cover.txt -v ./internal/gnomockd -run TestElastic
+        run: go test -cover -coverprofile=server-cover.txt -coverpkg=./... -v ./internal/gnomockd -run TestElastic
       - name: Report coverage
         run: |
           cat preset-cover.txt server-cover.txt > coverage.txt
@@ -134,9 +134,9 @@ jobs:
       - name: Get dependencies
         run: go get -v -t -d ./...
       - name: Test preset
-        run: go test -race -cover -coverprofile=preset-cover.txt -v ./preset/memcached/...
+        run: go test -race -cover -coverprofile=preset-cover.txt -coverpkg=./... -v ./preset/memcached/...
       - name: Test server
-        run: go test -race -cover -coverprofile=server-cover.txt -v ./internal/gnomockd -run TestMemcached
+        run: go test -race -cover -coverprofile=server-cover.txt -coverpkg=./... -v ./internal/gnomockd -run TestMemcached
 
   test-rabbitmq:
     name: "[preset] rabbitmq"
@@ -153,9 +153,9 @@ jobs:
       - name: Get dependencies
         run: go get -v -t -d ./...
       - name: Test preset
-        run: go test -race -cover -coverprofile=preset-cover.txt -v ./preset/rabbitmq/...
+        run: go test -race -cover -coverprofile=preset-cover.txt -coverpkg=./... -v ./preset/rabbitmq/...
       - name: Test server
-        run: go test -race -cover -coverprofile=server-cover.txt -v ./internal/gnomockd -run TestRabbitMQ
+        run: go test -race -cover -coverprofile=server-cover.txt -coverpkg=./... -v ./internal/gnomockd -run TestRabbitMQ
       - name: Report coverage
         run: |
           cat preset-cover.txt server-cover.txt > coverage.txt
@@ -176,9 +176,9 @@ jobs:
       - name: Get dependencies
         run: go get -v -t -d ./...
       - name: Test preset
-        run: go test -race -cover -coverprofile=preset-cover.txt -v ./preset/kafka/...
+        run: go test -race -cover -coverprofile=preset-cover.txt -coverpkg=./... -v ./preset/kafka/...
       - name: Test server
-        run: go test -race -cover -coverprofile=server-cover.txt -v ./internal/gnomockd -run TestKafka
+        run: go test -race -cover -coverprofile=server-cover.txt -coverpkg=./... -v ./internal/gnomockd -run TestKafka
       - name: Report coverage
         run: |
           cat preset-cover.txt server-cover.txt > coverage.txt
@@ -199,9 +199,9 @@ jobs:
       - name: Get dependencies
         run: go get -v -t -d ./...
       - name: Test preset
-        run: go test -race -cover -coverprofile=preset-cover.txt -v ./preset/postgres/...
+        run: go test -race -cover -coverprofile=preset-cover.txt -coverpkg=./... -v ./preset/postgres/...
       - name: Test server
-        run: go test -race -cover -coverprofile=server-cover.txt -v ./internal/gnomockd -run TestPostgres
+        run: go test -race -cover -coverprofile=server-cover.txt -coverpkg=./... -v ./internal/gnomockd -run TestPostgres
       - name: Report coverage
         run: |
           cat preset-cover.txt server-cover.txt > coverage.txt
@@ -222,9 +222,9 @@ jobs:
       - name: Get dependencies
         run: go get -v -t -d ./...
       - name: Test preset
-        run: go test -race -cover -coverprofile=preset-cover.txt -v ./preset/mariadb/...
+        run: go test -race -cover -coverprofile=preset-cover.txt -coverpkg=./... -v ./preset/mariadb/...
       - name: Test server
-        run: go test -race -cover -coverprofile=server-cover.txt -v ./internal/gnomockd -run TestMariaDB
+        run: go test -race -cover -coverprofile=server-cover.txt -coverpkg=./... -v ./internal/gnomockd -run TestMariaDB
       - name: Report coverage
         run: |
           cat preset-cover.txt server-cover.txt > coverage.txt
@@ -245,9 +245,9 @@ jobs:
       - name: Get dependencies
         run: go get -v -t -d ./...
       - name: Test preset
-        run: go test -race -cover -coverprofile=preset-cover.txt -v ./preset/splunk/...
+        run: go test -race -cover -coverprofile=preset-cover.txt -coverpkg=./... -v ./preset/splunk/...
       - name: Test server
-        run: go test -race -cover -coverprofile=server-cover.txt -v ./internal/gnomockd -run TestSplunk
+        run: go test -race -cover -coverprofile=server-cover.txt -coverpkg=./... -v ./internal/gnomockd -run TestSplunk
       - name: Report coverage
         run: |
           cat preset-cover.txt server-cover.txt > coverage.txt
@@ -268,9 +268,9 @@ jobs:
       - name: Get dependencies
         run: go get -v -t -d ./...
       - name: Test preset
-        run: go test -race -cover -coverprofile=preset-cover.txt -v ./preset/redis/...
+        run: go test -race -cover -coverprofile=preset-cover.txt -coverpkg=./... -v ./preset/redis/...
       - name: Test server
-        run: go test -race -cover -coverprofile=server-cover.txt -v ./internal/gnomockd -run TestRedis
+        run: go test -race -cover -coverprofile=server-cover.txt -coverpkg=./... -v ./internal/gnomockd -run TestRedis
       - name: Report coverage
         run: |
           cat preset-cover.txt server-cover.txt > coverage.txt
@@ -291,9 +291,9 @@ jobs:
       - name: Get dependencies
         run: go get -v -t -d ./...
       - name: Test preset
-        run: go test -race -cover -coverprofile=preset-cover.txt -v ./preset/mysql/...
+        run: go test -race -cover -coverprofile=preset-cover.txt -coverpkg=./... -v ./preset/mysql/...
       - name: Test server
-        run: go test -race -cover -coverprofile=server-cover.txt -v ./internal/gnomockd -run TestMySQL
+        run: go test -race -cover -coverprofile=server-cover.txt -coverpkg=./... -v ./internal/gnomockd -run TestMySQL
       - name: Report coverage
         run: |
           cat preset-cover.txt server-cover.txt > coverage.txt
@@ -314,9 +314,9 @@ jobs:
       - name: Get dependencies
         run: go get -v -t -d ./...
       - name: Test preset
-        run: go test -race -cover -coverprofile=preset-cover.txt -v ./preset/mssql/...
+        run: go test -race -cover -coverprofile=preset-cover.txt -coverpkg=./... -v ./preset/mssql/...
       - name: Test server
-        run: go test -race -cover -coverprofile=server-cover.txt -v ./internal/gnomockd -run TestMSSQL
+        run: go test -race -cover -coverprofile=server-cover.txt -coverpkg=./... -v ./internal/gnomockd -run TestMSSQL
       - name: Report coverage
         run: |
           cat preset-cover.txt server-cover.txt > coverage.txt
@@ -337,9 +337,9 @@ jobs:
       - name: Get dependencies
         run: go get -v -t -d ./...
       - name: Test preset
-        run: go test -race -cover -coverprofile=preset-cover.txt -v ./preset/mongo/...
+        run: go test -race -cover -coverprofile=preset-cover.txt -coverpkg=./... -v ./preset/mongo/...
       - name: Test server
-        run: go test -race -cover -coverprofile=server-cover.txt -v ./internal/gnomockd -run TestMongo
+        run: go test -race -cover -coverprofile=server-cover.txt -coverpkg=./... -v ./internal/gnomockd -run TestMongo
       - name: Report coverage
         run: |
           cat preset-cover.txt server-cover.txt > coverage.txt
@@ -360,9 +360,9 @@ jobs:
       - name: Get dependencies
         run: go get -v -t -d ./...
       - name: Test preset
-        run: go test -race -cover -coverprofile=preset-cover.txt -v ./preset/k3s/...
+        run: go test -race -cover -coverprofile=preset-cover.txt -coverpkg=./... -v ./preset/k3s/...
       - name: Test server
-        run: go test -race -cover -coverprofile=server-cover.txt -v ./internal/gnomockd -run TestK3s
+        run: go test -race -cover -coverprofile=server-cover.txt -coverpkg=./... -v ./internal/gnomockd -run TestK3s
       - name: Report coverage
         run: |
           cat preset-cover.txt server-cover.txt > coverage.txt
