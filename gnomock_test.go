@@ -46,6 +46,19 @@ func TestGnomock_happyFlow(t *testing.T) {
 	addr = fmt.Sprintf("http://%s/", container.Address("web8080"))
 	requireResponse(t, addr, "8080")
 
+	t.Run("default address is empty when no default port set", func(t *testing.T) {
+		require.Empty(t, container.DefaultAddress())
+	})
+
+	t.Run("wrong port not found", func(t *testing.T) {
+		_, err := container.Ports.Find("tcp", 1234)
+		require.True(t, errors.Is(err, gnomock.ErrPortNotFound))
+	})
+
+	t.Run("default port is zero when no default port set", func(t *testing.T) {
+		require.Zero(t, container.DefaultPort())
+	})
+
 	require.NoError(t, gnomock.Stop(container))
 }
 

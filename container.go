@@ -30,8 +30,12 @@ type Container struct {
 // use DefaultPort as the name. Otherwise, use the name of one of the ports
 // used during setup
 func (c *Container) Address(name string) string {
-	p := c.Ports.Get(name)
-	return fmt.Sprintf("%s:%d", c.Host, p.Port)
+	p := c.Port(name)
+	if p == 0 {
+		return ""
+	}
+
+	return fmt.Sprintf("%s:%d", c.Host, p)
 }
 
 // DefaultAddress return Address() with DefaultPort
