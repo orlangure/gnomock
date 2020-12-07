@@ -12,14 +12,16 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
+// these tests have trouble running in parallel, probably due to limited
+// resources
+
 func TestPreset(t *testing.T) {
 	if israce.Enabled {
 		t.Skip("elastic tests can't run with race detector due to https://github.com/elastic/go-elasticsearch/issues/147")
 	}
 
-	t.Parallel()
-
 	p := elastic.Preset(
+		elastic.WithVersion("7.9.2"),
 		elastic.WithInputFile("./testdata/titles"),
 		elastic.WithInputFile("./testdata/names"),
 	)
@@ -66,4 +68,24 @@ func TestPreset(t *testing.T) {
 	require.NoError(t, json.NewDecoder(res.Body).Decode(&out))
 	require.NoError(t, res.Body.Close())
 	require.Equal(t, 0, out.Hits.Total.Value)
+}
+
+func TestPreset_withDefaults(t *testing.T) {
+	if israce.Enabled {
+		t.Skip("elastic tests can't run with race detector due to https://github.com/elastic/go-elasticsearch/issues/147")
+	}
+
+	p := elastic.Preset()
+	c, err := gnomock.Start(p)
+	require.NoError(t, err)
+
+	defer func() { require.NoError(t, gnomock.Stop(c)) }()
+
+	cfg := elasticsearch.Config{
+		Addresses:    []string{fmt.Sprintf("http://%s", c.DefaultAddress())},
+		DisableRetry: true,
+	}
+
+	_, err = elasticsearch.NewClient(cfg)
+	require.NoError(t, err)
 }

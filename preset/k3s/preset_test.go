@@ -15,7 +15,10 @@ import (
 func TestPreset(t *testing.T) {
 	t.Parallel()
 
-	p := k3s.Preset()
+	p := k3s.Preset(
+		k3s.WithPort(48448),
+		k3s.WithVersion("v1.19.3"),
+	)
 	c, err := gnomock.Start(
 		p,
 		gnomock.WithContainerName("k3s"),
@@ -62,4 +65,28 @@ func TestPreset(t *testing.T) {
 	require.NoError(t, err)
 	require.Len(t, pods.Items, 1)
 	require.Equal(t, "gnomock", pods.Items[0].Name)
+}
+
+func TestPreset_withDefaults(t *testing.T) {
+	t.Parallel()
+
+	p := k3s.Preset()
+	c, err := gnomock.Start(p, gnomock.WithContainerName("k3s-default"))
+	require.NoError(t, err)
+
+	defer func() {
+		require.NoError(t, gnomock.Stop(c))
+	}()
+
+	kubeconfig, err := k3s.Config(c)
+	require.NoError(t, err)
+
+	client, err := kubernetes.NewForConfig(kubeconfig)
+	require.NoError(t, err)
+
+	ctx := context.Background()
+
+	pods, err := client.CoreV1().Pods(metav1.NamespaceDefault).List(ctx, metav1.ListOptions{})
+	require.NoError(t, err)
+	require.Empty(t, pods.Items)
 }

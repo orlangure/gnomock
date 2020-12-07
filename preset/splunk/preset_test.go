@@ -46,6 +46,7 @@ func TestPreset(t *testing.T) {
 		splunk.WithLicense(true),
 		splunk.WithPassword("12345678"),
 		splunk.WithValues(events),
+		splunk.WithValuesFile("./testdata/events.txt"),
 	)
 	c, err := gnomock.Start(p)
 

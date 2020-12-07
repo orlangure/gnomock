@@ -155,3 +155,27 @@ func TestPreset_withManagement(t *testing.T) {
 
 	require.Equal(t, http.StatusUnauthorized, resp.StatusCode)
 }
+
+func TestPreset_withDefaults(t *testing.T) {
+	t.Parallel()
+
+	p := rabbitmq.Preset()
+	container, err := gnomock.Start(p)
+	require.NoError(t, err)
+
+	defer func() { require.NoError(t, gnomock.Stop(container)) }()
+
+	uri := fmt.Sprintf(
+		"amqp://%s:%s@%s",
+		"guest", "guest",
+		container.DefaultAddress(),
+	)
+	conn, err := amqp.Dial(uri)
+	require.NoError(t, err)
+
+	defer func() { require.NoError(t, conn.Close()) }()
+
+	ch, err := conn.Channel()
+	require.NoError(t, err)
+	require.NoError(t, ch.Close())
+}

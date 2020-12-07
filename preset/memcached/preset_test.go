@@ -59,3 +59,18 @@ func TestPreset(t *testing.T) {
 	require.NoError(t, err)
 	require.Equal(t, "foo", string(itemD.Value))
 }
+
+func TestPreset_withDefaults(t *testing.T) {
+	t.Parallel()
+
+	p := memcached.Preset()
+	container, err := gnomock.Start(p)
+
+	defer func() { require.NoError(t, gnomock.Stop(container)) }()
+
+	require.NoError(t, err)
+
+	addr := container.DefaultAddress()
+	client := memcachedclient.New(addr)
+	require.NoError(t, client.Ping())
+}

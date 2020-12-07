@@ -18,7 +18,10 @@ func TestPreset(t *testing.T) {
 	vs["b"] = 42
 	vs["c"] = true
 
-	p := redis.Preset(redis.WithValues(vs))
+	p := redis.Preset(
+		redis.WithValues(vs),
+		redis.WithVersion("6"),
+	)
 	container, err := gnomock.Start(p)
 
 	defer func() { require.NoError(t, gnomock.Stop(container)) }()

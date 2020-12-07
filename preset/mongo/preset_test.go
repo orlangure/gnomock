@@ -19,6 +19,7 @@ func TestPreset(t *testing.T) {
 	p := mongo.Preset(
 		mongo.WithData("./testdata/"),
 		mongo.WithUser("gnomock", "gnomick"),
+		mongo.WithVersion("4"),
 	)
 	c, err := gnomock.Start(p)
 
@@ -50,4 +51,28 @@ func TestPreset(t *testing.T) {
 	count, err = client.Database("db2").Collection("countries").CountDocuments(ctx, bson.D{})
 	require.NoError(t, err)
 	require.Equal(t, int64(3), count)
+}
+
+func TestPreset_withDefaults(t *testing.T) {
+	t.Parallel()
+
+	p := mongo.Preset()
+	c, err := gnomock.Start(p)
+
+	defer func() { require.NoError(t, gnomock.Stop(c)) }()
+
+	require.NoError(t, err)
+
+	addr := c.DefaultAddress()
+	uri := fmt.Sprintf("mongodb://%s:%s@%s", "gnomock", "gnomick", addr)
+	clientOptions := mongooptions.Client().ApplyURI(uri)
+
+	client, err := mongodb.NewClient(clientOptions)
+	require.NoError(t, err)
+
+	ctx := context.Background()
+
+	err = client.Connect(ctx)
+	require.NoError(t, err)
+	require.NoError(t, client.Disconnect(ctx))
 }

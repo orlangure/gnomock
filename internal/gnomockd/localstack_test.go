@@ -78,3 +78,24 @@ func TestLocalstack(t *testing.T) {
 	res = w.Result()
 	require.Equal(t, http.StatusOK, res.StatusCode)
 }
+
+func TestLocalstack_invalidService(t *testing.T) {
+	t.Parallel()
+
+	h := gnomockd.Handler()
+	bs, err := ioutil.ReadFile("./testdata/localstack_invalid_service.json")
+	require.NoError(t, err)
+
+	buf := bytes.NewBuffer(bs)
+	w, r := httptest.NewRecorder(), httptest.NewRequest(http.MethodPost, "/start/localstack", buf)
+	h.ServeHTTP(w, r)
+
+	res := w.Result()
+
+	defer func() { require.NoError(t, res.Body.Close()) }()
+
+	body, err := ioutil.ReadAll(res.Body)
+	require.NoError(t, err)
+
+	require.Equalf(t, http.StatusBadRequest, res.StatusCode, string(body))
+}
