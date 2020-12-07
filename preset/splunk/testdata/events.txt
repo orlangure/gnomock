@@ -1,0 +1,1 @@
+{"index":"foo","source":"bar","sourcetype":"baz","time":1597958861,"event":"some=1"}

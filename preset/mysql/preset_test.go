@@ -14,7 +14,6 @@ func TestPreset(t *testing.T) {
 	t.Parallel()
 
 	queries := `
-		create table t(a int);
 		insert into t (a) values (1);
 		insert into t (a) values (2);
 	`
@@ -23,6 +22,8 @@ func TestPreset(t *testing.T) {
 		mysql.WithUser("Sherlock", "Holmes"),
 		mysql.WithDatabase("books"),
 		mysql.WithQueries(queries, query),
+		mysql.WithQueriesFile("./testdata/queries.sql"),
+		mysql.WithVersion("5"),
 	)
 
 	container, err := gnomock.Start(p)
@@ -51,4 +52,25 @@ func TestPreset(t *testing.T) {
 	require.Equal(t, float64(2), avg)
 	require.Equal(t, float64(1), min)
 	require.Equal(t, float64(3), count)
+}
+
+func TestPreset_withDefaults(t *testing.T) {
+	t.Parallel()
+
+	p := mysql.Preset()
+	container, err := gnomock.Start(p)
+
+	defer func() { _ = gnomock.Stop(container) }()
+
+	require.NoError(t, err)
+
+	addr := container.DefaultAddress()
+	connStr := fmt.Sprintf(
+		"%s:%s@tcp(%s)/%s",
+		"gnomock", "gnomock", addr, "mydb",
+	)
+
+	db, err := sql.Open("mysql", connStr)
+	require.NoError(t, err)
+	require.NoError(t, db.Close())
 }

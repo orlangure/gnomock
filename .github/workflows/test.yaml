@@ -40,9 +40,11 @@ jobs:
         run: go test -race -cover -coverprofile=gnomock-cover.txt -coverpkg=./... -v .
       - name: Test gnomockd
         run: go test -race -cover -coverprofile=gnomockd-cover.txt -v ./internal/gnomockd -run TestGnomockd
+      - name: Test internal
+        run: go test -race -cover -coverprofile=internal-cover.txt -v ./internal/errors ./internal/registry
       - name: Report coverage
         run: |
-          cat gnomock-cover.txt gnomockd-cover.txt > coverage.txt
+          cat gnomock-cover.txt gnomockd-cover.txt internal-cover.txt > coverage.txt
           bash <(curl -s https://codecov.io/bash)
 
   test-sdk:
@@ -111,9 +113,9 @@ jobs:
       - name: Get dependencies
         run: go get -v -t -d ./...
       - name: Test preset
-        run: go test -cover -coverprofile=preset-cover.txt -coverpkg=./... -v ./preset/elastic/...
+        run: go test -cover -covermode=atomic -coverprofile=preset-cover.txt -coverpkg=./... -v ./preset/elastic/...
       - name: Test server
-        run: go test -cover -coverprofile=server-cover.txt -coverpkg=./... -v ./internal/gnomockd -run TestElastic
+        run: go test -cover -covermode=atomic -coverprofile=server-cover.txt -coverpkg=./... -v ./internal/gnomockd -run TestElastic
       - name: Report coverage
         run: |
           cat preset-cover.txt server-cover.txt > coverage.txt
@@ -137,6 +139,10 @@ jobs:
         run: go test -race -cover -coverprofile=preset-cover.txt -coverpkg=./... -v ./preset/memcached/...
       - name: Test server
         run: go test -race -cover -coverprofile=server-cover.txt -coverpkg=./... -v ./internal/gnomockd -run TestMemcached
+      - name: Report coverage
+        run: |
+          cat preset-cover.txt server-cover.txt > coverage.txt
+          bash <(curl -s https://codecov.io/bash)
 
   test-rabbitmq:
     name: "[preset] rabbitmq"

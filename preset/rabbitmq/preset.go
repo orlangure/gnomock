@@ -46,6 +46,9 @@ func init() {
 // it, use one of the management tags with `WithVersion` option. Management
 // port will be accessible using `container.Port(rabbitmq.ManagementPort)`. See
 // https://hub.docker.com/_/rabbitmq/?tab=tags for a list of available tags.
+//
+// When used without specifying username/password, default ones are used:
+// guest/guest.
 func Preset(opts ...Option) gnomock.Preset {
 	p := &P{}
 

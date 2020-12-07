@@ -49,3 +49,23 @@ func TestPreset(t *testing.T) {
 	require.Equal(t, float64(1), min)
 	require.Equal(t, float64(3), count)
 }
+
+func TestPreset_withDefaults(t *testing.T) {
+	t.Parallel()
+
+	p := postgres.Preset()
+	container, err := gnomock.Start(p)
+	require.NoError(t, err)
+
+	defer func() { require.NoError(t, gnomock.Stop(container)) }()
+
+	connStr := fmt.Sprintf(
+		"host=%s port=%d user=%s password=%s  dbname=%s sslmode=disable",
+		container.Host, container.DefaultPort(),
+		"gnomock", "gnomick", "mydb",
+	)
+
+	db, err := sql.Open("postgres", connStr)
+	require.NoError(t, err)
+	require.NoError(t, db.Close())
+}
