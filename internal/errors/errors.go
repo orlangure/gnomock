@@ -8,7 +8,8 @@ import (
 	"github.com/orlangure/gnomock"
 )
 
-// NewPresetNotFoundError is returned when an invalid/unknown preset name was used
+// NewPresetNotFoundError is returned when an invalid/unknown preset name was
+// used.
 func NewPresetNotFoundError(name string) error {
 	return presetNotFoundError{
 		name:   name,
