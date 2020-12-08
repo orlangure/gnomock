@@ -70,8 +70,10 @@ func (p *P) Options() []gnomock.Option {
 }
 
 func (p *P) healthcheck(ctx context.Context, c *gnomock.Container) (err error) {
+	defaultAddr := fmt.Sprintf("http://%s", c.DefaultAddress())
+
 	cfg := elasticsearch.Config{
-		Addresses:    []string{fmt.Sprintf("http://%s", c.DefaultAddress())},
+		Addresses:    []string{defaultAddr},
 		DisableRetry: true,
 	}
 
@@ -100,8 +102,10 @@ func (p *P) healthcheck(ctx context.Context, c *gnomock.Container) (err error) {
 }
 
 func (p *P) initf(ctx context.Context, c *gnomock.Container) (err error) {
+	defaultAddr := fmt.Sprintf("http://%s", c.DefaultAddress())
+
 	cfg := elasticsearch.Config{
-		Addresses:    []string{fmt.Sprintf("http://%s", c.DefaultAddress())},
+		Addresses:    []string{defaultAddr},
 		DisableRetry: true,
 	}
 

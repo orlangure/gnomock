@@ -3,6 +3,7 @@ package mongo_test
 import (
 	"context"
 	"fmt"
+	"os"
 	"testing"
 
 	"github.com/orlangure/gnomock"
@@ -21,7 +22,7 @@ func TestPreset(t *testing.T) {
 		mongo.WithUser("gnomock", "gnomick"),
 		mongo.WithVersion("4"),
 	)
-	c, err := gnomock.Start(p)
+	c, err := gnomock.Start(p, gnomock.WithLogWriter(os.Stdout))
 
 	defer func() { require.NoError(t, gnomock.Stop(c)) }()
 
@@ -75,4 +76,13 @@ func TestPreset_withDefaults(t *testing.T) {
 	err = client.Connect(ctx)
 	require.NoError(t, err)
 	require.NoError(t, client.Disconnect(ctx))
+}
+
+func TestPreset_wrongDataFolder(t *testing.T) {
+	t.Parallel()
+
+	p := mongo.Preset(mongo.WithData("./bad-path"))
+	c, err := gnomock.Start(p)
+	require.Error(t, err)
+	require.NoError(t, gnomock.Stop(c))
 }

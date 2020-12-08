@@ -45,6 +45,7 @@ func TestPreset(t *testing.T) {
 		rabbitmq.WithUser("gnomock", "strong-password"),
 		rabbitmq.WithMessages(messages...),
 		rabbitmq.WithMessages(byteMessages...),
+		rabbitmq.WithMessagesFile("./testdata/messages.json"),
 	)
 
 	container, err := gnomock.Start(p)

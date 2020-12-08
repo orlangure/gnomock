@@ -74,3 +74,13 @@ func TestPreset_withDefaults(t *testing.T) {
 	require.NoError(t, err)
 	require.NoError(t, db.Close())
 }
+
+func TestPreset_wrongQueriesFile(t *testing.T) {
+	t.Parallel()
+
+	p := mysql.Preset(mysql.WithQueriesFile("./invalid"))
+	c, err := gnomock.Start(p)
+	require.Error(t, err)
+	require.Contains(t, err.Error(), "can't read queries file")
+	require.NoError(t, gnomock.Stop(c))
+}

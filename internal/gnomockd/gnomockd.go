@@ -14,7 +14,7 @@ import (
 func Handler() http.Handler {
 	router := mux.NewRouter()
 	router.HandleFunc("/start/{name}", startHandler()).Methods(http.MethodPost)
-	router.HandleFunc("/stop", stopHandler()).Methods(http.MethodPost).Methods(http.MethodPost)
+	router.HandleFunc("/stop", stopHandler()).Methods(http.MethodPost)
 
 	return router
 }

@@ -37,13 +37,16 @@ func startHandler() http.HandlerFunc {
 		started := make(chan bool)
 		logWriter, allLogs := setupLogWriter(started)
 
-		c, err := gnomock.Start(p, gnomock.WithOptions(&sr.Options), gnomock.WithLogWriter(logWriter))
+		c, err := gnomock.Start(
+			p,
+			gnomock.WithOptions(&sr.Options),
+			gnomock.WithLogWriter(logWriter),
+		)
 
 		close(started)
 
 		if err != nil {
-			containerLogs := <-allLogs
-			err = fmt.Errorf("%s: %w", strings.Join(containerLogs, ";"), err)
+			err = fmt.Errorf("%s: %w", strings.Join(<-allLogs, ";"), err)
 			respondWithError(w, errors.NewStartFailedError(err, c))
 
 			return

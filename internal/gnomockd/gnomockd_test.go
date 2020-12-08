@@ -68,4 +68,19 @@ func TestGnomockd(t *testing.T) {
 
 		require.Equal(t, http.StatusBadRequest, res.StatusCode)
 	})
+
+	t.Run("stop with wrong ID", func(t *testing.T) {
+		t.Parallel()
+
+		h := gnomockd.Handler()
+		buf := bytes.NewBuffer([]byte(`{"id":"invalid"}`))
+		w, r := httptest.NewRecorder(), httptest.NewRequest(http.MethodPost, "/stop", buf)
+		h.ServeHTTP(w, r)
+
+		res := w.Result()
+
+		defer func() { require.NoError(t, res.Body.Close()) }()
+
+		require.Equal(t, http.StatusInternalServerError, res.StatusCode)
+	})
 }

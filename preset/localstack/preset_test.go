@@ -66,6 +66,19 @@ func TestPreset_s3(t *testing.T) {
 	require.Equal(t, 1, len(out.Contents))
 }
 
+func TestPreset_wrongS3Path(t *testing.T) {
+	t.Parallel()
+
+	p := localstack.Preset(
+		localstack.WithServices(localstack.S3),
+		localstack.WithS3Files("./invalid"),
+	)
+	c, err := gnomock.Start(p)
+	require.Error(t, err)
+	require.Contains(t, err.Error(), "can't read s3 initial files")
+	require.NoError(t, gnomock.Stop(c))
+}
+
 func TestPreset_sqs_sns(t *testing.T) {
 	t.Parallel()
 

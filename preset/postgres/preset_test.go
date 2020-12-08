@@ -14,7 +14,6 @@ func TestPreset(t *testing.T) {
 	t.Parallel()
 
 	queries := `
-		create table t(a int);
 		insert into t (a) values (1);
 		insert into t (a) values (2);
 	`
@@ -23,6 +22,8 @@ func TestPreset(t *testing.T) {
 		postgres.WithUser("gnomock", "gnomick"),
 		postgres.WithDatabase("mydb"),
 		postgres.WithQueries(queries, query),
+		postgres.WithQueriesFile("./testdata/queries.sql"),
+		postgres.WithVersion("12"),
 	)
 
 	container, err := gnomock.Start(p)
@@ -68,4 +69,16 @@ func TestPreset_withDefaults(t *testing.T) {
 	db, err := sql.Open("postgres", connStr)
 	require.NoError(t, err)
 	require.NoError(t, db.Close())
+}
+
+func TestPreset_wrongQueriesFile(t *testing.T) {
+	t.Parallel()
+
+	p := postgres.Preset(
+		postgres.WithQueriesFile("./invalid"),
+	)
+	c, err := gnomock.Start(p)
+	require.Error(t, err)
+	require.Contains(t, err.Error(), "can't read queries file")
+	require.NoError(t, gnomock.Stop(c))
 }
