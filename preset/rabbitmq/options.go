@@ -1,11 +1,11 @@
 package rabbitmq
 
 // Option is an optional configuration of this Gnomock preset. Use available
-// Options to configure the container
+// Options to configure the container.
 type Option func(*P)
 
 // WithUser creates a new superuser with the provided credentials in the
-// container
+// container.
 func WithUser(user, password string) Option {
 	return func(p *P) {
 		p.User = user
@@ -23,16 +23,16 @@ func WithVersion(version string) Option {
 	}
 }
 
-// WithMessages makes sure that these messages can be consumed during the test once the
-// container is ready.
+// WithMessages makes sure that these messages can be consumed during the test
+// once the container is ready.
 func WithMessages(messages ...Message) Option {
 	return func(p *P) {
 		p.Messages = append(p.Messages, messages...)
 	}
 }
 
-// WithMessagesFile allows to load messages to be sent into RabbitMQ from one or multible
-// files.
+// WithMessagesFile allows to load messages to be sent into RabbitMQ from one
+// or multiple files.
 func WithMessagesFile(file string) Option {
 	return func(p *P) {
 		p.MessagesFiles = append(p.MessagesFiles, file)

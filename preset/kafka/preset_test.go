@@ -31,6 +31,7 @@ func TestPreset(t *testing.T) {
 		kafka.WithTopics("topic-1", "topic-2"),
 		kafka.WithMessages(messages...),
 		kafka.WithVersion("2.5.1-L0"),
+		kafka.WithMessagesFile("./testdata/messages.json"),
 	)
 
 	container, err := gnomock.Start(

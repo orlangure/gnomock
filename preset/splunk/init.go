@@ -136,10 +136,8 @@ func Ingest(ctx context.Context, c *gnomock.Container, password string, events .
 	for {
 		select {
 		case <-ctx.Done():
-			return fmt.Errorf(
-				"event count didn't match: want %d, got %d; last error: %v: %w",
-				len(events), lastCount, lastErr, context.Canceled,
-			)
+			return fmt.Errorf("event count didn't match: want %d, got %d; last error: %v: %w",
+				len(events), lastCount, lastErr, context.Canceled)
 		default:
 			lastCount, lastErr = countEvents(postForm, apiAddr)
 			if lastErr == nil && lastCount == expectedCount {

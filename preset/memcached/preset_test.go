@@ -31,7 +31,11 @@ func TestPreset(t *testing.T) {
 
 	vs["d"] = "foo"
 
-	p := memcached.Preset(memcached.WithByteValues(bvs), memcached.WithValues(vs))
+	p := memcached.Preset(
+		memcached.WithByteValues(bvs),
+		memcached.WithValues(vs),
+		memcached.WithVersion("alpine"),
+	)
 	container, err := gnomock.Start(p)
 
 	defer func() { require.NoError(t, gnomock.Stop(container)) }()
