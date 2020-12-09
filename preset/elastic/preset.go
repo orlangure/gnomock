@@ -27,6 +27,8 @@ func init() {
 // Preset creates a new Gmomock Elasticsearch preset. This preset includes an
 // Elasticsearch specific healthcheck function and default Elasticsearch image
 // and port.
+//
+// By default, version 7.9.3 is used.
 func Preset(opts ...Option) gnomock.Preset {
 	p := &P{}
 

@@ -48,7 +48,7 @@ func init() {
 // https://hub.docker.com/_/rabbitmq/?tab=tags for a list of available tags.
 //
 // When used without specifying username/password, default ones are used:
-// guest/guest.
+// guest/guest. Default version for this preset is 3.8.9.
 func Preset(opts ...Option) gnomock.Preset {
 	p := &P{}
 

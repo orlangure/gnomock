@@ -45,6 +45,9 @@ func init() {
 // Kafka preset uses a constant broker port number (49092) instead of
 // allocating a random unoccupied port on every run. Please make sure this port
 // is available when using this preset.
+//
+// By default, this preset uses `lensesio/fast-data-dev` docker image with
+// version `2.5.1-L0` (version can be changed using `WithVersion`).
 func Preset(opts ...Option) gnomock.Preset {
 	p := &P{}
 
