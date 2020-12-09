@@ -34,7 +34,7 @@ func TestPreset(t *testing.T) {
 	p := memcached.Preset(
 		memcached.WithByteValues(bvs),
 		memcached.WithValues(vs),
-		memcached.WithVersion("alpine"),
+		memcached.WithVersion("1.6.9"),
 	)
 	container, err := gnomock.Start(p)
 

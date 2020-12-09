@@ -13,42 +13,50 @@ import (
 func TestPreset(t *testing.T) {
 	t.Parallel()
 
-	queries := `
-		insert into t (a) values (1);
-		insert into t (a) values (2);
-	`
-	query := `insert into t (a) values (3);`
-	p := postgres.Preset(
-		postgres.WithUser("gnomock", "gnomick"),
-		postgres.WithDatabase("mydb"),
-		postgres.WithQueries(queries, query),
-		postgres.WithQueriesFile("./testdata/queries.sql"),
-		postgres.WithVersion("12"),
-	)
+	for _, version := range []string{"10.15", "11.10", "12.5", "13.1"} {
+		t.Run(version, testPreset(version))
+	}
+}
 
-	container, err := gnomock.Start(p)
-	require.NoError(t, err)
+func testPreset(version string) func(t *testing.T) {
+	return func(t *testing.T) {
+		queries := `
+			insert into t (a) values (1);
+			insert into t (a) values (2);
+		`
+		query := `insert into t (a) values (3);`
+		p := postgres.Preset(
+			postgres.WithUser("gnomock", "gnomick"),
+			postgres.WithDatabase("mydb"),
+			postgres.WithQueries(queries, query),
+			postgres.WithQueriesFile("./testdata/queries.sql"),
+			postgres.WithVersion(version),
+		)
 
-	defer func() { require.NoError(t, gnomock.Stop(container)) }()
+		container, err := gnomock.Start(p)
+		require.NoError(t, err)
 
-	connStr := fmt.Sprintf(
-		"host=%s port=%d user=%s password=%s  dbname=%s sslmode=disable",
-		container.Host, container.DefaultPort(),
-		"gnomock", "gnomick", "mydb",
-	)
+		defer func() { require.NoError(t, gnomock.Stop(container)) }()
 
-	db, err := sql.Open("postgres", connStr)
-	require.NoError(t, err)
+		connStr := fmt.Sprintf(
+			"host=%s port=%d user=%s password=%s  dbname=%s sslmode=disable",
+			container.Host, container.DefaultPort(),
+			"gnomock", "gnomick", "mydb",
+		)
 
-	var max, avg, min, count float64
+		db, err := sql.Open("postgres", connStr)
+		require.NoError(t, err)
 
-	rows := db.QueryRow("select max(a), avg(a), min(a), count(a) from t")
-	require.NoError(t, rows.Scan(&max, &avg, &min, &count))
+		var max, avg, min, count float64
 
-	require.Equal(t, float64(3), max)
-	require.Equal(t, float64(2), avg)
-	require.Equal(t, float64(1), min)
-	require.Equal(t, float64(3), count)
+		rows := db.QueryRow("select max(a), avg(a), min(a), count(a) from t")
+		require.NoError(t, rows.Scan(&max, &avg, &min, &count))
+
+		require.Equal(t, float64(3), max)
+		require.Equal(t, float64(2), avg)
+		require.Equal(t, float64(1), min)
+		require.Equal(t, float64(3), count)
+	}
 }
 
 func TestPreset_withDefaults(t *testing.T) {

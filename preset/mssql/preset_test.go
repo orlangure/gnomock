@@ -3,6 +3,7 @@ package mssql_test
 import (
 	"database/sql"
 	"fmt"
+	"os"
 	"testing"
 
 	"github.com/orlangure/gnomock"
@@ -13,43 +14,51 @@ import (
 func TestPreset(t *testing.T) {
 	t.Parallel()
 
-	queries := `
-		insert into t (a) values (1);
-		insert into t (a) values (2);
-	`
-	query := `insert into t (a) values (3);`
-	p := mssql.Preset(
-		mssql.WithLicense(true),
-		mssql.WithAdminPassword("Passw0rd-"),
-		mssql.WithQueries(queries, query),
-		mssql.WithDatabase("foobar"),
-		mssql.WithVersion("2017-latest"),
-		mssql.WithQueriesFile("./testdata/queries.sql"),
-	)
+	for _, version := range []string{"2017-latest", "2019-latest"} {
+		t.Run(version, testPreset(version))
+	}
+}
 
-	container, err := gnomock.Start(p)
+func testPreset(version string) func(t *testing.T) {
+	return func(t *testing.T) {
+		queries := `
+			insert into t (a) values (1);
+			insert into t (a) values (2);
+		`
+		query := `insert into t (a) values (3);`
+		p := mssql.Preset(
+			mssql.WithLicense(true),
+			mssql.WithAdminPassword("Passw0rd-"),
+			mssql.WithQueries(queries, query),
+			mssql.WithDatabase("foobar"),
+			mssql.WithVersion(version),
+			mssql.WithQueriesFile("./testdata/queries.sql"),
+		)
 
-	defer func() { _ = gnomock.Stop(container) }()
+		container, err := gnomock.Start(p, gnomock.WithLogWriter(os.Stdout))
 
-	require.NoError(t, err)
+		defer func() { _ = gnomock.Stop(container) }()
 
-	addr := container.DefaultAddress()
-	connStr := fmt.Sprintf("sqlserver://sa:Passw0rd-@%s?database=foobar", addr)
+		require.NoError(t, err)
 
-	db, err := sql.Open("sqlserver", connStr)
-	require.NoError(t, err)
+		addr := container.DefaultAddress()
+		connStr := fmt.Sprintf("sqlserver://sa:Passw0rd-@%s?database=foobar", addr)
 
-	var max, avg, min, count float64
+		db, err := sql.Open("sqlserver", connStr)
+		require.NoError(t, err)
 
-	rows := db.QueryRow("select max(a), avg(a), min(a), count(a) from t")
+		var max, avg, min, count float64
 
-	err = rows.Scan(&max, &avg, &min, &count)
-	require.NoError(t, err)
+		rows := db.QueryRow("select max(a), avg(a), min(a), count(a) from t")
 
-	require.Equal(t, float64(3), max)
-	require.Equal(t, float64(2), avg)
-	require.Equal(t, float64(1), min)
-	require.Equal(t, float64(3), count)
+		err = rows.Scan(&max, &avg, &min, &count)
+		require.NoError(t, err)
+
+		require.Equal(t, float64(3), max)
+		require.Equal(t, float64(2), avg)
+		require.Equal(t, float64(1), min)
+		require.Equal(t, float64(3), count)
+	}
 }
 
 func TestPreset_withDefaults(t *testing.T) {

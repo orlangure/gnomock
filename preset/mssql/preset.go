@@ -16,7 +16,7 @@ const masterDB = "master"
 const defaultPassword = "Gn0m!ck~"
 const defaultDatabase = "mydb"
 const defaultPort = 1433
-const defaultVersion = "latest"
+const defaultVersion = "2019-latest"
 
 func init() {
 	registry.Register("mssql", func() gnomock.Preset { return &P{} })

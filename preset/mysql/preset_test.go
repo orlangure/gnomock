@@ -13,45 +13,53 @@ import (
 func TestPreset(t *testing.T) {
 	t.Parallel()
 
-	queries := `
-		insert into t (a) values (1);
-		insert into t (a) values (2);
-	`
-	query := `insert into t (a) values (3);`
-	p := mysql.Preset(
-		mysql.WithUser("Sherlock", "Holmes"),
-		mysql.WithDatabase("books"),
-		mysql.WithQueries(queries, query),
-		mysql.WithQueriesFile("./testdata/queries.sql"),
-		mysql.WithVersion("5"),
-	)
+	for _, version := range []string{"8.0.22", "5.7.32"} {
+		t.Run(version, testPreset(version))
+	}
+}
 
-	container, err := gnomock.Start(p)
+func testPreset(version string) func(t *testing.T) {
+	return func(t *testing.T) {
+		queries := `
+			insert into t (a) values (1);
+			insert into t (a) values (2);
+		`
+		query := `insert into t (a) values (3);`
+		p := mysql.Preset(
+			mysql.WithUser("Sherlock", "Holmes"),
+			mysql.WithDatabase("books"),
+			mysql.WithQueries(queries, query),
+			mysql.WithQueriesFile("./testdata/queries.sql"),
+			mysql.WithVersion("8.0.22"),
+		)
 
-	defer func() { _ = gnomock.Stop(container) }()
+		container, err := gnomock.Start(p)
 
-	require.NoError(t, err)
+		defer func() { _ = gnomock.Stop(container) }()
 
-	addr := container.DefaultAddress()
-	connStr := fmt.Sprintf(
-		"%s:%s@tcp(%s)/%s",
-		"Sherlock", "Holmes", addr, "books",
-	)
+		require.NoError(t, err)
 
-	db, err := sql.Open("mysql", connStr)
-	require.NoError(t, err)
+		addr := container.DefaultAddress()
+		connStr := fmt.Sprintf(
+			"%s:%s@tcp(%s)/%s",
+			"Sherlock", "Holmes", addr, "books",
+		)
 
-	var max, avg, min, count float64
+		db, err := sql.Open("mysql", connStr)
+		require.NoError(t, err)
 
-	rows := db.QueryRow("select max(a), avg(a), min(a), count(a) from t")
+		var max, avg, min, count float64
 
-	err = rows.Scan(&max, &avg, &min, &count)
-	require.NoError(t, err)
+		rows := db.QueryRow("select max(a), avg(a), min(a), count(a) from t")
 
-	require.Equal(t, float64(3), max)
-	require.Equal(t, float64(2), avg)
-	require.Equal(t, float64(1), min)
-	require.Equal(t, float64(3), count)
+		err = rows.Scan(&max, &avg, &min, &count)
+		require.NoError(t, err)
+
+		require.Equal(t, float64(3), max)
+		require.Equal(t, float64(2), avg)
+		require.Equal(t, float64(1), min)
+		require.Equal(t, float64(3), count)
+	}
 }
 
 func TestPreset_withDefaults(t *testing.T) {

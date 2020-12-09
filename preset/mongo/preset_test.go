@@ -17,41 +17,49 @@ import (
 func TestPreset(t *testing.T) {
 	t.Parallel()
 
-	p := mongo.Preset(
-		mongo.WithData("./testdata/"),
-		mongo.WithUser("gnomock", "gnomick"),
-		mongo.WithVersion("4"),
-	)
-	c, err := gnomock.Start(p, gnomock.WithLogWriter(os.Stdout))
+	for _, version := range []string{"4.4", "3.6.21"} {
+		t.Run(version, testPreset(version))
+	}
+}
 
-	defer func() { require.NoError(t, gnomock.Stop(c)) }()
+func testPreset(version string) func(t *testing.T) {
+	return func(t *testing.T) {
+		p := mongo.Preset(
+			mongo.WithData("./testdata/"),
+			mongo.WithUser("gnomock", "gnomick"),
+			mongo.WithVersion(version),
+		)
+		c, err := gnomock.Start(p, gnomock.WithLogWriter(os.Stdout))
 
-	require.NoError(t, err)
+		defer func() { require.NoError(t, gnomock.Stop(c)) }()
 
-	addr := c.DefaultAddress()
-	uri := fmt.Sprintf("mongodb://%s:%s@%s", "gnomock", "gnomick", addr)
-	clientOptions := mongooptions.Client().ApplyURI(uri)
+		require.NoError(t, err)
 
-	client, err := mongodb.NewClient(clientOptions)
-	require.NoError(t, err)
+		addr := c.DefaultAddress()
+		uri := fmt.Sprintf("mongodb://%s:%s@%s", "gnomock", "gnomick", addr)
+		clientOptions := mongooptions.Client().ApplyURI(uri)
 
-	ctx := context.Background()
+		client, err := mongodb.NewClient(clientOptions)
+		require.NoError(t, err)
 
-	err = client.Connect(ctx)
-	require.NoError(t, err)
+		ctx := context.Background()
 
-	// see testdata folder to verify names/numbers
-	count, err := client.Database("db1").Collection("users").CountDocuments(ctx, bson.D{})
-	require.NoError(t, err)
-	require.Equal(t, int64(10), count)
+		err = client.Connect(ctx)
+		require.NoError(t, err)
 
-	count, err = client.Database("db2").Collection("customers").CountDocuments(ctx, bson.D{})
-	require.NoError(t, err)
-	require.Equal(t, int64(5), count)
+		// see testdata folder to verify names/numbers
+		count, err := client.Database("db1").Collection("users").CountDocuments(ctx, bson.D{})
+		require.NoError(t, err)
+		require.Equal(t, int64(10), count)
 
-	count, err = client.Database("db2").Collection("countries").CountDocuments(ctx, bson.D{})
-	require.NoError(t, err)
-	require.Equal(t, int64(3), count)
+		count, err = client.Database("db2").Collection("customers").CountDocuments(ctx, bson.D{})
+		require.NoError(t, err)
+		require.Equal(t, int64(5), count)
+
+		count, err = client.Database("db2").Collection("countries").CountDocuments(ctx, bson.D{})
+		require.NoError(t, err)
+		require.Equal(t, int64(3), count)
+	}
 }
 
 func TestPreset_withDefaults(t *testing.T) {

@@ -21,7 +21,7 @@ import (
 	mongooptions "go.mongodb.org/mongo-driver/mongo/options"
 )
 
-const defaultVersion = "latest"
+const defaultVersion = "4.4"
 
 func init() {
 	registry.Register("mongo", func() gnomock.Preset { return &P{} })
