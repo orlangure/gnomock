@@ -17,7 +17,7 @@ const defaultPassword = "password"
 const defaultDatabase = "postgres"
 const defaultSSLMode = "disable"
 const defaultPort = 5432
-const defaultVersion = "latest"
+const defaultVersion = "12.5"
 
 func init() {
 	registry.Register("postgres", func() gnomock.Preset { return &P{} })

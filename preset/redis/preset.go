@@ -12,7 +12,7 @@ import (
 	"github.com/orlangure/gnomock/internal/registry"
 )
 
-const defaultVersion = "latest"
+const defaultVersion = "6.0.9"
 
 func init() {
 	registry.Register("redis", func() gnomock.Preset { return &P{} })

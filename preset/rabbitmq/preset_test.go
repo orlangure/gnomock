@@ -46,6 +46,7 @@ func TestPreset(t *testing.T) {
 		rabbitmq.WithMessages(messages...),
 		rabbitmq.WithMessages(byteMessages...),
 		rabbitmq.WithMessagesFile("./testdata/messages.json"),
+		rabbitmq.WithVersion("3.8.9-alpine"),
 	)
 
 	container, err := gnomock.Start(p)
@@ -138,7 +139,7 @@ func TestPreset_withManagement(t *testing.T) {
 	// gnomock setup
 	p := rabbitmq.Preset(
 		rabbitmq.WithUser("gnomock", "strong-password"),
-		rabbitmq.WithVersion("management-alpine"),
+		rabbitmq.WithVersion("3.8.9-management-alpine"),
 	)
 
 	container, err := gnomock.Start(p)

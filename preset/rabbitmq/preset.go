@@ -23,7 +23,7 @@ const ManagementPort = "management"
 
 const defaultUser = "guest"
 const defaultPassword = "guest"
-const defaultVersion = "alpine"
+const defaultVersion = "3.8.9"
 const defaultPort = 5672
 const managementPort = 15672
 

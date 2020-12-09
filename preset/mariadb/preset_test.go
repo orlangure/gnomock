@@ -23,7 +23,7 @@ func TestPreset(t *testing.T) {
 		mariadb.WithDatabase("books"),
 		mariadb.WithQueries(queries, query),
 		mariadb.WithQueriesFile("./testdata/queries.sql"),
-		mariadb.WithVersion("10"),
+		mariadb.WithVersion("10.5.8"),
 	)
 
 	container, err := gnomock.Start(p)

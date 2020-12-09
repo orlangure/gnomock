@@ -12,7 +12,7 @@ import (
 	"github.com/orlangure/gnomock/internal/registry"
 )
 
-const defaultVersion = "latest"
+const defaultVersion = "1.6.9"
 
 func init() {
 	registry.Register("memcached", func() gnomock.Preset { return &P{} })

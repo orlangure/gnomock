@@ -12,39 +12,47 @@ import (
 func TestPreset(t *testing.T) {
 	t.Parallel()
 
-	vs := make(map[string]interface{})
+	for _, version := range []string{"5.0.10", "6.0.9"} {
+		t.Run(version, testPreset(version))
+	}
+}
 
-	vs["a"] = "foo"
-	vs["b"] = 42
-	vs["c"] = true
+func testPreset(version string) func(t *testing.T) {
+	return func(t *testing.T) {
+		vs := make(map[string]interface{})
 
-	p := redis.Preset(
-		redis.WithValues(vs),
-		redis.WithVersion("6"),
-	)
-	container, err := gnomock.Start(p)
+		vs["a"] = "foo"
+		vs["b"] = 42
+		vs["c"] = true
 
-	defer func() { require.NoError(t, gnomock.Stop(container)) }()
+		p := redis.Preset(
+			redis.WithValues(vs),
+			redis.WithVersion(version),
+		)
+		container, err := gnomock.Start(p)
 
-	require.NoError(t, err)
+		defer func() { require.NoError(t, gnomock.Stop(container)) }()
 
-	addr := container.DefaultAddress()
-	client := redisclient.NewClient(&redisclient.Options{Addr: addr})
+		require.NoError(t, err)
 
-	var str string
+		addr := container.DefaultAddress()
+		client := redisclient.NewClient(&redisclient.Options{Addr: addr})
 
-	require.NoError(t, client.Get("a").Scan(&str))
-	require.Equal(t, "foo", str)
+		var str string
 
-	var number int
+		require.NoError(t, client.Get("a").Scan(&str))
+		require.Equal(t, "foo", str)
 
-	require.NoError(t, client.Get("b").Scan(&number))
-	require.Equal(t, 42, number)
+		var number int
 
-	var flag bool
+		require.NoError(t, client.Get("b").Scan(&number))
+		require.Equal(t, 42, number)
 
-	require.NoError(t, client.Get("c").Scan(&flag))
-	require.True(t, flag)
+		var flag bool
+
+		require.NoError(t, client.Get("c").Scan(&flag))
+		require.True(t, flag)
+	}
 }
 
 func TestRedis_wrongValue(t *testing.T) {

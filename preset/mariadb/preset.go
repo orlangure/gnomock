@@ -18,7 +18,7 @@ const defaultUser = "gnomock"
 const defaultPassword = "gnoria"
 const defaultDatabase = "mydb"
 const defaultPort = 3306
-const defaultVersion = "latest"
+const defaultVersion = "10.5.8"
 
 var setLoggerOnce sync.Once
 
