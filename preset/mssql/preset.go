@@ -24,10 +24,11 @@ func init() {
 
 // Preset creates a new Gmomock Microsoft SQL Server preset. This preset
 // includes a mssql specific healthcheck function, default mssql image and
-// port, and allows to optionally set up initial state. When used without any
-// configuration, it uses "mydb" database, and "Gn0m!ck~" administrator
-// password (user: sa). You must accept EULA to use this image (WithLicense
-// option)
+// port, and allows to optionally set up initial state.
+//
+// When used without any configuration, it uses `mydb` database, and `Gn0m!ck~`
+// administrator password (user: `sa`). You must accept EULA to use this image
+// (`WithLicense` option). By default, version `2019-latest` is used.
 func Preset(opts ...Option) gnomock.Preset {
 	p := &P{}
 

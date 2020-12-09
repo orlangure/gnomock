@@ -29,7 +29,9 @@ func init() {
 
 // Preset creates a new Gmomock MongoDB preset. This preset includes a MongoDB
 // specific healthcheck function, default MongoDB image and port, and allows to
-// optionally set up initial state
+// optionally set up initial state.
+//
+// By default, this preset uses MongoDB 4.4.
 func Preset(opts ...Option) gnomock.Preset {
 	p := &P{}
 

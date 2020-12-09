@@ -28,8 +28,10 @@ func init() {
 
 // Preset creates a new Gmomock MySQL preset. This preset includes a MySQL
 // specific healthcheck function, default MySQL image and port, and allows to
-// optionally set up initial state. When used without any configuration, it
-// creates a superuser "gnomock" with password "gnomick", and "mydb" database
+// optionally set up initial state.
+//
+// When used without any configuration, it creates a superuser `gnomock` with
+// password `gnomick`, and `mydb` database. Default MySQL version is 8.0.22.
 func Preset(opts ...Option) gnomock.Preset {
 	p := &P{}
 

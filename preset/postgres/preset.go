@@ -25,7 +25,10 @@ func init() {
 
 // Preset creates a new Gmomock Postgres preset. This preset includes a Postgres
 // specific healthcheck function, default Postgres image and port, and allows to
-// optionally set up initial state
+// optionally set up initial state.
+//
+// By default, this preset uses `postgres` user with `password` password, with
+// default database `postgres`. Default PostgresQL version is 12.5.
 func Preset(opts ...Option) gnomock.Preset {
 	p := &P{}
 

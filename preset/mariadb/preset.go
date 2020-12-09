@@ -28,8 +28,10 @@ func init() {
 
 // Preset creates a new Gmomock MariaDB preset. This preset includes a MariaDB
 // specific healthcheck function, default MariaDB image and port, and allows to
-// optionally set up initial state. When used without any configuration, it
-// creates a superuser "gnomock" with password "gnoria", and "mydb" database
+// optionally set up initial state.
+//
+// When used without any configuration, it creates a superuser `gnomock` with
+// password `gnoria`, and `mydb` database. Default MariaDB version is 10.5.8.
 func Preset(opts ...Option) gnomock.Preset {
 	p := &P{}
 
