@@ -3,3 +3,12 @@ ignore:
   # part of Gnomock
   - cmd/generator/**/*
   - internal/testutil/**/*
+
+coverage:
+  status:
+    project:
+      target: 80%
+      threshold: 0%
+    patch:
+      target: 70%
+      threshold: 0%

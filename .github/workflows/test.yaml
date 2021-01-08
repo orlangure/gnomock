@@ -60,25 +60,14 @@ jobs:
     steps:
       - name: Check out code into the Go module directory
         uses: actions/checkout@v1
-      - name: Get dependencies
-        run: |
-          cd sdktest/python
-          pip3 install -r requirements.txt
-      - name: Generate python sdk
-        run: swagger/bin/generate-python.sh
-      - name: Build docker image
-        run: docker build --tag gnomock .
-      - name: Run gnomock
-        run: |
-          docker run -itd \
-            -p 23042:23042 \
-            -v /var/run/docker.sock:/var/run/docker.sock \
-            -v `pwd`:`pwd` \
-            gnomock
+      - name: Install Taskfile
+        uses: Arduino/actions/setup-taskfile@master
+        with:
+          version: '3.0.0'
+      - name: Generate
+        run: task generate:sdk:python
       - name: Test
-        run: |
-          cd sdktest/python
-          python3 -m pytest -n 3 -v -k TestSDK
+        run: task test:sdk:python
 
   test-localstack:
     name: "[preset] localstack"
@@ -374,6 +363,29 @@ jobs:
         run: go test -race -cover -coverprofile=preset-cover.txt -coverpkg=./... -v ./preset/k3s/...
       - name: Test server
         run: go test -race -cover -coverprofile=server-cover.txt -coverpkg=./... -v ./internal/gnomockd -run TestK3s
+      - name: Report coverage
+        run: |
+          cat preset-cover.txt server-cover.txt > coverage.txt
+          bash <(curl -s https://codecov.io/bash)
+
+  test-cockroachdb:
+    name: "[preset] cockroachdb"
+    runs-on: ubuntu-latest
+    env:
+      CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+    steps:
+      - name: Set up Go 1.15
+        uses: actions/setup-go@v1
+        with:
+          go-version: 1.15
+      - name: Check out code into the Go module directory
+        uses: actions/checkout@v1
+      - name: Get dependencies
+        run: go get -v -t -d ./...
+      - name: Test preset
+        run: go test -race -cover -coverprofile=preset-cover.txt -coverpkg=./... -v ./preset/cockroachdb/...
+      - name: Test server
+        run: go test -race -cover -coverprofile=server-cover.txt -coverpkg=./... -v ./internal/gnomockd -run TestCockroachDB
       - name: Report coverage
         run: |
           cat preset-cover.txt server-cover.txt > coverage.txt
