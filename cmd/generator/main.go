@@ -9,6 +9,7 @@ import (
 	"log"
 	"os"
 	"path"
+	"regexp"
 	"strings"
 	"text/template"
 )
@@ -30,8 +31,20 @@ const (
 `
 )
 
+var matchFirstCap = regexp.MustCompile("(.)([A-Z][a-z]+)")
+var matchAllCap = regexp.MustCompile("([a-z0-9])([A-Z])")
+
 var fMap = template.FuncMap{
 	"lower": strings.ToLower,
+	"title": func(s string) string {
+		return strings.Title(strings.ToLower(s))
+	},
+	"snake": func(s string) string {
+		snake := matchFirstCap.ReplaceAllString(s, "${1}_${2}")
+		snake = matchAllCap.ReplaceAllString(snake, "${1}_${2}")
+
+		return strings.ToLower(snake)
+	},
 }
 
 type presetParams struct {

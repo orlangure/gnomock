@@ -249,7 +249,10 @@ paths:
         - presets
   /start/kubernetes:
     post:
-      summary: Start a new Gnomock lightweight kubernetes (k3s) preset.
+      summary: >
+        Start a new Gnomock lightweight kubernetes (k3s) preset. Use
+        `host:<kubeconfig-port>/kubeconfig` to retrieve the kubeconfig file
+        that should be used to connect to this container.
       operationId: startKubernetes
       requestBody:
         required: true
@@ -257,6 +260,26 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/kubernetes-request'
+      responses:
+        '200':
+          $ref: '#/components/responses/container-created'
+        '400':
+          $ref: '#/components/responses/invalid-configuration'
+        '500':
+          $ref: '#/components/responses/start-failed'
+      tags:
+        - presets
+
+  /start/cockroachdb:
+    post:
+      summary: Start a new Gnomock CockroachDB preset.
+      operationId: startCockroachDB
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/cockroachdb-request'
       responses:
         '200':
           $ref: '#/components/responses/container-created'
@@ -1026,6 +1049,26 @@ components:
           example: latest
       description: >
         This object describes a k3s container.
+
+    cockroachdb-request:
+      type: object
+      properties:
+        preset:
+          $ref: '#/components/schemas/cockroachdb'
+        options:
+          $ref: '#/components/schemas/options'
+      description: >
+        This request includes CockroachDB and general configuration.
+
+    cockroachdb:
+      type: object
+      properties:
+        version:
+          type: string
+          description: Docker image tag (version)
+          default: latest
+      description: >
+        This object describes CockroachDB container.
 
 ### preset-request
 

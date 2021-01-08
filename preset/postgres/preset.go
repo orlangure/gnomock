@@ -1,4 +1,4 @@
-// Package postgres provides a Gnomock Preset for PostgreSQL database
+// Package postgres provides a Gnomock Preset for PostgreSQL database.
 package postgres
 
 import (
@@ -93,18 +93,7 @@ func (p *P) healthcheck(ctx context.Context, c *gnomock.Container) error {
 
 	var one int
 
-	row := db.QueryRow(`select 1`)
-
-	err = row.Scan(&one)
-	if err != nil {
-		return err
-	}
-
-	if one != 1 {
-		return fmt.Errorf("unexpected healthcheck result: 1 != %d", one)
-	}
-
-	return nil
+	return db.QueryRow(`select 1`).Scan(&one)
 }
 
 func (p *P) initf() gnomock.InitFunc {

@@ -1,0 +1,16 @@
+{
+    "preset": {
+        "queries_files": [
+            "./testdata/cockroachdb/customers.sql",
+            "./testdata/cockroachdb/things.sql"
+        ],
+        "queries": [
+            "create table tbl(a int)",
+            "insert into tbl(a) values (42)"
+        ],
+        "db": "gnomockd_db",
+        "version": "v19.2.11"
+    },
+    "options": {
+    }
+}
