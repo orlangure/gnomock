@@ -146,6 +146,11 @@ func (d *docker) createContainer(ctx context.Context, image string, ports NamedP
 		ExposedPorts: exposedPorts,
 		Env:          cfg.Env,
 	}
+
+	if len(cfg.Cmd) > 0 {
+		containerConfig.Cmd = cfg.Cmd
+	}
+
 	portBindings := d.portBindings(exposedPorts, ports)
 	hostConfig := &container.HostConfig{
 		PortBindings: portBindings,

@@ -122,6 +122,14 @@ func WithOptions(options *Options) Option {
 	}
 }
 
+// WithCommand sets the command and its arguments to execute when container
+// first runs. This command replaces the command defined in docker image.
+func WithCommand(cmd string, args ...string) Option {
+	return func(o *Options) {
+		o.Cmd = append([]string{cmd}, args...)
+	}
+}
+
 // HealthcheckFunc defines a function to be used to determine container health.
 // It receives a host and a port, and returns an error if the container is not
 // ready, or nil when the container can be used. One example of HealthcheckFunc
@@ -163,6 +171,11 @@ type Options struct {
 	// ContainerName allows to use a specific name for a new container. In case
 	// a container with the same name already exists, Gnomock kills it.
 	ContainerName string `json:"container_name"`
+
+	// Cmd is an optional command with its arguments to execute on container
+	// startup. This command replaces the default one set on docker image
+	// level.
+	Cmd []string
 
 	ctx                 context.Context
 	init                InitFunc

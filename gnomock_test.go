@@ -155,7 +155,36 @@ func TestGnomock_withLogWriter(t *testing.T) {
 
 		log, err := ioutil.ReadAll(r)
 		require.NoError(t, err)
-		require.Equal(t, "starting with env1 = '', env2 = ''\n", string(log))
+		require.Contains(t, string(log), "starting with env1 = '', env2 = ''\n")
+	}()
+
+	require.NoError(t, gnomock.Stop(container))
+
+	require.NoError(t, w.Close())
+	<-signal
+	require.NoError(t, r.Close())
+}
+
+func TestGnomock_withCommand(t *testing.T) {
+	t.Parallel()
+
+	r, w := io.Pipe()
+
+	container, err := gnomock.StartCustom(
+		testImage, gnomock.DefaultTCP(goodPort80),
+		gnomock.WithLogWriter(w),
+		gnomock.WithCommand("foo", "bar"),
+	)
+	require.NoError(t, err)
+
+	signal := make(chan struct{})
+
+	go func() {
+		defer close(signal)
+
+		log, err := ioutil.ReadAll(r)
+		require.NoError(t, err)
+		require.Contains(t, string(log), "[foo bar]")
 	}()
 
 	require.NoError(t, gnomock.Stop(container))
