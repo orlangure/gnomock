@@ -1,6 +1,6 @@
 // Package redis includes Redis implementation of Gnomock Preset interface.
-// This Preset can be passed to gnomock.StartPreset function to create a
-// configured Redis container to use in tests
+// This Preset can be passed to gnomock.Start() function to create a configured
+// Redis container to use in tests.
 package redis
 
 import (

@@ -247,5 +247,8 @@ class TestSDK(unittest.TestCase):
                 self.api.stop(stop_request)
 
 
+### gnomock-generator
+
+
 if __name__ == "__main__":
     unittest.main()

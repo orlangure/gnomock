@@ -1,0 +1,79 @@
+// Package {{ lower .Name }} includes {{ .Name }} implementation of Gnomock Preset interface.
+// This Preset can be passed to gnomock.Start() function to create a configured
+// {{ .Name }} container to use in tests.
+package {{ lower .Name }}
+
+import (
+	"context"
+	"fmt"
+
+	"github.com/orlangure/gnomock"
+	{{ if .Public -}}
+	"github.com/orlangure/gnomock/internal/registry"
+	{{- end}}
+)
+
+// TODO: use a pinned-down version
+const defaultVersion = "latest"
+// TODO: if needed, add/modify ports here and in Ports method
+const defaultPort = {{ .DefaultPort }}
+
+{{ if .Public -}}
+func init() {
+	registry.Register("{{ lower .Name }}", func() gnomock.Preset { return &P{} })
+}
+{{ end -}}
+
+// Preset creates a new Gmomock {{ .Name }} preset. This preset includes a {{ .Name }}
+// specific healthcheck function and default {{ .Name }} image and port.
+func Preset(opts ...Option) gnomock.Preset {
+	p := &P{}
+
+	for _, opt := range opts {
+		opt(p)
+	}
+
+	return p
+}
+
+// P is a Gnomock Preset implementation for {{ .Name }}.
+type P struct {
+	Version string `json:"version"`
+	// TODO: add fields specific to this preset
+}
+
+// Image returns an image that should be pulled to create this container.
+func (p *P) Image() string {
+	return fmt.Sprintf("{{ .Image }}:%s", p.Version)
+}
+
+// Ports returns ports that should be used to access this container.
+func (p *P) Ports() gnomock.NamedPorts {
+	return gnomock.DefaultTCP(defaultPort)
+}
+
+// Options returns a list of options to configure this container.
+func (p *P) Options() []gnomock.Option {
+	p.setDefaults()
+
+	opts := []gnomock.Option{
+		gnomock.WithHealthCheck(healthcheck),
+	}
+
+	// TODO: add init func here if preset supports setting up initial state
+
+	return opts
+}
+
+func (p *P) setDefaults() {
+	if p.Version == "" {
+		p.Version = defaultVersion
+	}
+}
+
+func healthcheck(ctx context.Context, c *gnomock.Container) error {
+	// TODO: return non-nil error unless the container becomes available
+	// addr := c.Address(gnomock.DefaultPort)
+
+	return nil
+}

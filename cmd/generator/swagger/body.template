@@ -1,0 +1,22 @@
+    {{ lower .Name }}-request:
+      type: object
+      properties:
+        preset:
+          $ref: '#/components/schemas/{{ lower .Name }}'
+        options:
+          $ref: '#/components/schemas/options'
+      description: >
+        This request includes {{ .Name }} and general configuration.
+
+    {{ lower .Name }}:
+      type: object
+      properties:
+        # TODO: add supported parameters
+        version:
+          type: string
+          description: Docker image tag (version)
+          default: latest
+      description: >
+        This object describes {{ .Name }} container.
+
+### preset-request

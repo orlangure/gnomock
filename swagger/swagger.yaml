@@ -266,6 +266,9 @@ paths:
           $ref: '#/components/responses/start-failed'
       tags:
         - presets
+
+### /start/preset
+
   /stop:
     post:
       summary: Stop an existing Gnomock container
@@ -1015,6 +1018,8 @@ components:
           example: latest
       description: >
         This object describes a k3s container.
+
+### preset-request
 
     stop-request:
       type: object

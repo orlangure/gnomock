@@ -1,0 +1,2 @@
+      - test-{{ lower .Name }}
+### circleci jobs go here

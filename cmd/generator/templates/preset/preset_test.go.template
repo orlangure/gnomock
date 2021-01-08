@@ -1,0 +1,36 @@
+package {{ lower .Name }}_test
+
+import (
+	"testing"
+
+	"github.com/orlangure/gnomock"
+	"github.com/orlangure/gnomock/preset/{{ lower .Name }}"
+	"github.com/stretchr/testify/require"
+)
+
+func TestPreset(t *testing.T) {
+	t.Parallel()
+
+	// TODO: use versions (tags) this preset supports
+	for _, version := range []string{"latest"} {
+		t.Run(version, testPreset(version))
+	}
+}
+
+func testPreset(version string) func(t *testing.T) {
+	return func(t *testing.T) {
+		p := {{ lower .Name }}.Preset(
+			{{ lower .Name }}.WithVersion(version),
+		)
+		container, err := gnomock.Start(p)
+
+		defer func() { require.NoError(t, gnomock.Stop(container)) }()
+
+		require.NoError(t, err)
+
+		addr := container.DefaultAddress()
+		require.NotEmpty(t, addr)
+	}
+}
+
+// TODO: add tests to ensure solid coverage
