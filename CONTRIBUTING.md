@@ -64,7 +64,7 @@ Gnomock:
 
 > Please note that nobody has to go all the way alone. Adding a new Preset can
 > be a collective effort, where some of the task are delegated to somebody else
-> (to me, for example, I'm happy to help)
+> (to me, for example, I'm happy to help).
 
 1. Write an actual preset code with a test. The code goes into
    [`preset`](https://github.com/orlangure/gnomock/tree/master/preset) package.
@@ -95,8 +95,28 @@ Gnomock:
 
 1. Update [README](README.md) using the links to the new packages/docs.
 
-1. Add a job to test the new preset to Github Actions ([here is the
-   workflow](https://github.com/orlangure/gnomock/blob/master/.github/workflows/test.yaml)).
+1. Add a job to test the new preset to [Github
+   Actions](https://github.com/orlangure/gnomock/blob/master/.github/workflows/test.yaml)
+   and
+   [CircleCI](https://github.com/orlangure/gnomock/blob/master/.circleci/config.yml).
+
+#### Preset Generator
+
+You can use a [preset
+generator](https://github.com/orlangure/gnomock/blob/master/cmd/generator) to
+automate the boring part of the above checklist:
+
+```bash
+# from Gnomock root with clean `git status`
+go run ./cmd/generator \
+    -name PresetName \              # e.g Postgres, CockroachDB or MySQL
+    -default-port 12345 \           # use any value if unsure, this is easily fixed
+    -image docker.io/author/image \ # note the full name, including the registry
+    -public                         # omit this flag if you need a preset for yourself only
+```
+
+Carefully review all the files that were added/changed by this command, and
+implement the actual logic. Start with health check function.
 
 ## Code review
 

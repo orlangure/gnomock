@@ -41,7 +41,7 @@ services running in ephemeral Docker containers:
 
 - [Getting started](#getting-started)
   - [Using Gnomock in Go applications](#using-gnomock-in-go-applications)
-  - [Using Gnomock server](#using-gnomock-server)
+  - [Using Gnomock in other languages](#using-gnomock-in-other-languages)
 - [Official presets](#official-presets)
 - [Similar projects](#similar-projects)
 - [Troubleshooting](#troubleshooting)
@@ -97,7 +97,11 @@ See package
 [reference](https://pkg.go.dev/github.com/orlangure/gnomock?tab=doc). For
 Preset documentation, refer to [Presets](#official-presets) section.
 
-### Using Gnomock server
+### Using Gnomock in other languages
+
+If you use Go, please refer to [Using Gnomock in Go
+applications](#using-gnomock-in-go-applications) section. Otherwise, you'll
+need to setup a helper container, and communicate with it over HTTP.
 
 To start a `gnomock` server, run the following on any Unix-based system:
 
@@ -193,8 +197,11 @@ RabbitMQ | [Go package](https://github.com/orlangure/gnomock/tree/master/preset/
 Kafka | [Go package](https://github.com/orlangure/gnomock/tree/master/preset/kafka) | [Docs](https://app.swaggerhub.com/apis/orlangure/gnomock/1.4.6#/presets/startKafka) | [Reference](https://pkg.go.dev/github.com/orlangure/gnomock/preset/kafka?tab=doc) | `2.5.1-L0`
 Elasticsearch | [Go package](https://github.com/orlangure/gnomock/tree/master/preset/elastic) | [Docs](https://app.swaggerhub.com/apis/orlangure/gnomock/1.4.6#/presets/startElastic) | [Reference](https://pkg.go.dev/github.com/orlangure/gnomock/preset/elastic?tab=doc) | `5.6`, `6.8.13`, `7.9.3`
 Kubernetes | [Go package](https://github.com/orlangure/gnomock/tree/master/preset/k3s) | [Docs](https://app.swaggerhub.com/apis/orlangure/gnomock/1.4.6#/presets/startKubernetes) | [Reference](https://pkg.go.dev/github.com/orlangure/gnomock/preset/k3s?tab=doc) | `v1.19.3`
-DynamoDB | |
-Cassandra | |
+<!-- new presets go here -->
+
+Please note that "Supported versions" means that only these versions are
+tested. There is a chance that other versions work as well, unless they are
+very new with breaking changes, or very old and no longer supported by anybody.
 
 It is possible to use Gnomock directly from Go code without any presets. HTTP
 API only allows to setup containers using presets that exist in this

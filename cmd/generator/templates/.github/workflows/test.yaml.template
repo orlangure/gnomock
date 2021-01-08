@@ -1,0 +1,24 @@
+  test-{{ lower .Name }}:
+    name: "[preset] {{ lower .Name }}"
+    runs-on: ubuntu-latest
+    env:
+      CODECOV_TOKEN: ${{ `{{ secrets.CODECOV_TOKEN }}` }}
+    steps:
+      - name: Set up Go 1.15
+        uses: actions/setup-go@v1
+        with:
+          go-version: 1.15
+      - name: Check out code into the Go module directory
+        uses: actions/checkout@v1
+      - name: Get dependencies
+        run: go get -v -t -d ./...
+      - name: Test preset
+        run: go test -race -cover -coverprofile=preset-cover.txt -coverpkg=./... -v ./preset/{{ lower .Name }}/...
+      - name: Test server
+        run: go test -race -cover -coverprofile=server-cover.txt -coverpkg=./... -v ./internal/gnomockd -run Test{{ .Name }}
+      - name: Report coverage
+        run: |
+          cat preset-cover.txt server-cover.txt > coverage.txt
+          bash <(curl -s https://codecov.io/bash)
+
+### preset tests go here

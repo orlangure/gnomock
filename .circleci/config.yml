@@ -215,6 +215,8 @@ jobs:
           name: Test server
           command: go test -race -cover -v ./internal/gnomockd -run TestK3s
 
+### preset tests go here
+
 workflows:
   build-workflow:
     jobs:
@@ -234,3 +236,4 @@ workflows:
       - test-mssql
       - test-mongo
       - test-k3s
+### circleci jobs go here

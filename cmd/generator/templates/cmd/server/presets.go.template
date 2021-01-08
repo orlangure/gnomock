@@ -1,0 +1,2 @@
+_ "github.com/orlangure/gnomock/preset/{{ lower .Name }}"
+	/// new presets go here

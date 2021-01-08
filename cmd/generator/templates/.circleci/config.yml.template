@@ -1,0 +1,12 @@
+  test-{{ lower .Name }}:
+    machine: true
+    steps:
+      - setup-for-go-test
+      - run:
+          name: Test preset
+          command: go test -race -cover -v ./preset/{{ lower .Name }}/...
+      - run:
+          name: Test server
+          command: go test -race -cover -v ./internal/gnomockd -run Test{{ .Name }}
+
+### preset tests go here

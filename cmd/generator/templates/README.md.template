@@ -1,0 +1,3 @@
+<!-- TODO: make sure names below are correct, and replace `latest` with an actual version -->
+{{ .Name }} | [Go package](https://github.com/orlangure/gnomock/tree/master/preset/{{ lower .Name }}) | [Docs](https://app.swaggerhub.com/apis/orlangure/gnomock/1.4.6#/presets/start{{ .Name }}) | [Reference](https://pkg.go.dev/github.com/orlangure/gnomock/preset/{{ lower .Name }}?tab=doc) | `latest`
+<!-- new presets go here -->

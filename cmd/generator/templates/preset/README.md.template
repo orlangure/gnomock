@@ -1,0 +1,11 @@
+# Gnomock {{ .Name }}
+
+Gnomock {{ .Name }} is a [Gnomock](https://github.com/orlangure/gnomock) preset for
+running tests against a real {{ .Name }} container, without mocks.
+
+```go
+package {{ lower .Name }}_test
+
+// TODO: insert test code here
+```
+

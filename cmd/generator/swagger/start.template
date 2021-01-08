@@ -1,0 +1,21 @@
+  /start/{{ lower .Name }}:
+    post:
+      summary: Start a new Gnomock {{ .Name }} preset.
+      operationId: start{{ .Name }}
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/{{ lower .Name }}-request'
+      responses:
+        '200':
+          $ref: '#/components/responses/container-created'
+        '400':
+          $ref: '#/components/responses/invalid-configuration'
+        '500':
+          $ref: '#/components/responses/start-failed'
+      tags:
+        - presets
+
+### /start/preset
