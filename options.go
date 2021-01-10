@@ -130,6 +130,28 @@ func WithCommand(cmd string, args ...string) Option {
 	}
 }
 
+// WithHostMounts allows to bind host path (`src`) inside the container under
+// `dst` path.
+func WithHostMounts(src, dst string) Option {
+	return func(o *Options) {
+		if o.HostMounts == nil {
+			o.HostMounts = make(map[string]string)
+		}
+
+		o.HostMounts[src] = dst
+	}
+}
+
+// WithDisableAutoCleanup disables auto-removal of this container when the
+// tests complete. Automatic cleanup is a safety net for tests that for some
+// reason fail to run `gnomock.Stop()` in the end, for example due to an
+// unexpected `os.Exit()` somewhere.
+func WithDisableAutoCleanup() Option {
+	return func(o *Options) {
+		o.DisableAutoCleanup = true
+	}
+}
+
 // HealthcheckFunc defines a function to be used to determine container health.
 // It receives a host and a port, and returns an error if the container is not
 // ready, or nil when the container can be used. One example of HealthcheckFunc
@@ -175,7 +197,15 @@ type Options struct {
 	// Cmd is an optional command with its arguments to execute on container
 	// startup. This command replaces the default one set on docker image
 	// level.
-	Cmd []string
+	Cmd []string `json:"cmd"`
+
+	// HostMounts allows to mount local paths into the container.
+	HostMounts map[string]string `json:"host_mounts"`
+
+	// DisableAutoCleanup prevents the container from being automatically
+	// stopped and removed after the tests are complete. By default, Gnomock
+	// will try to stop containers created by it right after the tests exit.
+	DisableAutoCleanup bool `json:"disable_cleanup"`
 
 	ctx                 context.Context
 	init                InitFunc

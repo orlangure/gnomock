@@ -3,8 +3,16 @@
 // pulling images, starting containers, waiting for them to become available,
 // setting up their initial state and cleaning up in the end.
 //
-// It can be used either directly, or via already existing implementations of
-// various connectors built by the community.
+// Its power is in a variety of Presets, each implementing a specific database,
+// service or other tools. Each preset provides ways of setting up its initial
+// state as easily as possible: SQL schema creation, test data upload into S3,
+// sending test events to Splunk, etc.
+//
+// All containers created using Gnomock have a self-destruct mechanism that
+// kicks-in right after the test execution completes.
+//
+// To debug cases where containers don't behave as expected, there are options
+// like `WithDebugMode()` or `WithLogWriter()`.
 package gnomock
 
 import (
@@ -153,7 +161,10 @@ func closeLogReader(logReader io.ReadCloser, g *errgroup.Group) func() error {
 //
 // All provided Options are applied. First, Preset options are applied. Then,
 // custom Options. If both Preset and custom Options change the same
-// configuration, custom Options are used
+// configuration, custom Options are used.
+//
+// It is recommended, but not required, to call `gnomock.Stop()` when the tests
+// complete to cleanup the containers.
 func Start(p Preset, opts ...Option) (*Container, error) {
 	presetOpts := p.Options()
 
@@ -165,7 +176,8 @@ func Start(p Preset, opts ...Option) (*Container, error) {
 }
 
 // Stop stops the provided container and lets docker remove them from the
-// system. Stop returns an error if any one of the containers couldn't stop
+// system. Stop returns an error if any one of the containers couldn't stop. If
+// these containers have sidecar containers, they are stopped as well.
 func Stop(cs ...*Container) error {
 	g, err := newG(isInDocker())
 	if err != nil {
@@ -199,7 +211,17 @@ func (g *g) stop(c *Container) error {
 		return fmt.Errorf("can't create docker client: %w", err)
 	}
 
-	err = cli.stopContainer(context.Background(), c.ID)
+	id, sidecar := parseID(c.ID)
+	if sidecar != "" {
+		go func() {
+			// stop sidecar container when the main one is requested to stop;
+			// error in this case won't matter, the container has a self-destruct
+			// timer
+			_ = cli.stopContainer(context.Background(), sidecar)
+		}()
+	}
+
+	err = cli.stopContainer(context.Background(), id)
 	if err != nil {
 		return fmt.Errorf("can't stop container: %w", err)
 	}
@@ -226,7 +248,7 @@ func buildImage(image string) string {
 }
 
 func (g *g) setupLogForwarding(c *Container, cli *docker, config *Options) error {
-	logReader, err := cli.readLogs(context.Background(), c.ID)
+	logReader, err := cli.readLogs(context.Background(), c.DockerID())
 	if err != nil {
 		return fmt.Errorf("can't create log reader: %w", err)
 	}

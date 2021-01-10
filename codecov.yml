@@ -2,3 +2,4 @@ ignore:
   # generator is a supporting utility built for humans; it isn't an integral
   # part of Gnomock
   - cmd/generator/**/*
+  - internal/testutil/**/*

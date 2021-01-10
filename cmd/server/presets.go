@@ -16,5 +16,5 @@ import (
 	_ "github.com/orlangure/gnomock/preset/rabbitmq"
 	_ "github.com/orlangure/gnomock/preset/redis"
 	_ "github.com/orlangure/gnomock/preset/splunk"
-	/// new presets go here
+	// new presets go here
 )
