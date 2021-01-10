@@ -11,14 +11,18 @@ import (
 
 	"github.com/docker/docker/api/types"
 	"github.com/docker/docker/api/types/container"
+	"github.com/docker/docker/api/types/mount"
 	"github.com/docker/docker/client"
 	"github.com/docker/go-connections/nat"
+	"github.com/orlangure/gnomock/internal/cleaner"
+	"github.com/orlangure/gnomock/internal/health"
 	"go.uber.org/zap"
 )
 
 const localhostAddr = "127.0.0.1"
 const defaultStopTimeout = time.Second * 1
 const duplicateContainerPattern = `Conflict. The container name "(?:.+?)" is already in use by container "(\w+)". You have to remove \(or rename\) that container to be able to reuse that name.` // nolint:lll
+const dockerSockAddr = "/var/run/docker.sock"
 
 type docker struct {
 	client *client.Client
@@ -72,6 +76,30 @@ func (d *docker) startContainer(ctx context.Context, image string, ports NamedPo
 		return nil, fmt.Errorf("can't create container: %w", err)
 	}
 
+	sidecarChan := make(chan string)
+
+	go func() {
+		defer close(sidecarChan)
+
+		if cfg.DisableAutoCleanup || cfg.Debug {
+			return
+		}
+
+		if sc, err := StartCustom(
+			cleaner.Image, DefaultTCP(cleaner.Port),
+			WithDisableAutoCleanup(),
+			WithHostMounts(dockerSockAddr, dockerSockAddr),
+			WithHealthCheck(func(ctx context.Context, c *Container) error {
+				return health.HTTPGet(ctx, c.DefaultAddress())
+			}),
+			WithInit(func(ctx context.Context, c *Container) error {
+				return cleaner.Notify(context.Background(), c.DefaultAddress(), resp.ID)
+			}),
+		); err == nil {
+			sidecarChan <- sc.ID
+		}
+	}()
+
 	err = d.client.ContainerStart(ctx, resp.ID, types.ContainerStartOptions{})
 	if err != nil {
 		return nil, fmt.Errorf("can't start container %s: %w", resp.ID, err)
@@ -92,6 +120,10 @@ func (d *docker) startContainer(ctx context.Context, image string, ports NamedPo
 		Host:    localhostAddr,
 		Ports:   boundNamedPorts,
 		gateway: containerJSON.NetworkSettings.Gateway,
+	}
+
+	if sidecar, ok := <-sidecarChan; ok {
+		container.ID = generateID(containerJSON.ID, sidecar)
 	}
 
 	d.log.Infow("container started", "container", container)
@@ -151,11 +183,21 @@ func (d *docker) createContainer(ctx context.Context, image string, ports NamedP
 		containerConfig.Cmd = cfg.Cmd
 	}
 
+	mounts := []mount.Mount{}
+	for src, dst := range cfg.HostMounts {
+		mounts = append(mounts, mount.Mount{
+			Type:   mount.TypeBind,
+			Source: src,
+			Target: dst,
+		})
+	}
+
 	portBindings := d.portBindings(exposedPorts, ports)
 	hostConfig := &container.HostConfig{
 		PortBindings: portBindings,
 		AutoRemove:   true,
 		Privileged:   cfg.Privileged,
+		Mounts:       mounts,
 	}
 
 	resp, err := d.client.ContainerCreate(ctx, containerConfig, hostConfig, nil, cfg.ContainerName)

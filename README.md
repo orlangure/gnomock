@@ -1,5 +1,5 @@
 <div align="center">
-    <img src="https://github.com/orlangure/gnomock/blob/master/gnomock.png">
+    <img src="https://github.com/orlangure/gnomock/raw/master/gnomock.png">
 </div>
 
 # <div align="center">Gnomock – tests without mocks</div>
@@ -51,14 +51,13 @@ services running in ephemeral Docker containers:
 Gnomock can be used in two different ways:
 
 - Imported directly as a package in any **Go** project
-- Accessed over HTTP running as a daemon in any other project
+- Accessed over HTTP running as a daemon in **any other language**
 
 ⚠️ Both ways **require** an active Docker daemon running locally in
 the same environment.
 
 ### Using Gnomock in Go applications
 
-Gnomock can be used in Go programs directly, without running a local server.
 See the following example to get started:
 
 ```
@@ -100,91 +99,21 @@ Preset documentation, refer to [Presets](#official-presets) section.
 ### Using Gnomock in other languages
 
 If you use Go, please refer to [Using Gnomock in Go
-applications](#using-gnomock-in-go-applications) section. Otherwise, you'll
-need to setup a helper container, and communicate with it over HTTP.
-
-To start a `gnomock` server, run the following on any Unix-based system:
-
-```bash
-docker run --rm \
-    -p 23042:23042 \
-    -v /var/run/docker.sock:/var/run/docker.sock \
-    -v `pwd`:`pwd` \
-    orlangure/gnomock
-```
-
-`-p 23042:23042` exposes a port on the host to communicate with `gnomock`. You
-can use any port you like, just make sure to configure the client properly.
-
-`-v /var/run/docker.sock:/var/run/docker.sock` allows `gnomock` to communicate
-with the docker engine running on host. Without it `gnomock` can't access
-docker.
-
-If you use any file-related `gnomock` options, like `WithQueriesFile`, you have
-to make the path you use available inside the container:
-
-```
-# this makes the current folder appear inside the container under the same
-# path and name:
--v `pwd`:`pwd`
-```
-
-Any program in any language can communicate with `gnomock` server using OpenAPI
-3.0 [specification](https://app.swaggerhub.com/apis/orlangure/gnomock/).
-
-Below is an example of setting up a **MySQL** container using a `POST` request:
-
-```
-$ cat mysql-preset.json
-{
-  "preset": {
-    "db": "mydb",
-    "user": "gnomock",
-    "password": "p@s$w0rD",
-    "queries": [
-      "create table foo(bar int)",
-      "insert into foo(bar) values(1)"
-    ],
-    "queries_file": "/home/gnomock/project/testdata/mysql/queries.sql"
-  },
-  "options": {}
-}
-
-$ curl --data @mysql-preset.json http://127.0.0.1:23042/start/mysql
-{
-  "id": "f5d08dc84421",
-  "host": "string",
-  "ports": {
-    "default": {
-      "protocol": "tcp",
-      "port": 35973
-    }
-  }
-}
-```
-
-There are auto-generated wrappers for the available API:
-
-| Client | Sample code |
-|--------|-------------|
-| [Python SDK](https://github.com/orlangure/gnomock-python-sdk) | [Code](https://github.com/orlangure/gnomock/blob/master/sdktest/python/test/test_sdk.py) |
-| JavaScript SDK | |
-| Ruby SDK | |
-| PHP SDK | |
-| Java SDK | |
-| [Other](https://openapi-generator.tech/docs/generators) languages | |
-
-**For more details and a full specification, see
-[documentation](https://app.swaggerhub.com/apis/orlangure/gnomock/).**
+applications](#using-gnomock-in-go-applications) section. Otherwise, refer to
+[documentation](docs/server.md).
 
 ## Official presets
 
-The power of Gnomock is in the Presets. Presets, both existing and planned, are
-listed below:
+The power of Gnomock is in the Presets. Existing Presets with their
+supported<sup>\*</sup> versions are listed below.
+
+<small>*\* **Supported** versions are tested as part of CI pipeline. Other
+versions might work as well.*</small>
+
 
 | Preset | Go package | HTTP API | Go API | Supported versions |
 |--------|------------|----------|--------|---------------------|
-Localstack | [Go package](https://github.com/orlangure/gnomock/tree/master/preset/localstack) | [Docs](https://app.swaggerhub.com/apis/orlangure/gnomock/1.4.6#/presets/startLocalstack) | [Reference](https://pkg.go.dev/github.com/orlangure/gnomock/preset/localstack?tab=doc) | `0.12.2`
+Localstack (AWS) | [Go package](https://github.com/orlangure/gnomock/tree/master/preset/localstack) | [Docs](https://app.swaggerhub.com/apis/orlangure/gnomock/1.4.6#/presets/startLocalstack) | [Reference](https://pkg.go.dev/github.com/orlangure/gnomock/preset/localstack?tab=doc) | `0.12.2`
 Splunk | [Go package](https://github.com/orlangure/gnomock/tree/master/preset/splunk) | [Docs](https://app.swaggerhub.com/apis/orlangure/gnomock/1.4.6#/presets/startSplunk) | [Reference](https://pkg.go.dev/github.com/orlangure/gnomock/preset/splunk?tab=doc) | `8.0.2`
 Redis | [Go package](https://github.com/orlangure/gnomock/tree/master/preset/redis) | [Docs](https://app.swaggerhub.com/apis/orlangure/gnomock/1.4.6#/presets/startRedis) | [Reference](https://pkg.go.dev/github.com/orlangure/gnomock/preset/redis?tab=doc) | `5.0.10`, `6.0.9`
 Memcached | [Go package](https://github.com/orlangure/gnomock/tree/master/preset/memcached) | [Docs](https://app.swaggerhub.com/apis/orlangure/gnomock/1.4.6#/presets/startMemcached) | [Reference](https://pkg.go.dev/github.com/orlangure/gnomock/preset/memcached?tab=doc) | `1.6.9`
@@ -199,13 +128,10 @@ Elasticsearch | [Go package](https://github.com/orlangure/gnomock/tree/master/pr
 Kubernetes | [Go package](https://github.com/orlangure/gnomock/tree/master/preset/k3s) | [Docs](https://app.swaggerhub.com/apis/orlangure/gnomock/1.4.6#/presets/startKubernetes) | [Reference](https://pkg.go.dev/github.com/orlangure/gnomock/preset/k3s?tab=doc) | `v1.19.3`
 <!-- new presets go here -->
 
-Please note that "Supported versions" means that only these versions are
-tested. There is a chance that other versions work as well, unless they are
-very new with breaking changes, or very old and no longer supported by anybody.
-
-It is possible to use Gnomock directly from Go code without any presets. HTTP
-API only allows to setup containers using presets that exist in this
-repository.
+It is possible to use Gnomock [directly from
+Go](https://pkg.go.dev/github.com/orlangure/gnomock#StartCustom) code without
+any presets. HTTP API only allows to setup containers using presets that exist
+in this repository.
 
 ## Similar projects
 

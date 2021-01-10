@@ -303,7 +303,7 @@ components:
       type: object
       properties:
         id:
-          description: Container ID (same as in docker)
+          description: Container ID
           type: string
           example: f5d08dc84421
         host:
@@ -404,6 +404,14 @@ components:
         privileged:
           type: boolean
           description: Runs a container in privileged mode.
+        cmd:
+          type: array
+          description: Command and its arguments to execute on container startup.
+          items:
+            type: string
+        disable_cleanup:
+          type: boolean
+          description: Disables auto removal of this container after tests.
       description: >
         This object includes general Gnomock configuration, similar to all
         presets. Timeout configuration is especially useful for

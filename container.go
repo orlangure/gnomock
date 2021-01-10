@@ -3,13 +3,15 @@ package gnomock
 import (
 	"fmt"
 	"os"
+	"strings"
 )
 
 // Container represents a docker container created for testing. Host and Ports
 // fields should be used to configure the connection to this container. ID
 // matches the original docker container ID
 type Container struct {
-	// Container ID as set by docker
+	// A unique identifier of this container. The format of this ID may change
+	// in the future.
 	ID string `json:"id,omitempty"`
 
 	// Host name of bound ports
@@ -54,7 +56,34 @@ func (c *Container) DefaultPort() int {
 	return c.Port(DefaultPort)
 }
 
+// DockerID returns the ID of this container as known to Docker.
+func (c *Container) DockerID() string {
+	id, _ := parseID(c.ID)
+	return id
+}
+
 func isInDocker() bool {
 	env := os.Getenv("GNOMOCK_ENV")
 	return env == "gnomockd"
+}
+
+func generateID(id, sidecar string) string {
+	if len(id) > 10 {
+		id = id[:10]
+	}
+
+	if len(sidecar) > 10 {
+		sidecar = sidecar[:10]
+	}
+
+	return fmt.Sprintf("%s-%s", id, sidecar)
+}
+
+func parseID(input string) (id, sidecar string) {
+	parts := strings.Split(input, "-")
+	if len(parts) != 2 {
+		return input, ""
+	}
+
+	return parts[0], parts[1]
 }

@@ -14,7 +14,7 @@ import (
 )
 
 const (
-	registryPlaceholder = `/// new presets go here
+	registryPlaceholder = `// new presets go here
 `
 	pytestPlaceholder = `### gnomock-generator
 `
