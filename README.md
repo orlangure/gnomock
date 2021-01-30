@@ -126,7 +126,7 @@ RabbitMQ | [Go package](https://github.com/orlangure/gnomock/tree/master/preset/
 Kafka | [Go package](https://github.com/orlangure/gnomock/tree/master/preset/kafka) | [Docs](https://app.swaggerhub.com/apis/orlangure/gnomock/1.4.7#/presets/startKafka) | [Reference](https://pkg.go.dev/github.com/orlangure/gnomock/preset/kafka?tab=doc) | `2.5.1-L0`
 Elasticsearch | [Go package](https://github.com/orlangure/gnomock/tree/master/preset/elastic) | [Docs](https://app.swaggerhub.com/apis/orlangure/gnomock/1.4.7#/presets/startElastic) | [Reference](https://pkg.go.dev/github.com/orlangure/gnomock/preset/elastic?tab=doc) | `5.6`, `6.8.13`, `7.9.3`
 Kubernetes | [Go package](https://github.com/orlangure/gnomock/tree/master/preset/k3s) | [Docs](https://app.swaggerhub.com/apis/orlangure/gnomock/1.4.7#/presets/startKubernetes) | [Reference](https://pkg.go.dev/github.com/orlangure/gnomock/preset/k3s?tab=doc) | `v1.19.3`
-CockroachDB | [Go package](https://github.com/orlangure/gnomock/tree/master/preset/cockroachdb) | [Docs](https://app.swaggerhub.com/apis/orlangure/gnomock/1.4.7#/presets/startCockroachDB) | [Reference](https://pkg.go.dev/github.com/orlangure/gnomock/preset/cockroachdb?tab=doc) | `latest`
+CockroachDB | [Go package](https://github.com/orlangure/gnomock/tree/master/preset/cockroachdb) | [Docs](https://app.swaggerhub.com/apis/orlangure/gnomock/1.4.7#/presets/startCockroachDB) | [Reference](https://pkg.go.dev/github.com/orlangure/gnomock/preset/cockroachdb?tab=doc) | `v19.2.11`, `v20.1.10`
 <!-- new presets go here -->
 
 It is possible to use Gnomock [directly from
