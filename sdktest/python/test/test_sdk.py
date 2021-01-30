@@ -230,7 +230,7 @@ class TestSDK(unittest.TestCase):
 
 
     def test_kubernetes(self):
-        options = gnomock.Options(debug=True)
+        options = gnomock.Options()
         preset = gnomock.Kubernetes(version="latest")
         kubernetes_request = gnomock.KubernetesRequest(options=options,
                 preset=preset)
@@ -248,7 +248,7 @@ class TestSDK(unittest.TestCase):
 
 
     def test_cockroachdb(self):
-        options = gnomock.Options(debug=True)
+        options = gnomock.Options()
         preset = gnomock.Cockroachdb(version="latest")
         cockroachdb_request = gnomock.CockroachdbRequest(options=options,
                 preset=preset)
