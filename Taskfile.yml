@@ -9,6 +9,7 @@ tasks:
       - task: test:sdk:python
       - task: git:commit:python
       - rm -rf ./dist
+      - deactivate || true
       - python3 setup.py sdist bdist_wheel
       - python3 -m twine upload dist/*
     dir: ./sdktest/python/gnomock

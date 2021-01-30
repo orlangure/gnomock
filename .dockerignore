@@ -1,9 +1,0 @@
-**/.*
-**/*.md
-**/*.MD
-**/*.yaml
-**/*.yml
-**/sdktest/**
-**/testdata/**
-**/*_test.go
-**/Dockerfile
