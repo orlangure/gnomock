@@ -14,7 +14,6 @@
         "version": "2.5.1-L0"
     },
     "options": {
-        "debug": true,
         "container_name": "kafka"
     }
 }

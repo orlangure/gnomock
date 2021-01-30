@@ -181,9 +181,7 @@ func gnomockdPkg(params presetParams) error {
 		"preset": map[string]interface{}{
 			"version": "latest",
 		},
-		"options": map[string]interface{}{
-			"debug": true,
-		},
+		"options": map[string]interface{}{},
 	}); err != nil {
 		return fmt.Errorf("can't write into preset file: %w", err)
 	}

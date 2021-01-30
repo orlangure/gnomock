@@ -21,6 +21,5 @@
         "messages_files": ["./testdata/rabbitmq/messages.jsonl"]
     },
     "options": {
-        "debug": true
     }
 }

@@ -7,7 +7,6 @@
         "version": "5"
     },
     "options": {
-        "debug": true,
         "timeout": 30000000000
     }
 }

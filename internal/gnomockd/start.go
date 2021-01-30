@@ -41,6 +41,7 @@ func startHandler() http.HandlerFunc {
 			p,
 			gnomock.WithOptions(&sr.Options),
 			gnomock.WithLogWriter(logWriter),
+			gnomock.WithContext(r.Context()),
 		)
 
 		close(started)
