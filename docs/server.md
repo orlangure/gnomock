@@ -5,7 +5,29 @@ applications](../README.md#using-gnomock-in-go-applications) section.
 Otherwise, you'll need to setup a helper container, and communicate with it
 over HTTP.
 
-To start a `gnomock` server, run the following on any Unix-based system:
+## Running the server
+
+### Using Github Actions
+
+For convenience, there is a [Github
+Action](https://github.com/marketplace/actions/gnomock) that starts a Gnomock
+server on port 23042 in a single step:
+
+```
+steps:
+  - name: Gnomock
+    uses: gnomock/github-action@master
+
+  - name: Test
+    run: |
+      echo "running tests..."
+      # run tests that use Gnomock server on port 23042
+```
+
+### Run directly
+
+To start a Gnomock server without using Github Action, run the following on any
+Unix-based system:
 
 ```bash
 docker run --rm \
