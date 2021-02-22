@@ -90,7 +90,7 @@ tasks:
         -v /var/run/docker.sock:/var/run/docker.sock \
         -v $PWD:$PWD \
         --name gnomockd_test \
-        gnomock
+        orlangure/gnomock
     dir: .
 
   gnomock:stop:
@@ -106,7 +106,7 @@ tasks:
     env:
       DOCKER_BUILDKIT: "1"
     cmds:
-      - docker build --progress plain --tag gnomock .
+      - docker build --progress plain --tag orlangure/gnomock .
     dir: .
 
   gnomock:build:cleaner:

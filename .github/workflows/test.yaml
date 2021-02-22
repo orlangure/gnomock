@@ -52,6 +52,23 @@ jobs:
           cat gnomock-cover.txt gnomockd-cover.txt internal-cover.txt > coverage.txt
           bash <(curl -s https://codecov.io/bash)
 
+  test-github-action:
+    name: "[core] github action"
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out code into the Go module directory
+        uses: actions/checkout@v1
+      - name: Install Taskfile
+        uses: Arduino/actions/setup-taskfile@master
+        with:
+          version: '3.0.0'
+      - name: Build orlangure/gnomock image
+        run: task gnomock:build:server
+      - name: Start Gnomock server
+        uses: gnomock/github-action@master
+      - name: Test Gnomock connection
+        run: curl localhost:23042/stop -d '{"id":"42"}'
+
   test-sdk:
     name: "[sdk] python"
     runs-on: ubuntu-latest

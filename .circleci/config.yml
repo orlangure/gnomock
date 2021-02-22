@@ -2,7 +2,7 @@ version: 2.1
 
 commands:
   setup-for-go-test:
-    description: install golang, get dependencies, check out code 
+    description: install golang, get dependencies, check out code
     steps:
       - run:
           name: install golang
@@ -24,7 +24,7 @@ jobs:
           name: golangci-lint
           command: |
             curl -sfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh| sh -s -- -b $(go env GOPATH)/bin v1.23.8
-            $(go env GOPATH)/bin/golangci-lint run ./...
+            $(go env GOPATH)/bin/golangci-lint run ./... --timeout 4m0s
 
   test-core:
     machine: true
@@ -46,7 +46,7 @@ jobs:
           command: |
             cd /opt/circleci/.pyenv/plugins/python-build/../.. && git pull && cd -
             pyenv install 3.6.9
-            pyenv local 3.6.9          
+            pyenv local 3.6.9
       - run:
           name: Get dependencies
           command: |
@@ -82,7 +82,7 @@ jobs:
       - run:
           name: Test server
           command: go test -race -cover -v ./internal/gnomockd -run TestLocalstack
-          
+
   test-elastic:
     machine: true
     steps:
