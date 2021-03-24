@@ -26,7 +26,7 @@ tasks:
       - git commit -m 'Update version to {{.version}}'
     silent: true
     dir: .
-    var:
+    vars:
       CURRENT_BRANCH:
         sh: git branch --show-current
     preconditions:
@@ -95,12 +95,7 @@ tasks:
 
   gnomock:stop:
     cmds:
-      - docker container stop gnomockd_test
-    vars:
-      ID:
-        sh: docker container ls -q -f name=gnomockd_test
-    status:
-      - test -z "{{.ID}}"
+      - docker container stop gnomockd_test || true
 
   gnomock:build:server:
     env:
