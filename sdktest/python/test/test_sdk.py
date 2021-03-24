@@ -103,8 +103,13 @@ class TestSDK(unittest.TestCase):
 
 
     def test_redis(self):
-        options = gnomock.Options()
-        preset = gnomock.Redis(version="5")
+        options = gnomock.Options(debug=True)
+        values = {
+            "foo": "bar",
+            "number": 42,
+            "float": 3.14
+        }
+        preset = gnomock.Redis(version="5", values=values)
         redis_request = gnomock.RedisRequest(options=options, preset=preset)
         id = ""
 
@@ -121,7 +126,14 @@ class TestSDK(unittest.TestCase):
 
     def test_memcached(self):
         options = gnomock.Options()
-        preset = gnomock.Memcached(version="1.6.6-alpine")
+        values = {
+            "foo": "bar",
+        }
+        byte_values = {
+            "key": "Z25vbW9jawo="
+        }
+        preset = gnomock.Memcached(version="1.6.6-alpine", values=values,
+                byte_values=byte_values)
         memcached_request = gnomock.MemcachedRequest(options=options, preset=preset)
         id = ""
 
