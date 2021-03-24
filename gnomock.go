@@ -19,6 +19,7 @@ import (
 	"context"
 	"fmt"
 	"io"
+	"net"
 	"strings"
 	"time"
 
@@ -308,8 +309,18 @@ func envAwareClone(c *Container) *Container {
 	// when gnomock runs inside docker container, the other container is only
 	// accessible through the host
 	if isInDocker() {
-		containerCopy.Host = c.gateway
+		if isHostDockerInternalAvailable() {
+			containerCopy.Host = "host.docker.internal"
+		} else {
+			containerCopy.Host = c.gateway
+		}
 	}
 
 	return containerCopy
+}
+
+func isHostDockerInternalAvailable() bool {
+	_, err := net.ResolveIPAddr("ip", "host.docker.internal")
+
+	return err == nil
 }
