@@ -105,30 +105,53 @@ func (d *docker) startContainer(ctx context.Context, image string, ports NamedPo
 		return nil, fmt.Errorf("can't start container %s: %w", resp.ID, err)
 	}
 
-	containerJSON, err := d.client.ContainerInspect(ctx, resp.ID)
+	container, err := d.waitForContainerNetwork(ctx, resp.ID, ports)
 	if err != nil {
-		return nil, fmt.Errorf("can't inspect container %s: %w", resp.ID, err)
-	}
-
-	boundNamedPorts, err := d.boundNamedPorts(containerJSON, ports)
-	if err != nil {
-		return nil, fmt.Errorf("can't find bound ports: %w", err)
-	}
-
-	container := &Container{
-		ID:      containerJSON.ID,
-		Host:    localhostAddr,
-		Ports:   boundNamedPorts,
-		gateway: containerJSON.NetworkSettings.Gateway,
+		return nil, fmt.Errorf("container network isn't ready: %w", err)
 	}
 
 	if sidecar, ok := <-sidecarChan; ok {
-		container.ID = generateID(containerJSON.ID, sidecar)
+		container.ID = generateID(container.ID, sidecar)
 	}
 
 	d.log.Infow("container started", "container", container)
 
 	return container, nil
+}
+
+func (d *docker) waitForContainerNetwork(ctx context.Context, id string, ports NamedPorts) (*Container, error) {
+	d.log.Infow("waiting for container network", "container", id)
+
+	tick := time.NewTicker(time.Millisecond * 250)
+	defer tick.Stop()
+
+	for {
+		select {
+		case <-ctx.Done():
+			return nil, fmt.Errorf("container network is unavailable after timeout")
+		case <-tick.C:
+			containerJSON, err := d.client.ContainerInspect(ctx, id)
+			if err != nil {
+				return nil, fmt.Errorf("can't inspect container %s: %w", id, err)
+			}
+
+			boundNamedPorts, err := d.boundNamedPorts(containerJSON, ports)
+			if err != nil {
+				return nil, fmt.Errorf("can't find bound ports: %w", err)
+			}
+
+			d.log.Infow("waiting for port allocation", "container", id)
+
+			if len(boundNamedPorts) == len(ports) {
+				return &Container{
+					ID:      id,
+					Host:    localhostAddr,
+					Ports:   boundNamedPorts,
+					gateway: containerJSON.NetworkSettings.Gateway,
+				}, nil
+			}
+		}
+	}
 }
 
 func (d *docker) exposedPorts(namedPorts NamedPorts) nat.PortSet {
