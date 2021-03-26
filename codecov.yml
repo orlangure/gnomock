@@ -7,8 +7,10 @@ ignore:
 coverage:
   status:
     project:
-      target: 80%
-      threshold: 0%
+      default:
+        target: 80%
+        threshold: 0%
     patch:
-      target: 70%
-      threshold: 0%
+      default:
+        target: 70%
+        threshold: 0%
