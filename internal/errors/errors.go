@@ -2,6 +2,7 @@
 package errors
 
 import (
+	"errors"
 	"fmt"
 	"net/http"
 
@@ -102,10 +103,10 @@ func (e stopFailedError) Error() string {
 
 // ErrorCode returns HTTP response code for the provided error
 func ErrorCode(err error) int {
-	switch err.(type) {
-	case invalidStartRequestError, invalidStopRequestError:
+	switch {
+	case errors.As(err, &invalidStartRequestError{}), errors.As(err, &invalidStopRequestError{}):
 		return http.StatusBadRequest
-	case presetNotFoundError:
+	case errors.As(err, &presetNotFoundError{}):
 		return http.StatusNotFound
 	default:
 		return http.StatusInternalServerError

@@ -161,7 +161,7 @@ func gnomockdPkg(params presetParams) error {
 
 	dir := path.Join(testdataPath, strings.ToLower(params.Name))
 	if err := os.MkdirAll(dir, os.ModePerm); err != nil {
-		return fmt.Errorf("can't create testdata dir: %s", err)
+		return fmt.Errorf("can't create testdata dir: %w", err)
 	}
 
 	presetFileName := fmt.Sprintf("%s.json", strings.ToLower(params.Name))

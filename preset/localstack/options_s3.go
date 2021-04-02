@@ -94,8 +94,7 @@ func (p *P) createBuckets(svc *s3.S3) ([]string, error) {
 func (p *P) createBucket(svc *s3.S3, bucket string) error {
 	input := &s3.CreateBucketInput{Bucket: aws.String(bucket)}
 
-	_, err := svc.CreateBucket(input)
-	if err != nil {
+	if _, err := svc.CreateBucket(input); err != nil {
 		return fmt.Errorf("can't create bucket '%s': %w", bucket, err)
 	}
 
