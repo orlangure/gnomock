@@ -113,17 +113,20 @@ func (p *P) healthcheck(ctx context.Context, c *gnomock.Container) error {
 		return fmt.Errorf("connection failed: %w", err)
 	}
 
-	err = conn.Close()
-	if err != nil {
+	if err := conn.Close(); err != nil {
 		return fmt.Errorf("can't close connection: %w", err)
 	}
 
 	if p.isManagement() {
-		addr := c.Address(ManagementPort)
-		url := fmt.Sprintf("http://%s/api/overview", addr)
+		url := fmt.Sprintf("http://%s/api/overview", c.Address(ManagementPort))
+
+		req, err := http.NewRequestWithContext(ctx, http.MethodGet, url, nil)
+		if err != nil {
+			return err
+		}
 
 		// any non-err response is valid, it is most likely 401 Unauthorized
-		resp, err := http.Get(url) // nolint:gosec
+		resp, err := http.DefaultClient.Do(req)
 		if err != nil {
 			return err
 		}
@@ -158,6 +161,10 @@ func (p *P) initf(ctx context.Context, c *gnomock.Container) (err error) {
 		}
 	}()
 
+	return p.ingestMessages(conn)
+}
+
+func (p *P) ingestMessages(conn *amqp.Connection) error {
 	if err := p.loadFiles(); err != nil {
 		return err
 	}
@@ -167,7 +174,7 @@ func (p *P) initf(ctx context.Context, c *gnomock.Container) (err error) {
 		messagesByQueue[m.Queue] = append(messagesByQueue[m.Queue], m)
 	}
 
-	queues := make([]string, len(messagesByQueue))
+	queues := make([]string, 0, len(messagesByQueue))
 	for q := range messagesByQueue {
 		queues = append(queues, q)
 	}
@@ -214,8 +221,7 @@ func (p *P) loadFiles() error {
 
 func declareQueues(ch *amqp.Channel, qs []string) error {
 	for _, queue := range qs {
-		_, err := ch.QueueDeclare(queue, false, false, false, false, nil)
-		if err != nil {
+		if _, err := ch.QueueDeclare(queue, false, false, false, false, nil); err != nil {
 			return fmt.Errorf("can't open queue '%s': %w", queue, err)
 		}
 	}
