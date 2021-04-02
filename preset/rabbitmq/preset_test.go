@@ -1,8 +1,10 @@
 package rabbitmq_test
 
 import (
+	"errors"
 	"fmt"
 	"net/http"
+	"os"
 	"testing"
 
 	"github.com/orlangure/gnomock"
@@ -180,4 +182,17 @@ func TestPreset_withDefaults(t *testing.T) {
 	ch, err := conn.Channel()
 	require.NoError(t, err)
 	require.NoError(t, ch.Close())
+}
+
+func TestPreset_missingFiles(t *testing.T) {
+	t.Parallel()
+
+	p := rabbitmq.Preset(rabbitmq.WithMessagesFile("missing-file"))
+	container, err := gnomock.Start(p)
+
+	require.Error(t, err)
+	require.Nil(t, container)
+
+	pathErr := &os.PathError{}
+	require.True(t, errors.As(err, &pathErr))
 }
