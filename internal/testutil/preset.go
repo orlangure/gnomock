@@ -54,9 +54,5 @@ func Healthcheck(ctx context.Context, c *gnomock.Container) error {
 		return err
 	}
 
-	if err := health.HTTPGet(ctx, c.Address("web8080")); err != nil {
-		return err
-	}
-
-	return nil
+	return health.HTTPGet(ctx, c.Address("web8080"))
 }

@@ -94,7 +94,12 @@ func (p *P) healthcheck(services []string) gnomock.HealthcheckFunc {
 	return func(ctx context.Context, c *gnomock.Container) (err error) {
 		addr := p.healthCheckAddress(c)
 
-		res, err := http.Get(addr) //nolint:gosec
+		req, err := http.NewRequestWithContext(ctx, http.MethodGet, addr, nil)
+		if err != nil {
+			return err
+		}
+
+		res, err := http.DefaultClient.Do(req)
 		if err != nil {
 			return err
 		}

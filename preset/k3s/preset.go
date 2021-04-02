@@ -152,7 +152,17 @@ func (p *P) setDefaults() {
 // ConfigBytes returns file contents of kubeconfig file that should be used to
 // connect to the cluster running in the provided container.
 func ConfigBytes(c *gnomock.Container) (configBytes []byte, err error) {
-	res, err := http.Get(fmt.Sprintf("http://%s/kubeconfig", c.Address(KubeconfigPort)))
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+
+	url := fmt.Sprintf("http://%s/kubeconfig", c.Address(KubeconfigPort))
+
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet, url, nil)
+	if err != nil {
+		return nil, fmt.Errorf("kubeconfig unavailable: %w", err)
+	}
+
+	res, err := http.DefaultClient.Do(req)
 	if err != nil {
 		return nil, fmt.Errorf("kubeconfig unavailable: %w", err)
 	}
