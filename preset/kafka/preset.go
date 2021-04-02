@@ -153,6 +153,10 @@ func (p *P) initf(ctx context.Context, c *gnomock.Container) (err error) {
 		}
 	}()
 
+	return p.ingestMessageFiles(ctx, c, conn)
+}
+
+func (p *P) ingestMessageFiles(ctx context.Context, c *gnomock.Container, conn *kafka.Conn) error {
 	if len(p.MessagesFiles) > 0 {
 		for _, fName := range p.MessagesFiles {
 			msgs, err := p.loadMessagesFromFile(fName)
@@ -189,7 +193,7 @@ func (p *P) initf(ctx context.Context, c *gnomock.Container) (err error) {
 	}
 
 	for topic, messages := range messagesByTopics {
-		if err := p.sendMessagesIntoTopic(ctx, c, topic, messages); err != nil {
+		if err := p.sendMessagesIntoTopic(ctx, c.Address(BrokerPort), topic, messages); err != nil {
 			return fmt.Errorf("can't send messages into topic '%s': %w", topic, err)
 		}
 	}
@@ -236,9 +240,9 @@ func (p *P) connect(c *gnomock.Container) (*kafka.Conn, error) {
 }
 
 // nolint: lll
-func (p *P) sendMessagesIntoTopic(ctx context.Context, c *gnomock.Container, topic string, messages []Message) (err error) {
+func (p *P) sendMessagesIntoTopic(ctx context.Context, brokerAddr, topic string, messages []Message) (err error) {
 	w := kafka.NewWriter(kafka.WriterConfig{
-		Brokers:  []string{c.Address(BrokerPort)},
+		Brokers:  []string{brokerAddr},
 		Topic:    topic,
 		Balancer: &kafka.LeastBytes{},
 	})
