@@ -1,7 +1,7 @@
 package splunk
 
 // Option is an optional configuration of this Gnomock preset. Use available
-// Options to configure the container
+// Options to configure the container.
 type Option func(*P)
 
 // WithVersion sets splunk version (see
@@ -12,7 +12,7 @@ func WithVersion(version string) Option {
 	}
 }
 
-// WithValues initializes Splunk with the provided values as log entries
+// WithValues initializes Splunk with the provided values as log entries.
 func WithValues(vs []Event) Option {
 	return func(p *P) {
 		p.Values = vs
@@ -21,7 +21,7 @@ func WithValues(vs []Event) Option {
 
 // WithValuesFile sets file name to use as a source of initial events to
 // ingest. These events are ingested first, followed by any other events sent
-// using WithValues
+// using WithValues.
 func WithValuesFile(file string) Option {
 	return func(p *P) {
 		p.ValuesFile = file
@@ -30,7 +30,7 @@ func WithValuesFile(file string) Option {
 
 // WithLicense lets the user choose to accept Splunk enterprise license
 // (see more at https://hub.docker.com/_/splunk-enterprise). Failure to accept
-// the license will prevent Splunk container from starting
+// the license will prevent Splunk container from starting.
 func WithLicense(accept bool) Option {
 	return func(o *P) {
 		o.AcceptLicense = accept

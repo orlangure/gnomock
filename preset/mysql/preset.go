@@ -14,11 +14,13 @@ import (
 	"github.com/orlangure/gnomock/internal/registry"
 )
 
-const defaultUser = "gnomock"
-const defaultPassword = "gnomick"
-const defaultDatabase = "mydb"
-const defaultPort = 3306
-const defaultVersion = "8.0.22"
+const (
+	defaultUser     = "gnomock"
+	defaultPassword = "gnomick"
+	defaultDatabase = "mydb"
+	defaultPort     = 3306
+	defaultVersion  = "8.0.22"
+)
 
 var setLoggerOnce sync.Once
 
@@ -42,7 +44,7 @@ func Preset(opts ...Option) gnomock.Preset {
 	return p
 }
 
-// P is a Gnomock Preset implementation of MySQL database
+// P is a Gnomock Preset implementation of MySQL database.
 type P struct {
 	DB           string   `json:"db"`
 	User         string   `json:"user"`
@@ -52,17 +54,17 @@ type P struct {
 	Version      string   `json:"version"`
 }
 
-// Image returns an image that should be pulled to create this container
+// Image returns an image that should be pulled to create this container.
 func (p *P) Image() string {
 	return fmt.Sprintf("docker.io/library/mysql:%s", p.Version)
 }
 
-// Ports returns ports that should be used to access this container
+// Ports returns ports that should be used to access this container.
 func (p *P) Ports() gnomock.NamedPorts {
 	return gnomock.DefaultTCP(defaultPort)
 }
 
-// Options returns a list of options to configure this container
+// Options returns a list of options to configure this container.
 func (p *P) Options() []gnomock.Option {
 	setLoggerOnce.Do(func() {
 		// err is always nil for non-nil logger

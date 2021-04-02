@@ -36,15 +36,19 @@ import (
 	"k8s.io/client-go/tools/clientcmd"
 )
 
-const defaultPort = 48443
-const defaultVersion = "latest"
-const defaultHostname = "localhost"
+const (
+	defaultPort     = 48443
+	defaultVersion  = "latest"
+	defaultHostname = "localhost"
+)
 
 // KubeconfigPort is a port that exposes a single `/kubeconfig` endpoint. It
 // can be used to retrieve a configured kubeconfig file to use to connect to
 // this container using kubectl.
-const KubeconfigPort = "kubeconfig"
-const kubeconfigPort = 80
+const (
+	KubeconfigPort = "kubeconfig"
+	kubeconfigPort = 80
+)
 
 func init() {
 	registry.Register("kubernetes", func() gnomock.Preset { return &P{} })

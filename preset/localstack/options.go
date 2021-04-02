@@ -6,13 +6,13 @@ import (
 )
 
 // Option is an optional configuration of this Gnomock preset. Use available
-// Options to configure the container
+// Options to configure the container.
 type Option func(*P)
 
-// Service represents an AWS service that can be setup using localstack
+// Service represents an AWS service that can be setup using localstack.
 type Service string
 
-// UnmarshalJSON allows to unmarshal string into Service type
+// UnmarshalJSON allows to unmarshal string into Service type.
 func (s *Service) UnmarshalJSON(bs []byte) error {
 	var service string
 
@@ -53,7 +53,7 @@ func (s *Service) UnmarshalJSON(bs []byte) error {
 	}
 }
 
-// These services are available in this Preset
+// These services are available in this Preset.
 const (
 	APIGateway       Service = "apigateway"
 	CloudFormation   Service = "cloudformation"
@@ -82,7 +82,7 @@ const (
 )
 
 // WithServices selects localstack services to spin up. It is OK to not select
-// any services, but in such case the container will be useless
+// any services, but in such case the container will be useless.
 func WithServices(services ...Service) Option {
 	return func(o *P) {
 		o.Services = append(o.Services, services...)

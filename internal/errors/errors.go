@@ -28,7 +28,7 @@ func (e presetNotFoundError) Error() string {
 }
 
 // NewInvalidStartRequestError means that the request parameters of /start call
-// were invalid
+// were invalid.
 func NewInvalidStartRequestError(err error) error {
 	return invalidStartRequestError{
 		err:    err,
@@ -45,7 +45,8 @@ func (e invalidStartRequestError) Error() string {
 	return e.ErrStr
 }
 
-// NewStartFailedError means that the container failed to start for some reason
+// NewStartFailedError means that the container failed to start for some
+// reason.
 func NewStartFailedError(err error, c *gnomock.Container) error {
 	return startFailedError{
 		err:       err,
@@ -65,7 +66,7 @@ func (e startFailedError) Error() string {
 }
 
 // InvalidStopRequestError means that the request parameters of /stop call were
-// invalid
+// invalid.
 func InvalidStopRequestError(err error) error {
 	return invalidStopRequestError{
 		err:    err,
@@ -82,7 +83,7 @@ func (e invalidStopRequestError) Error() string {
 	return e.ErrStr
 }
 
-// StopFailedError means that the container failed to stop
+// StopFailedError means that the container failed to stop.
 func StopFailedError(err error, c *gnomock.Container) error {
 	return stopFailedError{
 		err:       err,
@@ -101,7 +102,7 @@ func (e stopFailedError) Error() string {
 	return e.ErrStr
 }
 
-// ErrorCode returns HTTP response code for the provided error
+// ErrorCode returns HTTP response code for the provided error.
 func ErrorCode(err error) int {
 	switch {
 	case errors.As(err, &invalidStartRequestError{}), errors.As(err, &invalidStopRequestError{}):

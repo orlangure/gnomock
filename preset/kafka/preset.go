@@ -15,17 +15,19 @@ import (
 	"github.com/segmentio/kafka-go"
 )
 
-// The following ports are exposed by this preset:
+// The following ports are exposed by this preset:.
 const (
 	BrokerPort    = "broker"
 	ZooKeeperPort = "zookeeper"
 	WebPort       = "web"
 )
 
-const defaultVersion = "2.5.1-L0"
-const brokerPort = 49092
-const zookeeperPort = 2181
-const webPort = 3030
+const (
+	defaultVersion = "2.5.1-L0"
+	brokerPort     = 49092
+	zookeeperPort  = 2181
+	webPort        = 3030
+)
 
 // Message is a single message sent to Kafka.
 type Message struct {

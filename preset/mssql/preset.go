@@ -12,11 +12,13 @@ import (
 	"github.com/orlangure/gnomock/internal/registry"
 )
 
-const masterDB = "master"
-const defaultPassword = "Gn0m!ck~"
-const defaultDatabase = "mydb"
-const defaultPort = 1433
-const defaultVersion = "2019-latest"
+const (
+	masterDB        = "master"
+	defaultPassword = "Gn0m!ck~"
+	defaultDatabase = "mydb"
+	defaultPort     = 1433
+	defaultVersion  = "2019-latest"
+)
 
 func init() {
 	registry.Register("mssql", func() gnomock.Preset { return &P{} })
@@ -39,7 +41,7 @@ func Preset(opts ...Option) gnomock.Preset {
 	return p
 }
 
-// P is a Gnomock Preset implementation of Microsoft SQL Server database
+// P is a Gnomock Preset implementation of Microsoft SQL Server database.
 type P struct {
 	DB           string   `json:"db"`
 	Password     string   `json:"password"`
@@ -49,17 +51,17 @@ type P struct {
 	Version      string   `json:"version"`
 }
 
-// Image returns an image that should be pulled to create this container
+// Image returns an image that should be pulled to create this container.
 func (p *P) Image() string {
 	return fmt.Sprintf("mcr.microsoft.com/mssql/server:%s", p.Version)
 }
 
-// Ports returns ports that should be used to access this container
+// Ports returns ports that should be used to access this container.
 func (p *P) Ports() gnomock.NamedPorts {
 	return gnomock.DefaultTCP(defaultPort)
 }
 
-// Options returns a list of options to configure this container
+// Options returns a list of options to configure this container.
 func (p *P) Options() []gnomock.Option {
 	p.setDefaults()
 

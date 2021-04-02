@@ -19,13 +19,13 @@ import (
 )
 
 const (
-	// CollectorPort is the name of a port exposed by Splunk Collector
+	// CollectorPort is the name of a port exposed by Splunk Collector.
 	CollectorPort string = "collector"
 
-	// APIPort is the name of a port exposed by Splunk API
+	// APIPort is the name of a port exposed by Splunk API.
 	APIPort string = "api"
 
-	// WebPort is the name of a port exposed by Splunk web UI
+	// WebPort is the name of a port exposed by Splunk web UI.
 	WebPort string = "web"
 )
 
@@ -37,7 +37,7 @@ func init() {
 
 // Preset creates a new Gnomock Splunk preset. This preset includes a Splunk
 // specific healthcheck function, default Splunk image and ports, and allows to
-// optionally ingest initial logs
+// optionally ingest initial logs.
 func Preset(opts ...Option) gnomock.Preset {
 	p := &P{}
 
@@ -48,7 +48,7 @@ func Preset(opts ...Option) gnomock.Preset {
 	return p
 }
 
-// P is a Gnomock Preset implementation of Splunk
+// P is a Gnomock Preset implementation of Splunk.
 type P struct {
 	Values        []Event `json:"values"`
 	ValuesFile    string  `json:"values_file"`
@@ -57,12 +57,12 @@ type P struct {
 	Version       string  `json:"version"`
 }
 
-// Image returns an image that should be pulled to create this container
+// Image returns an image that should be pulled to create this container.
 func (p *P) Image() string {
 	return fmt.Sprintf("docker.io/splunk/splunk:%s", p.Version)
 }
 
-// Ports returns ports that should be used to access this container
+// Ports returns ports that should be used to access this container.
 func (p *P) Ports() gnomock.NamedPorts {
 	return gnomock.NamedPorts{
 		CollectorPort: gnomock.TCP(8088),
@@ -71,7 +71,7 @@ func (p *P) Ports() gnomock.NamedPorts {
 	}
 }
 
-// Options returns a list of options to configure this container
+// Options returns a list of options to configure this container.
 func (p *P) Options() []gnomock.Option {
 	p.setDefaults()
 

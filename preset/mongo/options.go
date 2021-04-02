@@ -1,7 +1,7 @@
 package mongo
 
 // Option is an optional configuration of this Gnomock preset. Use available
-// Options to configure the container
+// Options to configure the container.
 type Option func(*P)
 
 // WithData sets up initial container state according to the directory
@@ -23,7 +23,7 @@ type Option func(*P)
 //
 // Top level files under "path" are ignored, only directories are used.
 // Similarly, directories located anywhere besides top-level "path", are also
-// ignored
+// ignored.
 func WithData(path string) Option {
 	return func(p *P) {
 		p.DataPath = path
@@ -33,7 +33,7 @@ func WithData(path string) Option {
 // WithUser creates a root user with the provided name and password. This user
 // should be used as a part of mongodb connection string. If you choose not to
 // use your own user and password, the databases will be unprotected, and you
-// won't need to specify any name and password in your connection string
+// won't need to specify any name and password in your connection string.
 func WithUser(user, pass string) Option {
 	return func(p *P) {
 		p.User = user

@@ -21,9 +21,11 @@ import (
 	"github.com/orlangure/gnomock/internal/registry"
 )
 
-const defaultVersion = "v20.1.10"
-const defaultPort = 26257
-const defaultDatabase = "mydb"
+const (
+	defaultVersion  = "v20.1.10"
+	defaultPort     = 26257
+	defaultDatabase = "mydb"
+)
 
 func init() {
 	registry.Register("cockroachdb", func() gnomock.Preset { return &P{} })
@@ -139,6 +141,7 @@ func (p *P) initf() gnomock.InitFunc {
 		return nil
 	}
 }
+
 func connect(c *gnomock.Container, db string) (*sql.DB, error) {
 	connStr := fmt.Sprintf(
 		"host=%s port=%d sslmode=disable user=root dbname=%s",

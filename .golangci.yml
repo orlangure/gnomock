@@ -1,39 +1,50 @@
 linters:
   enable:
-    - deadcode
-    - errcheck
-    - gosimple
-    - govet
-    - ineffassign
-    - staticcheck
-    - structcheck
-    - typecheck
-    - unused
-    - varcheck
     - bodyclose
+    - cyclop
+    - deadcode
     - depguard
     - dogsled
+    - errcheck
+    - exportloopref
+    - forcetypeassert
     - funlen
+    - errorlint
     - gocognit
     - goconst
     - gocritic
     - gocyclo
+    - godot
     - godox
     - gofmt
+    - gofumpt
     - goimports
     - golint
     - goprintffuncname
     - gosec
-    - interfacer
+    - gosimple
+    - govet
+    - ifshort
+    - ineffassign
     - lll
     - misspell
     - nakedret
+    - nilerr
+    - noctx
     - prealloc
+    - predeclared
+    - revive
     - rowserrcheck
-    - scopelint
+    - sqlclosecheck
+    - staticcheck
+    - structcheck
     - stylecheck
+    - typecheck
     - unconvert
     - unparam
+    - unused
+    - varcheck
+    - wastedassign
     - whitespace
     - wsl
 
@@ -44,3 +55,12 @@ issues:
         - funlen
         - bodyclose
         - gosec
+        - noctx
+
+    - path: cmd/server/presets.go
+      linters:
+        - godot
+
+    - path: internal/testutil/preset.go
+      linters:
+        - godot

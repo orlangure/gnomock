@@ -21,11 +21,13 @@ import (
 // image is used. See `Preset` docs for more info.
 const ManagementPort = "management"
 
-const defaultUser = "guest"
-const defaultPassword = "guest"
-const defaultVersion = "3.8.9"
-const defaultPort = 5672
-const managementPort = 15672
+const (
+	defaultUser     = "guest"
+	defaultPassword = "guest"
+	defaultVersion  = "3.8.9"
+	defaultPort     = 5672
+	managementPort  = 15672
+)
 
 // Message is a single message sent to RabbitMQ.
 type Message struct {

@@ -12,12 +12,14 @@ import (
 	"github.com/orlangure/gnomock/internal/registry"
 )
 
-const defaultUser = "postgres"
-const defaultPassword = "password"
-const defaultDatabase = "postgres"
-const defaultSSLMode = "disable"
-const defaultPort = 5432
-const defaultVersion = "12.5"
+const (
+	defaultUser     = "postgres"
+	defaultPassword = "password"
+	defaultDatabase = "postgres"
+	defaultSSLMode  = "disable"
+	defaultPort     = 5432
+	defaultVersion  = "12.5"
+)
 
 func init() {
 	registry.Register("postgres", func() gnomock.Preset { return &P{} })
@@ -39,7 +41,7 @@ func Preset(opts ...Option) gnomock.Preset {
 	return p
 }
 
-// P is a Gnomock Preset implementation of PostgreSQL database
+// P is a Gnomock Preset implementation of PostgreSQL database.
 type P struct {
 	DB           string   `json:"db"`
 	Queries      []string `json:"queries"`
@@ -49,17 +51,17 @@ type P struct {
 	Version      string   `json:"version"`
 }
 
-// Image returns an image that should be pulled to create this container
+// Image returns an image that should be pulled to create this container.
 func (p *P) Image() string {
 	return fmt.Sprintf("docker.io/library/postgres:%s", p.Version)
 }
 
-// Ports returns ports that should be used to access this container
+// Ports returns ports that should be used to access this container.
 func (p *P) Ports() gnomock.NamedPorts {
 	return gnomock.DefaultTCP(defaultPort)
 }
 
-// Options returns a list of options to configure this container
+// Options returns a list of options to configure this container.
 func (p *P) Options() []gnomock.Option {
 	p.setDefaults()
 

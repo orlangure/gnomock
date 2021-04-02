@@ -42,7 +42,7 @@ func Preset(opts ...Option) gnomock.Preset {
 	return p
 }
 
-// P is a Gnomock Preset implementation of MongoDB
+// P is a Gnomock Preset implementation of MongoDB.
 type P struct {
 	DataPath string `json:"data_path"`
 	User     string `json:"user"`
@@ -50,17 +50,17 @@ type P struct {
 	Version  string `json:"version"`
 }
 
-// Image returns an image that should be pulled to create this container
+// Image returns an image that should be pulled to create this container.
 func (p *P) Image() string {
 	return fmt.Sprintf("docker.io/library/mongo:%s", p.Version)
 }
 
-// Ports returns ports that should be used to access this container
+// Ports returns ports that should be used to access this container.
 func (p *P) Ports() gnomock.NamedPorts {
 	return gnomock.DefaultTCP(27017)
 }
 
-// Options returns a list of options to configure this container
+// Options returns a list of options to configure this container.
 func (p *P) Options() []gnomock.Option {
 	p.setDefaults()
 
