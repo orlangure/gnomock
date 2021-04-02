@@ -21,7 +21,7 @@ var errConflict = fmt.Errorf("409: conflict")
 
 // Event is a type used during Splunk initialization. Pass events to WithValues
 // to ingest them into the container before the control over it is passed to
-// the caller
+// the caller.
 type Event struct {
 	// Event is the actual log entry. Can be any format
 	Event string `json:"event"`
@@ -89,57 +89,32 @@ func (p *P) initf() gnomock.InitFunc {
 // Ingest adds the provided events to splunk container. Use the same password
 // you provided in WithPassword. Send as many events as you like, this function
 // only returns when all the events were indexed, or when the context is timed
-// out
-func Ingest(ctx context.Context, c *gnomock.Container, password string, events ...Event) error {
-	postForm := requestWithPassword(http.MethodPost, password, false)
-	apiAddr := c.Address(APIPort)
+// out.
+func Ingest(ctx context.Context, c *gnomock.Container, adminPassword string, events ...Event) error {
+	countEvents := eventCounter(ctx, c, adminPassword)
 
-	token, err := issueToken(postForm, apiAddr)
-	if err != nil {
-		return fmt.Errorf("can't issue new HEC token: %w", err)
-	}
-
-	ensureIndex := indexRegistry(postForm, apiAddr)
-	ingestEvent := eventForwarder(
-		requestWithPassword(http.MethodPost, token, true),
-		c.Address(CollectorPort),
-	)
-
-	initialCount, err := countEvents(postForm, apiAddr)
+	initialCount, err := countEvents()
 	if err != nil {
 		return fmt.Errorf("can't get initial event count: %w", err)
 	}
 
-	for _, e := range events {
-		select {
-		case <-ctx.Done():
-			return context.Canceled
-		default:
-			err := ensureIndex(e.Index)
-			if err != nil {
-				return err
-			}
-
-			err = ingestEvent(e)
-			if err != nil {
-				return err
-			}
-		}
+	if err := ingestEvents(ctx, c, adminPassword, events); err != nil {
+		return fmt.Errorf("failed to ingest events: %w", err)
 	}
 
 	var (
 		lastErr       error
 		lastCount     int
-		expectedCount int = initialCount + len(events)
+		expectedCount = initialCount + len(events)
 	)
 
 	for {
 		select {
 		case <-ctx.Done():
 			return fmt.Errorf("event count didn't match: want %d, got %d; last error: %v: %w",
-				len(events), lastCount, lastErr, context.Canceled)
+				expectedCount, lastCount, lastErr, context.Canceled)
 		default:
-			lastCount, lastErr = countEvents(postForm, apiAddr)
+			lastCount, lastErr = countEvents()
 			if lastErr == nil && lastCount == expectedCount {
 				return nil
 			}
@@ -147,6 +122,33 @@ func Ingest(ctx context.Context, c *gnomock.Container, password string, events .
 			time.Sleep(time.Millisecond * 250)
 		}
 	}
+}
+
+func ingestEvents(ctx context.Context, c *gnomock.Container, adminPassword string, events []Event) error {
+	postFormWithPassword := requestWithAuth(ctx, http.MethodPost, adminPassword, false)
+	ensureIndex := indexRegistry(postFormWithPassword, c.Address(APIPort))
+
+	ingestEvent, err := eventForwarder(ctx, c, adminPassword)
+	if err != nil {
+		return fmt.Errorf("can't setup event ingestion: %w", err)
+	}
+
+	for _, e := range events {
+		select {
+		case <-ctx.Done():
+			return context.Canceled
+		default:
+			if err := ensureIndex(e.Index); err != nil {
+				return err
+			}
+
+			if err := ingestEvent(e); err != nil {
+				return err
+			}
+		}
+	}
+
+	return nil
 }
 
 func issueToken(post postFunc, addr string) (string, error) {
@@ -190,62 +192,79 @@ func indexRegistry(post postFunc, addr string) func(string) error {
 	}
 }
 
-func eventForwarder(post postFunc, addr string) func(Event) error {
+type ingestFunc func(Event) error
+
+func eventForwarder(ctx context.Context, c *gnomock.Container, adminPassword string) (ingestFunc, error) {
+	postFormWithPassword := requestWithAuth(ctx, http.MethodPost, adminPassword, false)
+
+	collectorToken, err := issueToken(postFormWithPassword, c.Address(APIPort))
+	if err != nil {
+		return nil, fmt.Errorf("can't issue new HEC token: %w", err)
+	}
+
+	postJSONWithToken := requestWithAuth(ctx, http.MethodPost, collectorToken, true)
+
 	return func(e Event) error {
-		uri := fmt.Sprintf("https://%s/services/collector?output_mode=json", addr)
+		uri := fmt.Sprintf("https://%s/services/collector?output_mode=json", c.Address(CollectorPort))
 
 		eventBytes, err := json.Marshal(e)
 		if err != nil {
 			return fmt.Errorf("can't marshal event to json: %w", err)
 		}
 
-		_, err = post(uri, bytes.NewBuffer(eventBytes))
+		_, err = postJSONWithToken(uri, bytes.NewBuffer(eventBytes))
 		if err != nil {
 			return err
 		}
 
 		return nil
-	}
+	}, nil
 }
 
-func countEvents(post postFunc, addr string) (int, error) {
-	uri := fmt.Sprintf("https://%s/services/search/jobs/export", addr)
-	data := url.Values{}
-	data.Add("search", "search index=* | stats count")
-	data.Add("output_mode", "json")
+type countFunc func() (int, error)
 
-	bs, err := post(uri, bytes.NewBufferString(data.Encode()))
-	if err != nil {
-		return 0, err
+func eventCounter(ctx context.Context, c *gnomock.Container, adminPassword string) countFunc {
+	return func() (int, error) {
+		postFormWithPassword := requestWithAuth(ctx, http.MethodPost, adminPassword, false)
+
+		uri := fmt.Sprintf("https://%s/services/search/jobs/export", c.Address(APIPort))
+		data := url.Values{}
+		data.Add("search", "search index=* | stats count")
+		data.Add("output_mode", "json")
+
+		bs, err := postFormWithPassword(uri, bytes.NewBufferString(data.Encode()))
+		if err != nil {
+			return 0, err
+		}
+
+		var response splunkSearchcResponse
+
+		err = json.Unmarshal(bs, &response)
+		if err != nil {
+			return 0, err
+		}
+
+		countStr, ok := response.Result["count"]
+		if !ok {
+			return 0, err
+		}
+
+		count, err := strconv.Atoi(fmt.Sprintf("%s", countStr))
+		if err != nil {
+			return 0, err
+		}
+
+		return count, nil
 	}
-
-	var response splunkSearchcResponse
-
-	err = json.Unmarshal(bs, &response)
-	if err != nil {
-		return 0, err
-	}
-
-	countStr, ok := response.Result["count"]
-	if !ok {
-		return 0, err
-	}
-
-	count, err := strconv.Atoi(fmt.Sprintf("%s", countStr))
-	if err != nil {
-		return 0, err
-	}
-
-	return count, nil
 }
 
 type postFunc func(string, *bytes.Buffer) ([]byte, error)
 
-func requestWithPassword(method, password string, isJSON bool) postFunc {
+func requestWithAuth(ctx context.Context, method, password string, isJSON bool) postFunc {
 	client := insecureClient()
 
 	return func(uri string, buf *bytes.Buffer) (bs []byte, err error) {
-		req, err := http.NewRequest(method, uri, buf)
+		req, err := http.NewRequestWithContext(ctx, method, uri, buf)
 		if err != nil {
 			return nil, fmt.Errorf("can't create request: %w", err)
 		}
