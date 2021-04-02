@@ -17,8 +17,10 @@ import (
 	"github.com/orlangure/gnomock/internal/registry"
 )
 
-const defaultVersion = "7.9.3"
-const defaultPort = 9200
+const (
+	defaultVersion = "7.9.3"
+	defaultPort    = 9200
+)
 
 func init() {
 	registry.Register("elastic", func() gnomock.Preset { return &P{} })

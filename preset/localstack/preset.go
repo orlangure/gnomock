@@ -18,7 +18,7 @@ import (
 const (
 	webPort = "web"
 
-	// APIPort should be used to configure AWS SDK endpoint
+	// APIPort should be used to configure AWS SDK endpoint.
 	APIPort = "api"
 )
 
@@ -33,7 +33,7 @@ func init() {
 // provide any services using WithServices options, but in such case a new
 // localstack container will be useless.
 //
-// This Preset cannot be used with localstack image prior to 0.11.0
+// This Preset cannot be used with localstack image prior to 0.11.0.
 func Preset(opts ...Option) gnomock.Preset {
 	p := &P{}
 
@@ -44,19 +44,19 @@ func Preset(opts ...Option) gnomock.Preset {
 	return p
 }
 
-// P is a Gnomock Preset localstack implementation
+// P is a Gnomock Preset localstack implementation.
 type P struct {
 	Services []Service `json:"services"`
 	S3Path   string    `json:"s3_path"`
 	Version  string    `json:"version"`
 }
 
-// Image returns an image that should be pulled to create this container
+// Image returns an image that should be pulled to create this container.
 func (p *P) Image() string {
 	return fmt.Sprintf("docker.io/localstack/localstack:%s", p.Version)
 }
 
-// Ports returns ports that should be used to access this container
+// Ports returns ports that should be used to access this container.
 func (p *P) Ports() gnomock.NamedPorts {
 	return gnomock.NamedPorts{
 		webPort: {Protocol: "tcp", Port: 8080},
@@ -64,7 +64,7 @@ func (p *P) Ports() gnomock.NamedPorts {
 	}
 }
 
-// Options returns a list of options to configure this container
+// Options returns a list of options to configure this container.
 func (p *P) Options() []gnomock.Option {
 	p.setDefaults()
 

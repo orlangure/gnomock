@@ -20,7 +20,7 @@ func init() {
 
 // Preset creates a new Gmomock Memcached preset. This preset includes a Memcached
 // specific healthcheck function, default Memcached image and port, and allows to
-// optionally set up initial state
+// optionally set up initial state.
 func Preset(opts ...Option) gnomock.Preset {
 	p := &P{}
 
@@ -31,24 +31,24 @@ func Preset(opts ...Option) gnomock.Preset {
 	return p
 }
 
-// P is a Gnomock Preset implementation for Memcached storage
+// P is a Gnomock Preset implementation for Memcached storage.
 type P struct {
 	Values     map[string]string `json:"values"`
 	ByteValues map[string][]byte `json:"byteValues"`
 	Version    string            `json:"version"`
 }
 
-// Image returns an image that should be pulled to create this container
+// Image returns an image that should be pulled to create this container.
 func (p *P) Image() string {
 	return fmt.Sprintf("docker.io/library/memcached:%s", p.Version)
 }
 
-// Ports returns ports that should be used to access this container
+// Ports returns ports that should be used to access this container.
 func (p *P) Ports() gnomock.NamedPorts {
 	return gnomock.DefaultTCP(11211)
 }
 
-// Options returns a list of options to configure this container
+// Options returns a list of options to configure this container.
 func (p *P) Options() []gnomock.Option {
 	p.setDefaults()
 

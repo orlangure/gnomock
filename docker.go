@@ -19,10 +19,12 @@ import (
 	"go.uber.org/zap"
 )
 
-const localhostAddr = "127.0.0.1"
-const defaultStopTimeout = time.Second * 1
-const duplicateContainerPattern = `Conflict. The container name "(?:.+?)" is already in use by container "(\w+)". You have to remove \(or rename\) that container to be able to reuse that name.` // nolint:lll
-const dockerSockAddr = "/var/run/docker.sock"
+const (
+	localhostAddr             = "127.0.0.1"
+	defaultStopTimeout        = time.Second * 1
+	duplicateContainerPattern = `Conflict. The container name "(?:.+?)" is already in use by container "(\w+)". You have to remove \(or rename\) that container to be able to reuse that name.` // nolint:lll
+	dockerSockAddr            = "/var/run/docker.sock"
+)
 
 type docker struct {
 	client *client.Client
@@ -70,6 +72,10 @@ func (d *docker) pullImage(ctx context.Context, image string) error {
 
 func (d *docker) startContainer(ctx context.Context, image string, ports NamedPorts, cfg *Options) (*Container, error) {
 	d.log.Info("starting container")
+
+	if err := d.pullImage(ctx, image); err != nil {
+		return nil, fmt.Errorf("can't pull image: %w", err)
+	}
 
 	resp, err := d.createContainer(ctx, image, ports, cfg)
 	if err != nil {

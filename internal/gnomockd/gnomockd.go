@@ -10,7 +10,7 @@ import (
 	"github.com/orlangure/gnomock/internal/errors"
 )
 
-// Handler returns an HTTP handler ready to serve incoming connections
+// Handler returns an HTTP handler ready to serve incoming connections.
 func Handler() http.Handler {
 	router := mux.NewRouter()
 	router.HandleFunc("/start/{name}", startHandler()).Methods(http.MethodPost)
@@ -18,6 +18,7 @@ func Handler() http.Handler {
 
 	return router
 }
+
 func respondWithError(w http.ResponseWriter, err error) {
 	w.WriteHeader(errors.ErrorCode(err))
 

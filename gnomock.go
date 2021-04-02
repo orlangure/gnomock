@@ -17,6 +17,7 @@ package gnomock
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"io"
 	"net"
@@ -67,7 +68,7 @@ type g struct {
 // ports on the host to the provided ports inside the container. Image may
 // include tag, which is set to "latest" by default. Optional configuration is
 // available through Option functions. The returned container must be stopped
-// when no longer needed using its Stop() method
+// when no longer needed using its Stop() method.
 func StartCustom(image string, ports NamedPorts, opts ...Option) (c *Container, err error) {
 	config, image := buildConfig(opts...), buildImage(image)
 
@@ -87,11 +88,6 @@ func StartCustom(image string, ports NamedPorts, opts ...Option) (c *Container, 
 	cli, err := g.dockerConnect()
 	if err != nil {
 		return nil, fmt.Errorf("can't create docker client: %w", err)
-	}
-
-	err = cli.pullImage(ctx, image)
-	if err != nil {
-		return nil, fmt.Errorf("can't pull image: %w", err)
 	}
 
 	c, err = cli.startContainer(ctx, image, ports, config)
@@ -127,10 +123,10 @@ func StartCustom(image string, ports NamedPorts, opts ...Option) (c *Container, 
 	return c, nil
 }
 
-func copy(dst io.Writer, src io.Reader) func() error {
+func copyf(dst io.Writer, src io.Reader) func() error {
 	return func() error {
 		_, err := stdcopy.StdCopy(dst, dst, src)
-		if err != nil && err != io.EOF {
+		if err != nil && !errors.Is(err, io.EOF) {
 			return err
 		}
 
@@ -240,8 +236,7 @@ func (g *g) stop(c *Container) error {
 func buildImage(image string) string {
 	parts := strings.Split(image, ":")
 
-	noTagSet := len(parts) == 1
-	if noTagSet {
+	if noTagSet := len(parts) == 1; noTagSet {
 		image = fmt.Sprintf("%s:%s", parts[0], defaultTag)
 	}
 
@@ -255,7 +250,7 @@ func (g *g) setupLogForwarding(c *Container, cli *docker, config *Options) error
 	}
 
 	eg := &errgroup.Group{}
-	eg.Go(copy(config.logWriter, logReader))
+	eg.Go(copyf(config.logWriter, logReader))
 	c.onStop = closeLogReader(logReader, eg)
 
 	return nil

@@ -24,7 +24,7 @@ import (
 // this bucket.
 //
 // This function does nothing if you don't provide localstack.S3 as one of the
-// services in WithServices
+// services in WithServices.
 func WithS3Files(path string) Option {
 	return func(p *P) {
 		p.S3Path = path

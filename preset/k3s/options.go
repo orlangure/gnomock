@@ -1,7 +1,7 @@
 package k3s
 
 // Option is an optional configuration of this Gnomock preset. Use available
-// Options to configure the container
+// Options to configure the container.
 type Option func(*P)
 
 // WithVersion sets image version.
