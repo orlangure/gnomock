@@ -106,7 +106,6 @@ func (p *P) healthcheck(ctx context.Context, c *gnomock.Container) (err error) {
 
 func (p *P) initf(ctx context.Context, c *gnomock.Container) (err error) {
 	defaultAddr := fmt.Sprintf("http://%s", c.DefaultAddress())
-
 	cfg := elasticsearch.Config{
 		Addresses:    []string{defaultAddr},
 		DisableRetry: true,
@@ -117,20 +116,9 @@ func (p *P) initf(ctx context.Context, c *gnomock.Container) (err error) {
 		return fmt.Errorf("can't create elasticsearch client: %w", err)
 	}
 
-	docCount := 0
-
-	for _, file := range p.Inputs {
-		select {
-		case <-ctx.Done():
-			return context.Canceled
-		default:
-			n, err := p.ingestFile(file, client)
-			if err != nil {
-				return fmt.Errorf("can't ingest file '%s': %w", file, err)
-			}
-
-			docCount += n
-		}
+	docCount, err := p.ingestSeedFiles(ctx, client)
+	if err != nil {
+		return fmt.Errorf("seed file ingestion failed: %w", err)
 	}
 
 	tick := time.NewTicker(time.Millisecond * 250)
@@ -151,6 +139,26 @@ func (p *P) initf(ctx context.Context, c *gnomock.Container) (err error) {
 			}
 		}
 	}
+}
+
+func (p *P) ingestSeedFiles(ctx context.Context, client *elasticsearch.Client) (int, error) {
+	docCount := 0
+
+	for _, file := range p.Inputs {
+		select {
+		case <-ctx.Done():
+			return docCount, context.Canceled
+		default:
+			n, err := p.ingestFile(file, client)
+			if err != nil {
+				return docCount, fmt.Errorf("can't ingest file '%s': %w", file, err)
+			}
+
+			docCount += n
+		}
+	}
+
+	return docCount, nil
 }
 
 func (p *P) totalDocCount(client *elasticsearch.Client) (n int, err error) {
@@ -200,6 +208,8 @@ func (p *P) ingestFile(fName string, client *elasticsearch.Client) (docCount int
 		}
 	}()
 
+	index := path.Base(fName)
+
 	for decoder := json.NewDecoder(f); ; {
 		var v interface{}
 
@@ -216,7 +226,7 @@ func (p *P) ingestFile(fName string, client *elasticsearch.Client) (docCount int
 			return docCount, err
 		}
 
-		if err := p.ingestData(path.Base(fName), bs, client); err != nil {
+		if err := p.ingestData(index, bs, client); err != nil {
 			return 0, fmt.Errorf("failed to ingest data: %w", err)
 		}
 
