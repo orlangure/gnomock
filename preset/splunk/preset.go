@@ -3,7 +3,7 @@
 // create a configured Splunk container to use in tests.
 //
 // Splunk image is relatively heavy (larger than 1.5GB), and its startup time
-// is longer than usual. Using this container may make the tests much longer
+// is longer than usual. Using this container may make the tests much longer.
 package splunk
 
 import (
@@ -103,12 +103,12 @@ func (p *P) setDefaults() {
 
 func healthcheck(password string) gnomock.HealthcheckFunc {
 	return func(ctx context.Context, c *gnomock.Container) (err error) {
-		err = checkAPI(c, password)
+		err = checkAPI(ctx, c, password)
 		if err != nil {
 			return err
 		}
 
-		err = checkHEC(c)
+		err = checkHEC(ctx, c)
 		if err != nil {
 			return err
 		}
@@ -117,8 +117,8 @@ func healthcheck(password string) gnomock.HealthcheckFunc {
 	}
 }
 
-func checkAPI(c *gnomock.Container, password string) error {
-	post := requestWithPassword(http.MethodPost, password, false)
+func checkAPI(ctx context.Context, c *gnomock.Container, password string) error {
+	post := requestWithAuth(ctx, http.MethodPost, password, false)
 	uri := fmt.Sprintf("https://%s/services/auth/login", c.Address(APIPort))
 
 	data := url.Values{}
@@ -132,8 +132,8 @@ func checkAPI(c *gnomock.Container, password string) error {
 	return err
 }
 
-func checkHEC(c *gnomock.Container) error {
-	get := requestWithPassword(http.MethodGet, "", false)
+func checkHEC(ctx context.Context, c *gnomock.Container) error {
+	get := requestWithAuth(ctx, http.MethodGet, "", false)
 	uri := fmt.Sprintf("https://%s/services/collector/health", c.Address(CollectorPort))
 
 	_, err := get(uri, bytes.NewBufferString(""))
