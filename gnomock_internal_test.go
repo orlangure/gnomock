@@ -25,10 +25,10 @@ func TestWaitForContainerNetwork(t *testing.T) {
 		testImage, namedPorts,
 		WithTimeout(time.Second*10),
 	)
-	id, _ := parseID(container.ID)
-
 	require.NoError(t, err)
 	require.NotNil(t, container)
+
+	id, _ := parseID(container.ID)
 
 	gg, err := newG(false)
 	require.NoError(t, err)
