@@ -90,3 +90,36 @@ func TestPreset_withDefaults(t *testing.T) {
 	require.NoError(t, err)
 	require.Empty(t, pods.Items)
 }
+
+func TestConfigBytes(t *testing.T) {
+	t.Parallel()
+
+	t.Run("fails on wrong url", func(t *testing.T) {
+		p := k3s.Preset()
+		c := &gnomock.Container{
+			Host:  "1%%2",
+			Ports: p.Ports(),
+		}
+
+		bs, err := k3s.ConfigBytes(c)
+		require.Nil(t, bs)
+		require.Error(t, err)
+		require.Contains(t, err.Error(), "invalid URL")
+	})
+
+	t.Run("fails on wrong port", func(t *testing.T) {
+		ports := gnomock.NamedPorts{
+			k3s.KubeconfigPort: gnomock.TCP(1),
+		}
+
+		c := &gnomock.Container{
+			Host:  "127.0.0.1",
+			Ports: ports,
+		}
+
+		bs, err := k3s.ConfigBytes(c)
+		require.Nil(t, bs)
+		require.Error(t, err)
+		require.Contains(t, err.Error(), "connection refused")
+	})
+}
