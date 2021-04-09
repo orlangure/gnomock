@@ -1,12 +1,24 @@
 import gnomock
 from gnomock.rest import ApiException
+from urllib.parse import urlparse
+import os
 
 import unittest
 import os
 
 class TestSDK(unittest.TestCase):
     def setUp(self):
-        with gnomock.ApiClient() as client:
+        addr = "127.0.0.1"
+
+        dh = os.environ.get("DOCKER_HOST")
+        if dh:
+            u = urlparse(dh)
+            addr = u.hostname
+
+        host = "http://{}:23042".format(addr)
+
+        configuration = gnomock.Configuration(host=host)
+        with gnomock.ApiClient(configuration) as client:
             self.api = gnomock.PresetsApi(client)
 
     def tearDown(self):

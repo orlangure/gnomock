@@ -23,7 +23,7 @@ func TestWaitForContainerNetwork(t *testing.T) {
 	}
 	container, err := StartCustom(
 		testImage, namedPorts,
-		WithTimeout(time.Second*10),
+		WithTimeout(time.Second*15),
 	)
 	require.NoError(t, err)
 	require.NotNil(t, container)
@@ -88,7 +88,7 @@ func TestEnvAwareClone(t *testing.T) {
 	})
 }
 
-func TestStartCustom(t *testing.T) {
+func TestCustomDockerHost(t *testing.T) {
 	// this test cannot run in parallel with other tests since it modifies the
 	// environment, which affects other tests
 	t.Run("fails with misconfigured docker host", func(t *testing.T) {
@@ -103,5 +103,33 @@ func TestStartCustom(t *testing.T) {
 		c, err := StartCustom(testImage, DefaultTCP(80))
 		require.True(t, errors.Is(err, ErrEnvClient))
 		require.Nil(t, c)
+	})
+
+	t.Run("hostAddr returns docker host address", func(t *testing.T) {
+		currentHost := os.Getenv("DOCKER_HOST")
+
+		defer func() {
+			_ = os.Setenv("DOCKER_HOST", currentHost)
+		}()
+
+		_ = os.Setenv("DOCKER_HOST", "tcp://1.1.1.1:2375")
+
+		d := &docker{}
+		addr := d.hostAddr()
+		require.Equal(t, "1.1.1.1", addr)
+	})
+
+	t.Run("hostAddr falls back to local", func(t *testing.T) {
+		currentHost := os.Getenv("DOCKER_HOST")
+
+		defer func() {
+			_ = os.Setenv("DOCKER_HOST", currentHost)
+		}()
+
+		_ = os.Setenv("DOCKER_HOST", ":")
+
+		d := &docker{}
+		addr := d.hostAddr()
+		require.Equal(t, localhostAddr, addr)
 	})
 }

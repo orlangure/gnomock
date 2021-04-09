@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"io"
 	"io/ioutil"
+	"net/url"
+	"os"
 	"regexp"
 	"strconv"
 	"time"
@@ -151,7 +153,7 @@ func (d *docker) waitForContainerNetwork(ctx context.Context, id string, ports N
 			if len(boundNamedPorts) == len(ports) {
 				return &Container{
 					ID:      id,
-					Host:    localhostAddr,
+					Host:    d.hostAddr(),
 					Ports:   boundNamedPorts,
 					gateway: containerJSON.NetworkSettings.Gateway,
 				}, nil
@@ -177,7 +179,7 @@ func (d *docker) portBindings(exposedPorts nat.PortSet, ports NamedPorts) nat.Po
 	// for the container to be accessible from another container, it cannot
 	// listen on 127.0.0.1 as it will be accessed by gateway address (e.g
 	// 172.17.0.1), so its port should be exposed everywhere
-	hostAddr := localhostAddr
+	hostAddr := d.hostAddr()
 	if isInDocker() {
 		hostAddr = "0.0.0.0"
 	}
@@ -309,4 +311,18 @@ func (d *docker) stopContainer(ctx context.Context, id string) error {
 	}
 
 	return nil
+}
+
+// hostAddr returns an address of a host that runs the containers. If
+// DOCKER_HOST environment variable is not set, or if its value is an invalid
+// URL, it returns local address.
+func (d *docker) hostAddr() string {
+	if dh := os.Getenv("DOCKER_HOST"); dh != "" {
+		u, err := url.Parse(dh)
+		if err == nil {
+			return u.Hostname()
+		}
+	}
+
+	return localhostAddr
 }
