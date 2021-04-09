@@ -53,8 +53,11 @@ Gnomock can be used in two different ways:
 - Imported directly as a package in any **Go** project
 - Accessed over HTTP running as a daemon in **any other language**
 
-⚠️ Both ways **require** an active Docker daemon running locally in
-the same environment.
+Both ways **require** an active Docker daemon running **locally** in the same
+environment.
+
+External `DOCKER_HOST` support is experimental. It cannot be reliably tested at
+this moment, but it might work.
 
 ### Using Gnomock in Go applications
 
