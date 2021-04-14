@@ -18,7 +18,7 @@ require (
 	github.com/google/gofuzz v1.2.0 // indirect
 	github.com/google/uuid v1.1.1
 	github.com/googleapis/gnostic v0.5.1 // indirect
-	github.com/gorilla/mux v1.7.4
+	github.com/gorilla/mux v1.8.0
 	github.com/imdario/mergo v0.3.11 // indirect
 	github.com/lib/pq v1.5.1
 	github.com/opencontainers/go-digest v1.0.0-rc1 // indirect
