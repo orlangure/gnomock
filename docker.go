@@ -36,7 +36,7 @@ type docker struct {
 func (g *g) dockerConnect() (*docker, error) {
 	g.log.Info("connecting to docker engine")
 
-	cli, err := client.NewEnvClient()
+	cli, err := client.NewClientWithOpts(client.FromEnv)
 	if err != nil {
 		return nil, fmt.Errorf("%w: %s", ErrEnvClient, err)
 	}
@@ -231,7 +231,7 @@ func (d *docker) createContainer(ctx context.Context, image string, ports NamedP
 		Mounts:       mounts,
 	}
 
-	resp, err := d.client.ContainerCreate(ctx, containerConfig, hostConfig, nil, cfg.ContainerName)
+	resp, err := d.client.ContainerCreate(ctx, containerConfig, hostConfig, nil, nil, cfg.ContainerName)
 	if err == nil {
 		return &resp, nil
 	}
@@ -252,7 +252,7 @@ func (d *docker) createContainer(ctx context.Context, image string, ports NamedP
 			return nil, fmt.Errorf("can't remove existing container: %w", err)
 		}
 
-		resp, err = d.client.ContainerCreate(ctx, containerConfig, hostConfig, nil, cfg.ContainerName)
+		resp, err = d.client.ContainerCreate(ctx, containerConfig, hostConfig, nil, nil, cfg.ContainerName)
 	}
 
 	return &resp, err
