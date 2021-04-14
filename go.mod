@@ -32,11 +32,11 @@ require (
 	go.mongodb.org/mongo-driver v1.3.2
 	go.uber.org/zap v1.15.0
 	golang.org/x/oauth2 v0.0.0-20200902213428-5d25da1a8d43 // indirect
-	golang.org/x/sync v0.0.0-20200625203802-6e8e738ad208
+	golang.org/x/sync v0.0.0-20201020160332-67f06af15bc9
 	golang.org/x/time v0.0.0-20200630173020-3af7569d3a1e // indirect
 	gotest.tools/v3 v3.0.3 // indirect
-	k8s.io/api v0.19.2
-	k8s.io/apimachinery v0.19.2
+	k8s.io/api v0.21.0
+	k8s.io/apimachinery v0.21.0
 	k8s.io/client-go v0.19.2
 	k8s.io/utils v0.0.0-20201005171033-6301aaf42dc7 // indirect
 )
