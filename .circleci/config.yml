@@ -8,16 +8,16 @@ commands:
           name: install golang
           command: |
             sudo rm -rf /usr/local/go
-            wget -c https://dl.google.com/go/go1.15.3.linux-amd64.tar.gz -O - | sudo tar -xz -C /usr/local
+            wget -c https://dl.google.com/go/go1.16.3.linux-amd64.tar.gz -O - | sudo tar -xz -C /usr/local
+      - checkout
       - run:
           name: Get dependencies
           command : go get -v -t -d ./...
-      - checkout
 
 jobs:
   lint:
     docker:
-      - image: circleci/golang:1.15
+      - image: circleci/golang:1.16
     steps:
       - checkout
       - run:
