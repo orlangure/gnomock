@@ -24,7 +24,7 @@ require (
 	github.com/opencontainers/go-digest v1.0.0-rc1 // indirect
 	github.com/segmentio/kafka-go v0.4.2
 	github.com/streadway/amqp v1.0.0
-	github.com/stretchr/testify v1.5.1
+	github.com/stretchr/testify v1.7.0
 	go.mongodb.org/mongo-driver v1.3.2
 	go.uber.org/zap v1.15.0
 	golang.org/x/oauth2 v0.0.0-20200902213428-5d25da1a8d43 // indirect
