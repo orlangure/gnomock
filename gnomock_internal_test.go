@@ -23,7 +23,7 @@ func TestWaitForContainerNetwork(t *testing.T) {
 	}
 	container, err := StartCustom(
 		testImage, namedPorts,
-		WithTimeout(time.Second*15),
+		WithTimeout(time.Minute),
 	)
 	require.NoError(t, err)
 	require.NotNil(t, container)

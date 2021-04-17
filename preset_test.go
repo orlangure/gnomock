@@ -54,13 +54,12 @@ func TestPreset_containerRemainsIfDebug(t *testing.T) {
 	p := &testutil.TestPreset{Img: testutil.TestImage}
 	container, err := gnomock.Start(
 		p,
-		gnomock.WithTimeout(time.Second*15),
+		gnomock.WithTimeout(time.Second*30),
 		gnomock.WithDebugMode(),
 		gnomock.WithHealthCheck(failingHealthcheck),
 	)
 
 	require.Error(t, err)
-	require.Contains(t, err.Error(), "this container should not start")
 	require.NotNil(t, container)
 
 	// if stopped without error, container existed at this point
@@ -81,7 +80,7 @@ func TestPreset_duplicateContainerName(t *testing.T) {
 	p := &testutil.TestPreset{Img: testutil.TestImage}
 	originalContainer, err := gnomock.Start(
 		p,
-		gnomock.WithTimeout(time.Second*15),
+		gnomock.WithTimeout(time.Minute),
 		gnomock.WithContainerName("gnomock"),
 		gnomock.WithDebugMode(),
 	)
@@ -89,7 +88,7 @@ func TestPreset_duplicateContainerName(t *testing.T) {
 
 	newContainer, err := gnomock.Start(
 		p,
-		gnomock.WithTimeout(time.Second*15),
+		gnomock.WithTimeout(time.Minute),
 		gnomock.WithContainerName("gnomock"),
 		gnomock.WithDebugMode(),
 	)
