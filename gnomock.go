@@ -13,6 +13,15 @@
 //
 // To debug cases where containers don't behave as expected, there are options
 // like `WithDebugMode()` or `WithLogWriter()`.
+//
+// For the list of presets, please refer to
+// https://pkg.go.dev/github.com/orlangure/gnomock/preset.
+//
+// Each preset can then be used in the following way:
+//
+//	p := redis.Preset() // replace "redis" with whatever you need
+//	container, err := gnomock.Start(p)
+//	addr := container.DefaultAddress() // e.g localhost:54321
 package gnomock
 
 import (

@@ -130,6 +130,7 @@ Kafka | [Go package](https://github.com/orlangure/gnomock/tree/master/preset/kaf
 Elasticsearch | [Go package](https://github.com/orlangure/gnomock/tree/master/preset/elastic) | [Docs](https://app.swaggerhub.com/apis/orlangure/gnomock/1.4.7#/presets/startElastic) | [Reference](https://pkg.go.dev/github.com/orlangure/gnomock/preset/elastic?tab=doc) | `5.6`, `6.8.13`, `7.9.3`
 Kubernetes | [Go package](https://github.com/orlangure/gnomock/tree/master/preset/k3s) | [Docs](https://app.swaggerhub.com/apis/orlangure/gnomock/1.4.7#/presets/startKubernetes) | [Reference](https://pkg.go.dev/github.com/orlangure/gnomock/preset/k3s?tab=doc) | `v1.19.3`
 CockroachDB | [Go package](https://github.com/orlangure/gnomock/tree/master/preset/cockroachdb) | [Docs](https://app.swaggerhub.com/apis/orlangure/gnomock/1.4.7#/presets/startCockroachDB) | [Reference](https://pkg.go.dev/github.com/orlangure/gnomock/preset/cockroachdb?tab=doc) | `v19.2.11`, `v20.1.10`
+InfluxDB | [Go package](https://github.com/orlangure/gnomock/tree/master/preset/influxdb) | [Docs](https://app.swaggerhub.com/apis/orlangure/gnomock/1.4.6#/presets/startInfluxDB) | [Reference](https://pkg.go.dev/github.com/orlangure/gnomock/preset/influxdb?tab=doc) | `2.0.4-alpine`
 <!-- new presets go here -->
 
 It is possible to use Gnomock [directly from

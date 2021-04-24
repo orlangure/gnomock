@@ -290,6 +290,26 @@ paths:
       tags:
         - presets
 
+  /start/influxdb:
+    post:
+      summary: Start a new Gnomock InfluxDB preset.
+      operationId: startInfluxDB
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/influxdb-request'
+      responses:
+        '200':
+          $ref: '#/components/responses/container-created'
+        '400':
+          $ref: '#/components/responses/invalid-configuration'
+        '500':
+          $ref: '#/components/responses/start-failed'
+      tags:
+        - presets
+
 ### /start/preset
 
   /stop:
@@ -1055,6 +1075,46 @@ components:
           default: latest
       description: >
         This object describes CockroachDB container.
+
+    influxdb-request:
+      type: object
+      properties:
+        preset:
+          $ref: '#/components/schemas/influxdb'
+        options:
+          $ref: '#/components/schemas/options'
+      description: >
+        This request includes InfluxDB and general configuration.
+
+    influxdb:
+      type: object
+      properties:
+        version:
+          type: string
+          description: Docker image tag (version)
+          default: latest
+        username:
+          type: string
+          description: Super-user name
+          default: gnomock
+        password:
+          type: string
+          description: Super-user password
+          default: gnomock-password
+        org:
+          type: string
+          description: Organization name
+          default: gnomock-org
+        bucket:
+          type: string
+          description: Default bucket name
+          default: gnomock-bucket
+        auth_token:
+          type: string
+          description: Database authentication token
+          default: gnomock-influxdb-token
+      description: >
+        This object describes InfluxDB container.
 
 ### preset-request
 

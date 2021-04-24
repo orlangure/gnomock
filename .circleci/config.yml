@@ -226,6 +226,17 @@ jobs:
           name: Test server
           command: go test -race -cover -v ./internal/gnomockd -run TestCockroachDB
 
+  test-influxdb:
+    machine: true
+    steps:
+      - setup-for-go-test
+      - run:
+          name: Test preset
+          command: go test -race -cover -v ./preset/influxdb/...
+      - run:
+          name: Test server
+          command: go test -race -cover -v ./internal/gnomockd -run TestInfluxDB
+
 ### preset tests go here
 
 workflows:
@@ -248,4 +259,5 @@ workflows:
       - test-mongo
       - test-k3s
       - test-cockroachdb
+      - test-influxdb
 ### circleci jobs go here
