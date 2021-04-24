@@ -5,6 +5,7 @@ package main
 import (
 	_ "github.com/orlangure/gnomock/preset/cockroachdb"
 	_ "github.com/orlangure/gnomock/preset/elastic"
+	_ "github.com/orlangure/gnomock/preset/influxdb"
 	_ "github.com/orlangure/gnomock/preset/k3s"
 	_ "github.com/orlangure/gnomock/preset/kafka"
 	_ "github.com/orlangure/gnomock/preset/localstack"

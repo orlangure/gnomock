@@ -1,0 +1,11 @@
+{
+  "options": {},
+  "preset": {
+    "version": "alpine",
+    "username": "gnomock",
+    "password": "strong-password",
+    "org": "gnomorg",
+    "bucket": "a-bucket",
+    "auth_token": "real-auth-token"
+  }
+}

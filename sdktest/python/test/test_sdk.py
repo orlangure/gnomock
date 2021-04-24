@@ -289,6 +289,26 @@ class TestSDK(unittest.TestCase):
                 self.api.stop(stop_request)
 
 
+    def test_influxdb(self):
+        options = gnomock.Options()
+        preset = gnomock.Influxdb(version="latest", username="python-user",
+                password="python-password", org="python-org",
+                bucket="python-bucket", auth_token="python-token")
+        influxdb_request = gnomock.InfluxdbRequest(options=options,
+                preset=preset)
+        id = ""
+
+        try:
+            response = self.api.start_influx_db(influxdb_request)
+            id = response.id
+            self.assertEqual("127.0.0.1", response.host)
+
+        finally:
+            if id != "":
+                stop_request = gnomock.StopRequest(id=id)
+                self.api.stop(stop_request)
+
+
 ### gnomock-generator
 
 
