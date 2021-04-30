@@ -120,16 +120,32 @@ func TestCustomDockerHost(t *testing.T) {
 	})
 
 	t.Run("hostAddr falls back to local", func(t *testing.T) {
-		currentHost := os.Getenv("DOCKER_HOST")
+		t.Run("wrong url", func(t *testing.T) {
+			currentHost := os.Getenv("DOCKER_HOST")
 
-		defer func() {
-			_ = os.Setenv("DOCKER_HOST", currentHost)
-		}()
+			defer func() {
+				_ = os.Setenv("DOCKER_HOST", currentHost)
+			}()
 
-		_ = os.Setenv("DOCKER_HOST", ":")
+			_ = os.Setenv("DOCKER_HOST", ":")
 
-		d := &docker{}
-		addr := d.hostAddr()
-		require.Equal(t, localhostAddr, addr)
+			d := &docker{}
+			addr := d.hostAddr()
+			require.Equal(t, localhostAddr, addr)
+		})
+
+		t.Run("unix socket", func(t *testing.T) {
+			currentHost := os.Getenv("DOCKER_HOST")
+
+			defer func() {
+				_ = os.Setenv("DOCKER_HOST", currentHost)
+			}()
+
+			_ = os.Setenv("DOCKER_HOST", "unix:///run/user/1000/docker.sock")
+
+			d := &docker{}
+			addr := d.hostAddr()
+			require.Equal(t, localhostAddr, addr)
+		})
 	})
 }
