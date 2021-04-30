@@ -314,13 +314,15 @@ func (d *docker) stopContainer(ctx context.Context, id string) error {
 }
 
 // hostAddr returns an address of a host that runs the containers. If
-// DOCKER_HOST environment variable is not set, or if its value is an invalid
-// URL, it returns local address.
+// DOCKER_HOST environment variable is not set, if its value is an invalid URL,
+// or if it is a `unix:///` socket address, it returns local address.
 func (d *docker) hostAddr() string {
 	if dh := os.Getenv("DOCKER_HOST"); dh != "" {
 		u, err := url.Parse(dh)
 		if err == nil {
-			return u.Hostname()
+			if host := u.Hostname(); host != "" {
+				return host
+			}
 		}
 	}
 
