@@ -21,7 +21,7 @@ require (
 	github.com/googleapis/gnostic v0.5.1 // indirect
 	github.com/gorilla/mux v1.8.0
 	github.com/imdario/mergo v0.3.11 // indirect
-	github.com/influxdata/influxdb-client-go/v2 v2.2.3
+	github.com/influxdata/influxdb-client-go/v2 v2.3.0
 	github.com/klauspost/compress v1.12.1 // indirect
 	github.com/lib/pq v1.10.1
 	github.com/moby/term v0.0.0-20201216013528-df9cb8a40635 // indirect
