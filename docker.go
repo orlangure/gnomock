@@ -36,7 +36,7 @@ type docker struct {
 func (g *g) dockerConnect() (*docker, error) {
 	g.log.Info("connecting to docker engine")
 
-	cli, err := client.NewClientWithOpts(client.FromEnv)
+	cli, err := client.NewClientWithOpts(client.FromEnv, client.WithAPIVersionNegotiation())
 	if err != nil {
 		return nil, fmt.Errorf("%w: %s", ErrEnvClient, err)
 	}
