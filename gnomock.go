@@ -64,7 +64,7 @@ func newG(debug bool) (*g, error) {
 
 	l = l.With(zap.String("id", id.String()))
 
-	return &g{id, l.Sugar()}, nil
+	return &g{id: id, log: l.Sugar()}, nil
 }
 
 // g is a Gnomock operation wrapper, mostly for debug purposes.
