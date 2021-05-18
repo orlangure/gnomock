@@ -9,6 +9,7 @@ import (
 	"os"
 	"regexp"
 	"strconv"
+	"sync"
 	"time"
 
 	"github.com/docker/docker/api/types"
@@ -31,6 +32,17 @@ const (
 type docker struct {
 	client *client.Client
 	log    *zap.SugaredLogger
+
+	// This lock is used to protect docker client from concurrent connections
+	// with version negotiation. As of this moment, there is a data race in
+	// docker client when version negotiation is requested. This data race is
+	// not dangerous, but it triggers race detector alarms, so it should be
+	// avoided. Currently the client still has this issue, so this is an
+	// attempt to fix it locally by preventing concurrent connection using the
+	// same client (mostly when `Stop` is called with multiple containers).
+	//
+	// https://github.com/moby/moby/pull/42379
+	lock sync.Mutex
 }
 
 func (g *g) dockerConnect() (*docker, error) {
@@ -43,7 +55,7 @@ func (g *g) dockerConnect() (*docker, error) {
 
 	g.log.Info("connected to docker engine")
 
-	return &docker{cli, g.log}, nil
+	return &docker{client: cli, log: g.log}, nil
 }
 
 func (d *docker) pullImage(ctx context.Context, image string) error {
@@ -303,6 +315,9 @@ func (d *docker) readLogs(ctx context.Context, id string) (io.ReadCloser, error)
 }
 
 func (d *docker) stopContainer(ctx context.Context, id string) error {
+	d.lock.Lock()
+	defer d.lock.Unlock()
+
 	stopTimeout := defaultStopTimeout
 
 	err := d.client.ContainerStop(ctx, id, &stopTimeout)
