@@ -1,6 +1,37 @@
 version: '3'
 
 tasks:
+  #
+  # Tests
+  #
+
+  test:core:gnomock:
+    env:
+      GOMAXPROCS: 2
+    cmds:
+      - go test -race -cover -coverprofile=gnomock-cover.txt -coverpkg=./... -v .
+
+  test:core:gnomockd:
+    env:
+      GOMAXPROCS: 2
+    cmds:
+      - go test -race -cover -coverprofile=gnomockd-cover.txt -coverpkg=./... -v ./internal/gnomockd -run TestGnomockd
+
+  test:core:internal:
+    env:
+      GOMAXPROCS: 2
+    cmds:
+      - |
+        go test -race -cover -coverprofile=internal-cover.txt -v -coverpkg=./... \
+          ./internal/errors \
+          ./internal/registry \
+          ./internal/cleaner \
+          ./internal/health
+
+  #
+  # SDK release routines
+  #
+
   release:sdk:python:
     cmds:
       - task: swagger:update-version
