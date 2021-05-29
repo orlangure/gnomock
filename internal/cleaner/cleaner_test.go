@@ -36,7 +36,7 @@ func TestCleaner(t *testing.T) {
 
 	time.Sleep(time.Second)
 	cancel()
-	time.Sleep(time.Second)
+	time.Sleep(time.Second * 5)
 
 	// both stop calls cause errors because both containers no longer exist
 	require.Error(t, gnomock.Stop(targetContainer))
