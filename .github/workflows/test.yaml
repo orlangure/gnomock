@@ -62,8 +62,8 @@ jobs:
     steps:
       - name: Check out code into the Go module directory
         uses: actions/checkout@v1
-      - name: Install Taskfile
-        uses: Arduino/actions/setup-taskfile@master
+      - name: Install Task
+        uses: arduino/setup-task@v1
         with:
           version: '3.0.0'
       - name: Build orlangure/gnomock image
@@ -81,8 +81,8 @@ jobs:
     steps:
       - name: Check out code into the Go module directory
         uses: actions/checkout@v1
-      - name: Install Taskfile
-        uses: Arduino/actions/setup-taskfile@master
+      - name: Install Task
+        uses: arduino/setup-task@v1
         with:
           version: '3.0.0'
       - name: Generate
