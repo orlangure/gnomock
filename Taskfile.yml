@@ -104,9 +104,13 @@ tasks:
         {{ if not .CI }}
         python3 -m venv venv
         source venv/bin/activate
+        {{ else }}
+        docker system df
+        docker system prune -f
+        docker system df
         {{ end }}
         pip3 install -r requirements.txt
-        python3 -m pytest -n 3 -v -k TestSDK
+        python3 -m pytest -n 1 -v -k TestSDK
       - task: gnomock:stop
     dir: ./sdktest/python
 
