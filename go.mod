@@ -10,7 +10,7 @@ require (
 	github.com/denisenkom/go-mssqldb v0.10.0
 	github.com/docker/docker v20.10.7+incompatible
 	github.com/docker/go-connections v0.4.0
-	github.com/elastic/go-elasticsearch/v7 v7.13.0
+	github.com/elastic/go-elasticsearch/v7 v7.13.1
 	github.com/go-redis/redis v6.15.9+incompatible
 	github.com/go-redis/redis/v7 v7.4.0
 	github.com/go-sql-driver/mysql v1.6.0
