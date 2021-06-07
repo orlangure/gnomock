@@ -18,7 +18,7 @@ require (
 	github.com/google/uuid v1.2.0
 	github.com/googleapis/gnostic v0.5.1 // indirect
 	github.com/gorilla/mux v1.8.0
-	github.com/influxdata/influxdb-client-go/v2 v2.3.0
+	github.com/influxdata/influxdb-client-go/v2 v2.4.0
 	github.com/klauspost/compress v1.12.1 // indirect
 	github.com/lib/pq v1.10.2
 	github.com/moby/term v0.0.0-20201216013528-df9cb8a40635 // indirect
