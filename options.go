@@ -154,6 +154,21 @@ func WithDisableAutoCleanup() Option {
 	}
 }
 
+// WithRegistryAuth allows to access private docker images. The credentials
+// should be passes as a Base64 encoded string, where the content is a JSON
+// string with two fields: username and password.
+//
+// For Docker Hub, if 2FA authentication is enabled, an access token should be
+// used instead of a password.
+//
+// For example: eyJ1c2VybmFtZSI6ImZvbyIsInBhc3N3b3JkIjoiYmFyIn0K which stands
+// for {"username":"foo","password":"bar"}.
+func WithRegistryAuth(auth string) Option {
+	return func(o *Options) {
+		o.Auth = auth
+	}
+}
+
 // HealthcheckFunc defines a function to be used to determine container health.
 // It receives a host and a port, and returns an error if the container is not
 // ready, or nil when the container can be used. One example of HealthcheckFunc
@@ -208,6 +223,17 @@ type Options struct {
 	// stopped and removed after the tests are complete. By default, Gnomock
 	// will try to stop containers created by it right after the tests exit.
 	DisableAutoCleanup bool `json:"disable_cleanup"`
+
+	// Base64 encoded JSON string with docker access credentials. JSON string
+	// should include two fields: username and password. For Docker Hub, if 2FA
+	// authentication is enabled, an access token should be used instead of a
+	// password.
+	//
+	// For example:
+	//	eyJ1c2VybmFtZSI6ImZvbyIsInBhc3N3b3JkIjoiYmFyIn0K
+	// which stands for
+	//	{"username":"foo","password":"bar"}
+	Auth string `json:"auth"`
 
 	ctx                 context.Context
 	init                InitFunc

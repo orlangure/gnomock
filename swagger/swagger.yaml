@@ -455,6 +455,14 @@ components:
         disable_cleanup:
           type: boolean
           description: Disables auto removal of this container after tests.
+        auth:
+          type: string
+          description: >
+            base64 encoded JSON string with docker access credentials. JSON
+            string should include two fields, username and password. For Docker
+            Hub, if 2FA authentication is enabled, an access token should be
+            used instead of a password.
+          example: eyJ1c2VybmFtZSI6ImZvbyIsInBhc3N3b3JkIjoiYmFyIn0K
       description: >
         This object includes general Gnomock configuration, similar to all
         presets. Timeout configuration is especially useful for
