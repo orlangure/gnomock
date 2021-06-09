@@ -31,6 +31,7 @@ func TestGnomock_happyFlow(t *testing.T) {
 		gnomock.WithTimeout(time.Minute),
 		gnomock.WithEnv("GNOMOCK_TEST_1=foo"),
 		gnomock.WithEnv("GNOMOCK_TEST_2=bar"),
+		gnomock.WithRegistryAuth(""),
 	)
 
 	require.NoError(t, err)

@@ -58,10 +58,12 @@ func (g *g) dockerConnect() (*docker, error) {
 	return &docker{client: cli, log: g.log}, nil
 }
 
-func (d *docker) pullImage(ctx context.Context, image string) error {
+func (d *docker) pullImage(ctx context.Context, image string, cfg *Options) error {
 	d.log.Info("pulling image")
 
-	reader, err := d.client.ImagePull(ctx, image, types.ImagePullOptions{})
+	reader, err := d.client.ImagePull(ctx, image, types.ImagePullOptions{
+		RegistryAuth: cfg.Auth,
+	})
 	if err != nil {
 		return fmt.Errorf("can't pull image: %w", err)
 	}
@@ -87,7 +89,7 @@ func (d *docker) pullImage(ctx context.Context, image string) error {
 func (d *docker) startContainer(ctx context.Context, image string, ports NamedPorts, cfg *Options) (*Container, error) {
 	d.log.Info("starting container")
 
-	if err := d.pullImage(ctx, image); err != nil {
+	if err := d.pullImage(ctx, image, cfg); err != nil {
 		return nil, fmt.Errorf("can't pull image: %w", err)
 	}
 
