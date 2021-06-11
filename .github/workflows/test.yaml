@@ -24,10 +24,11 @@ jobs:
 
   test-core:
     name: "[core] gnomock, gnomockd"
-    strategy:
-      matrix:
-        os: [ubuntu-latest, macos-latest]
-    runs-on: ${{ matrix.os }}
+    # strategy:
+    #   matrix:
+    #     os: [ubuntu-latest, macos-latest]
+    # runs-on: ${{ matrix.os }}
+    runs-on: ubuntu-latest
     env:
       CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
     steps:
