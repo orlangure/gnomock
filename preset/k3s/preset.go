@@ -9,9 +9,16 @@
 // https://github.com/orlangure/k3s-dind.
 //
 // Please make sure to pick a version here:
-// https://hub.docker.com/repository/docker/orlangure/k3s. At some point k3s
-// version tags should start to appear. If only `latest` tag is available, it
-// comes with k3s v1.18.4.
+// https://hub.docker.com/repository/docker/orlangure/k3s.
+//
+// The following versions include important fixes that prevent this preset from
+// working on recent Linux Kernel versions, please make sure to avoid using
+// older versions for each API level:
+//
+// 	v1.18.19
+// 	v1.19.11
+// 	v1.20.7
+// 	v1.21.1
 //
 // Keep in mind that k3s runs in a single docker container, meaning it might be
 // limited in memory, CPU and storage. Also remember that this cluster always

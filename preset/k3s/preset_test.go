@@ -17,7 +17,7 @@ func TestPreset(t *testing.T) {
 
 	p := k3s.Preset(
 		k3s.WithPort(48448),
-		k3s.WithVersion("v1.19.3"),
+		k3s.WithVersion("v1.19.12"),
 	)
 	c, err := gnomock.Start(
 		p,
