@@ -4,7 +4,7 @@ go 1.15
 
 require (
 	github.com/Microsoft/go-winio v0.5.0 // indirect
-	github.com/aws/aws-sdk-go v1.38.71
+	github.com/aws/aws-sdk-go v1.39.1
 	github.com/bradfitz/gomemcache v0.0.0-20190913173617-a41fca850d0b
 	github.com/containerd/containerd v1.5.2 // indirect
 	github.com/denisenkom/go-mssqldb v0.10.0
@@ -30,7 +30,6 @@ require (
 	go.mongodb.org/mongo-driver v1.5.4
 	go.uber.org/multierr v1.7.0 // indirect
 	go.uber.org/zap v1.18.1
-	golang.org/x/net v0.0.0-20210525063256-abc453219eb5 // indirect
 	golang.org/x/oauth2 v0.0.0-20200902213428-5d25da1a8d43 // indirect
 	golang.org/x/sync v0.0.0-20210220032951-036812b2e83c
 	golang.org/x/sys v0.0.0-20210603125802-9665404d3644 // indirect
