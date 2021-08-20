@@ -309,6 +309,24 @@ class TestSDK(unittest.TestCase):
                 self.api.stop(stop_request)
 
 
+    def test_cassandra(self):
+        options = gnomock.Options(debug=True)
+        preset = gnomock.Cassandra(version="3")
+        cassandra_request = gnomock.CassandraRequest(options=options,
+                preset=preset)
+        id = ""
+
+        try:
+            response = self.api.start_cassandra(cassandra_request)
+            id = response.id
+            self.assertEqual("127.0.0.1", response.host)
+
+        finally:
+            if id != "":
+                stop_request = gnomock.StopRequest(id=id)
+                self.api.stop(stop_request)
+
+
 ### gnomock-generator
 
 

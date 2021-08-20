@@ -14,6 +14,7 @@ require (
 	github.com/go-redis/redis v6.15.9+incompatible
 	github.com/go-redis/redis/v7 v7.4.1
 	github.com/go-sql-driver/mysql v1.6.0
+	github.com/gocql/gocql v0.0.0-20210707082121-9a3953d1826d
 	github.com/golang/snappy v0.0.4 // indirect
 	github.com/google/gofuzz v1.2.0 // indirect
 	github.com/google/uuid v1.3.0
