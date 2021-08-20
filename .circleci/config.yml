@@ -237,6 +237,17 @@ jobs:
           name: Test server
           command: go test -race -cover -v ./internal/gnomockd -run TestInfluxDB
 
+  test-cassandra:
+    machine: true
+    steps:
+      - setup-for-go-test
+      - run:
+          name: Test preset
+          command: go test -race -cover -v ./preset/cassandra/...
+      - run:
+          name: Test server
+          command: go test -race -cover -v ./internal/gnomockd -run TestCassandra
+
 ### preset tests go here
 
 workflows:
@@ -260,4 +271,5 @@ workflows:
       - test-k3s
       - test-cockroachdb
       - test-influxdb
+      - test-cassandra
 ### circleci jobs go here

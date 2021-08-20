@@ -310,6 +310,26 @@ paths:
       tags:
         - presets
 
+  /start/cassandra:
+    post:
+      summary: Start a new Gnomock Cassandra preset.
+      operationId: startCassandra
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/cassandra-request'
+      responses:
+        '200':
+          $ref: '#/components/responses/container-created'
+        '400':
+          $ref: '#/components/responses/invalid-configuration'
+        '500':
+          $ref: '#/components/responses/start-failed'
+      tags:
+        - presets
+
 ### /start/preset
 
   /stop:
@@ -1123,6 +1143,26 @@ components:
           default: gnomock-influxdb-token
       description: >
         This object describes InfluxDB container.
+
+    cassandra-request:
+      type: object
+      properties:
+        preset:
+          $ref: '#/components/schemas/cassandra'
+        options:
+          $ref: '#/components/schemas/options'
+      description: >
+        This request includes Cassandra and general configuration.
+
+    cassandra:
+      type: object
+      properties:
+        version:
+          type: string
+          description: Docker image tag (version)
+          default: latest
+      description: >
+        This object describes Cassandra container.
 
 ### preset-request
 

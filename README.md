@@ -131,6 +131,7 @@ Elasticsearch | [Go package](https://github.com/orlangure/gnomock/tree/master/pr
 Kubernetes | [Go package](https://github.com/orlangure/gnomock/tree/master/preset/k3s) | [Docs](https://app.swaggerhub.com/apis/orlangure/gnomock/1.5.0#/presets/startKubernetes) | [Reference](https://pkg.go.dev/github.com/orlangure/gnomock/preset/k3s?tab=doc) | `v1.19.12`
 CockroachDB | [Go package](https://github.com/orlangure/gnomock/tree/master/preset/cockroachdb) | [Docs](https://app.swaggerhub.com/apis/orlangure/gnomock/1.5.0#/presets/startCockroachDB) | [Reference](https://pkg.go.dev/github.com/orlangure/gnomock/preset/cockroachdb?tab=doc) | `v19.2.11`, `v20.1.10`
 InfluxDB | [Go package](https://github.com/orlangure/gnomock/tree/master/preset/influxdb) | [Docs](https://app.swaggerhub.com/apis/orlangure/gnomock/1.5.0#/presets/startInfluxDB) | [Reference](https://pkg.go.dev/github.com/orlangure/gnomock/preset/influxdb?tab=doc) | `2.0.4-alpine`
+Cassandra | [Go package](https://github.com/orlangure/gnomock/tree/master/preset/cassandra) | [Docs](https://app.swaggerhub.com/apis/orlangure/gnomock/1.4.6#/presets/startCassandra) | [Reference](https://pkg.go.dev/github.com/orlangure/gnomock/preset/cassandra?tab=doc) | `4.0`, `3`
 <!-- new presets go here -->
 
 It is possible to use Gnomock [directly from
