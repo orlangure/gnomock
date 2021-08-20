@@ -145,3 +145,32 @@ tasks:
     cmds:
       - docker build --progress plain --tag orlangure/gnomock-cleaner .
     dir: ./cmd/cleaner
+
+  gnomock:upload:cleaner:
+    cmds:
+      - task: gnomock:build:cleaner
+      - docker push orlangure/gnomock-cleaner
+      - docker tag orlangure/gnomock-cleaner orlangure/gnomock-cleaner:{{.version}}
+      - docker push orlangure/gnomock-cleaner:{{.version}}
+    preconditions:
+      - sh: test $version
+        msg: version is not set
+      - sh: test "{{.CURRENT_BRANCH}}" != "master"
+        msg: version changes cannot happen on master branch
+
+  gnomock:upload:server:
+    cmds:
+      - task: gnomock:build:server
+      - docker push orlangure/gnomock
+      - docker tag orlangure/gnomock orlangure/gnomock:{{.version}}
+      - docker push orlangure/gnomock:{{.version}}
+    preconditions:
+      - sh: test $version
+        msg: version is not set
+      - sh: test "{{.CURRENT_BRANCH}}" != "master"
+        msg: version changes cannot happen on master branch
+
+  release:gnomock:docker:
+    cmds:
+      - task: gnomock:upload:cleaner
+      - task: gnomock:upload:server
