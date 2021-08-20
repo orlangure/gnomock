@@ -155,8 +155,8 @@ tasks:
     preconditions:
       - sh: test $version
         msg: version is not set
-      - sh: test "{{.CURRENT_BRANCH}}" != "master"
-        msg: version changes cannot happen on master branch
+      - sh: test "{{.CURRENT_BRANCH}}" == "master"
+        msg: docker images must be built on master
 
   gnomock:upload:server:
     cmds:
@@ -167,8 +167,8 @@ tasks:
     preconditions:
       - sh: test $version
         msg: version is not set
-      - sh: test "{{.CURRENT_BRANCH}}" != "master"
-        msg: version changes cannot happen on master branch
+      - sh: test "{{.CURRENT_BRANCH}}" == "master"
+        msg: docker images must be built on master
 
   release:gnomock:docker:
     cmds:
