@@ -21,7 +21,7 @@ require (
 	github.com/gorilla/mux v1.8.0
 	github.com/influxdata/influxdb-client-go/v2 v2.5.0
 	github.com/klauspost/compress v1.13.3 // indirect
-	github.com/lib/pq v1.10.2
+	github.com/lib/pq v1.10.3
 	github.com/moby/term v0.0.0-20201216013528-df9cb8a40635 // indirect
 	github.com/morikuni/aec v1.0.0 // indirect
 	github.com/segmentio/kafka-go v0.4.17
