@@ -19,6 +19,7 @@ const (
 	defaultSSLMode  = "disable"
 	defaultPort     = 5432
 	defaultVersion  = "12.5"
+	defaultTimezone = "Etc/UTC"
 )
 
 func init() {
@@ -48,6 +49,7 @@ type P struct {
 	QueriesFiles []string `json:"queries_files"`
 	User         string   `json:"user"`
 	Password     string   `json:"password"`
+	Timezone     string   `json:"timezone"`
 	Version      string   `json:"version"`
 }
 
@@ -77,6 +79,7 @@ func (p *P) Options() []gnomock.Option {
 	opts := []gnomock.Option{
 		gnomock.WithHealthCheck(p.healthcheck),
 		gnomock.WithEnv("POSTGRES_PASSWORD=" + defaultPassword),
+		gnomock.WithEnv("TZ=" + p.Timezone),
 		gnomock.WithInit(p.initf()),
 	}
 
@@ -150,6 +153,10 @@ func (p *P) setDefaults() {
 
 	if p.Version == "" {
 		p.Version = defaultVersion
+	}
+
+	if p.Timezone == "" {
+		p.Timezone = defaultTimezone
 	}
 }
 
