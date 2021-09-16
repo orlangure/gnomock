@@ -169,6 +169,14 @@ func WithRegistryAuth(auth string) Option {
 	}
 }
 
+// WithReuse use with WithContainerName + WithDisableAutoCleanup, when the
+// same name already exists, it reuse instead of kill
+func WithReuse(reset ResetFunc) Option {
+	return func(o *Options) {
+		o.reset = reset
+	}
+}
+
 // HealthcheckFunc defines a function to be used to determine container health.
 // It receives a host and a port, and returns an error if the container is not
 // ready, or nil when the container can be used. One example of HealthcheckFunc
@@ -188,6 +196,10 @@ type InitFunc func(context.Context, *Container) error
 func nopInit(context.Context, *Container) error {
 	return nil
 }
+
+// ResetFunc defines a function to be called on the same name container already
+// exists, instead of kill before. It callbe before InitFunc.
+type ResetFunc func(context.Context, *Container) error
 
 // Options includes Gnomock startup configuration. Functional options
 // (WithSomething) should be used instead of directly initializing objects of
@@ -240,6 +252,7 @@ type Options struct {
 	healthcheck         HealthcheckFunc
 	healthcheckInterval time.Duration
 	logWriter           io.Writer
+	reset               ResetFunc
 }
 
 func buildConfig(opts ...Option) *Options {

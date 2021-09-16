@@ -257,6 +257,16 @@ func (d *docker) createContainer(ctx context.Context, image string, ports NamedP
 
 	matches := rxp.FindStringSubmatch(err.Error())
 	if len(matches) == 2 {
+		if cfg.reset != nil {
+			d.log.Infow("duplicate container found, reuse", "container", matches[1])
+
+			cont, err := d.client.ContainerInspect(ctx, matches[1])
+			if err != nil {
+				return nil, fmt.Errorf("can't inspect existing container: %w", err)
+			}
+			return &container.ContainerCreateCreatedBody{ID: cont.ID}, nil
+		}
+
 		d.log.Infow("duplicate container found, stopping", "container", matches[1])
 
 		err = d.client.ContainerRemove(ctx, matches[1], types.ContainerRemoveOptions{

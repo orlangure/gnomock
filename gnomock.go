@@ -122,6 +122,11 @@ func StartCustom(image string, ports NamedPorts, opts ...Option) (c *Container, 
 		return c, fmt.Errorf("can't connect to container: %w", err)
 	}
 
+	err = g.resetf(ctx, c, config)
+	if err != nil {
+		return c, fmt.Errorf("can't reset container: %w", err)
+	}
+
 	err = g.initf(ctx, c, config)
 	if err != nil {
 		return c, fmt.Errorf("can't init container: %w", err)
@@ -294,6 +299,15 @@ func (g *g) initf(ctx context.Context, c *Container, config *Options) error {
 	g.log.Info("starting initial state setup")
 
 	return config.init(ctx, envAwareClone(c))
+}
+
+func (g *g) resetf(ctx context.Context, c *Container, config *Options) error {
+	if config.reset == nil {
+		return nil
+	}
+	g.log.Info("starting reset state setup")
+
+	return config.reset(ctx, envAwareClone(c))
 }
 
 // envAwareClone returns a copy of the provided container adjusted for usage
