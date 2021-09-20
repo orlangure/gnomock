@@ -785,6 +785,10 @@ components:
           description: SQL files to execute while setting up container state.
           example:
             - /home/gnomock/project/testdata/postgres/queries.sql
+        timezone:
+          type: string
+          description: The timezone in the container.
+          example: Europe/Paris
         version:
           type: string
           description: Docker image tag (version)
