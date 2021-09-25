@@ -44,7 +44,7 @@ func WithVersion(version string) Option {
 	}
 }
 
-// WithTimezone set the postgres timezone.
+// WithTimezone sets the timezone in this container.
 func WithTimezone(timezone string) Option {
 	return func(p *P) {
 		p.Timezone = timezone
