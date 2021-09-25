@@ -71,10 +71,11 @@ func TestPreset_withDefaults(t *testing.T) {
 	connStr := fmt.Sprintf(
 		"host=%s port=%d user=%s password=%s  dbname=%s sslmode=disable",
 		container.Host, container.DefaultPort(),
-		"gnomock", "gnomick", "mydb",
+		"postgres", "password", "postgres",
 	)
 
 	db, err := sql.Open("postgres", connStr)
+	require.NoError(t, db.Ping())
 	require.NoError(t, err)
 	require.NoError(t, db.Close())
 }
