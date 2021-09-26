@@ -82,6 +82,7 @@ func TestPreset_withDefaults(t *testing.T) {
 	)
 
 	db, err := sql.Open("postgres", connStr)
+	require.NoError(t, db.Ping())
 	require.NoError(t, err)
 
 	var timezone string
