@@ -19,7 +19,6 @@ const (
 	defaultSSLMode  = "disable"
 	defaultPort     = 5432
 	defaultVersion  = "12.5"
-	defaultTimezone = "Etc/UTC"
 )
 
 func init() {
@@ -81,6 +80,10 @@ func (p *P) Options() []gnomock.Option {
 		gnomock.WithEnv("POSTGRES_PASSWORD=" + defaultPassword),
 		gnomock.WithEnv("TZ=" + p.Timezone),
 		gnomock.WithInit(p.initf()),
+	}
+
+	if p.Timezone != "" {
+		opts = append(opts, gnomock.WithEnv("TZ="+p.Timezone))
 	}
 
 	return opts
@@ -153,10 +156,6 @@ func (p *P) setDefaults() {
 
 	if p.Version == "" {
 		p.Version = defaultVersion
-	}
-
-	if p.Timezone == "" {
-		p.Timezone = defaultTimezone
 	}
 }
 
