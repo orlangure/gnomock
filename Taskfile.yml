@@ -147,6 +147,9 @@ tasks:
     dir: ./cmd/cleaner
 
   gnomock:upload:cleaner:
+    vars:
+      CURRENT_BRANCH:
+        sh: git branch --show-current
     cmds:
       - task: gnomock:build:cleaner
       - docker push orlangure/gnomock-cleaner
@@ -159,6 +162,9 @@ tasks:
         msg: docker images must be built on master
 
   gnomock:upload:server:
+    vars:
+      CURRENT_BRANCH:
+        sh: git branch --show-current
     cmds:
       - task: gnomock:build:server
       - docker push orlangure/gnomock
