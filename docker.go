@@ -9,6 +9,7 @@ import (
 	"os"
 	"regexp"
 	"strconv"
+	"strings"
 	"sync"
 	"time"
 
@@ -26,6 +27,7 @@ const (
 	localhostAddr             = "127.0.0.1"
 	defaultStopTimeout        = time.Second * 1
 	duplicateContainerPattern = `Conflict. The container name "(?:.+?)" is already in use by container "(\w+)". You have to remove \(or rename\) that container to be able to reuse that name.` // nolint:lll
+	noSuchImagePattern        = `Error response from daemon: No such image: (.+:.+)`
 	dockerSockAddr            = "/var/run/docker.sock"
 )
 
@@ -56,6 +58,28 @@ func (g *g) dockerConnect() (*docker, error) {
 	g.log.Info("connected to docker engine")
 
 	return &docker{client: cli, log: g.log}, nil
+}
+
+// isExistingLocalImage it doesn't work perfectly.
+// If the input image is "docker.io/library/mongo:4.4" and existing image tag is
+// "mongo:4.4", it will return true(expected).
+// If the input image is "docker.io/circleci/mongo:4.4" and existing image tag is
+// "mongo:4.4"(not "circleci/mongo:4.4"), it will still return true(unexpected).
+// We should handle this corner case.
+func (d *docker) isExistingLocalImage(ctx context.Context, image string) (bool, error) {
+	images, err := d.client.ImageList(ctx, types.ImageListOptions{All: true})
+	if err != nil {
+		return false, fmt.Errorf("can't list image: %w", err)
+	}
+
+	for _, img := range images {
+		for _, repoTag := range img.RepoTags {
+			if strings.HasSuffix(image, repoTag) {
+				return true, nil
+			}
+		}
+	}
+	return false, nil
 }
 
 func (d *docker) pullImage(ctx context.Context, image string, cfg *Options) error {
@@ -89,11 +113,43 @@ func (d *docker) pullImage(ctx context.Context, image string, cfg *Options) erro
 func (d *docker) startContainer(ctx context.Context, image string, ports NamedPorts, cfg *Options) (*Container, error) {
 	d.log.Info("starting container")
 
-	if err := d.pullImage(ctx, image, cfg); err != nil {
-		return nil, fmt.Errorf("can't pull image: %w", err)
+	pullImage := true
+	if cfg.UseLocalImagesFirst {
+		isExisting, err := d.isExistingLocalImage(ctx, image)
+		if err != nil {
+			return nil, fmt.Errorf("can't list image: %w", err)
+		}
+		if isExisting {
+			pullImage = false
+		}
 	}
 
-	resp, err := d.createContainer(ctx, image, ports, cfg)
+	var resp *container.ContainerCreateCreatedBody
+	var err error
+	// execute at most twice
+	for i := 0; i < 2; i++ {
+		if pullImage {
+			if err = d.pullImage(ctx, image, cfg); err != nil {
+				return nil, fmt.Errorf("can't pull image: %w", err)
+			}
+		}
+
+		resp, err = d.createContainer(ctx, image, ports, cfg)
+		if err != nil {
+			rxp, rxpErr := regexp.Compile(noSuchImagePattern)
+			if rxpErr != nil {
+				return nil, fmt.Errorf("can't find existing image: %w", err)
+			}
+			if rxp.MatchString(err.Error())  {
+				// should retry
+				pullImage = true
+				continue
+			}
+
+			return nil, fmt.Errorf("can't create container: %w", err)
+		}
+		break
+	}
 	if err != nil {
 		return nil, fmt.Errorf("can't create container: %w", err)
 	}
@@ -107,8 +163,7 @@ func (d *docker) startContainer(ctx context.Context, image string, ports NamedPo
 			return
 		}
 
-		if sc, err := StartCustom(
-			cleaner.Image, DefaultTCP(cleaner.Port),
+		opts := []Option{
 			WithDisableAutoCleanup(),
 			WithHostMounts(dockerSockAddr, dockerSockAddr),
 			WithHealthCheck(func(ctx context.Context, c *Container) error {
@@ -117,6 +172,13 @@ func (d *docker) startContainer(ctx context.Context, image string, ports NamedPo
 			WithInit(func(ctx context.Context, c *Container) error {
 				return cleaner.Notify(context.Background(), c.DefaultAddress(), resp.ID)
 			}),
+		}
+		if cfg.UseLocalImagesFirst{
+			opts = append(opts,WithUseLocalImagesFirst())
+		}
+		if sc, err := StartCustom(
+			cleaner.Image, DefaultTCP(cleaner.Port),
+			opts...,
 		); err == nil {
 			sidecarChan <- sc.ID
 		}

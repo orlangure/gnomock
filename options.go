@@ -154,6 +154,13 @@ func WithDisableAutoCleanup() Option {
 	}
 }
 
+// WithUseLocalImagesFirst will try to use existing local image rather than always pull the image.
+func WithUseLocalImagesFirst() Option {
+	return func(o *Options) {
+		o.UseLocalImagesFirst = true
+	}
+}
+
 // WithRegistryAuth allows to access private docker images. The credentials
 // should be passes as a Base64 encoded string, where the content is a JSON
 // string with two fields: username and password.
@@ -223,6 +230,9 @@ type Options struct {
 	// stopped and removed after the tests are complete. By default, Gnomock
 	// will try to stop containers created by it right after the tests exit.
 	DisableAutoCleanup bool `json:"disable_cleanup"`
+
+	// UseLocalImagesFirst to avoid hitting the docker hub pull rate limit.
+	UseLocalImagesFirst bool `json:"use_local_images_first"`
 
 	// Base64 encoded JSON string with docker access credentials. JSON string
 	// should include two fields: username and password. For Docker Hub, if 2FA
