@@ -25,6 +25,7 @@ func ExamplePreset() {
 		postgres.WithUser("gnomock", "gnomick"),
 		postgres.WithDatabase("mydb"),
 		postgres.WithQueries(queries, query),
+		postgres.WithTimezone("Europe/Paris"),
 	)
 
 	container, err := gnomock.Start(p)

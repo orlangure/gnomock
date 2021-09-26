@@ -48,6 +48,7 @@ type P struct {
 	QueriesFiles []string `json:"queries_files"`
 	User         string   `json:"user"`
 	Password     string   `json:"password"`
+	Timezone     string   `json:"timezone"`
 	Version      string   `json:"version"`
 }
 
@@ -77,7 +78,12 @@ func (p *P) Options() []gnomock.Option {
 	opts := []gnomock.Option{
 		gnomock.WithHealthCheck(p.healthcheck),
 		gnomock.WithEnv("POSTGRES_PASSWORD=" + defaultPassword),
+		gnomock.WithEnv("TZ=" + p.Timezone),
 		gnomock.WithInit(p.initf()),
+	}
+
+	if p.Timezone != "" {
+		opts = append(opts, gnomock.WithEnv("TZ="+p.Timezone))
 	}
 
 	return opts

@@ -31,6 +31,7 @@ func testPreset(version string) func(t *testing.T) {
 			postgres.WithQueries(queries, query),
 			postgres.WithQueriesFile("./testdata/queries.sql"),
 			postgres.WithVersion(version),
+			postgres.WithTimezone("Europe/Paris"),
 		)
 
 		container, err := gnomock.Start(p)
@@ -56,6 +57,12 @@ func testPreset(version string) func(t *testing.T) {
 		require.Equal(t, float64(2), avg)
 		require.Equal(t, float64(1), min)
 		require.Equal(t, float64(3), count)
+
+		var timezone string
+
+		timezoneRow := db.QueryRow("show timezone")
+		require.NoError(t, timezoneRow.Scan(&timezone))
+		require.Equal(t, "Europe/Paris", timezone)
 	}
 }
 
@@ -77,6 +84,13 @@ func TestPreset_withDefaults(t *testing.T) {
 	db, err := sql.Open("postgres", connStr)
 	require.NoError(t, db.Ping())
 	require.NoError(t, err)
+
+	var timezone string
+
+	timezoneRow := db.QueryRow("show timezone")
+	require.NoError(t, timezoneRow.Scan(&timezone))
+	require.Equal(t, "Etc/UTC", timezone)
+
 	require.NoError(t, db.Close())
 }
 
