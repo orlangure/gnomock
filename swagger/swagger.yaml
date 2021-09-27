@@ -7,7 +7,7 @@ info:
     testing toolkit. It allows to use Gnomock outside of Go ecosystem. Not all
     Gnomock features exist in this wrapper, but official presets, as well as
     basic general configuration, are supported.
-  version: 1.6.0
+  version: 1.7.0
   contact:
     url: https://github.com/orlangure/gnomock/
   license:
@@ -785,6 +785,10 @@ components:
           description: SQL files to execute while setting up container state.
           example:
             - /home/gnomock/project/testdata/postgres/queries.sql
+        timezone:
+          type: string
+          description: The timezone in the container.
+          example: Europe/Paris
         version:
           type: string
           description: Docker image tag (version)
