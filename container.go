@@ -67,6 +67,10 @@ func isInDocker() bool {
 	return env == "gnomockd"
 }
 
+func customDockerHostAddr() string {
+	return os.Getenv("GNOMOCK_HOST_ADDR")
+}
+
 func generateID(id, sidecar string) string {
 	if len(id) > 10 {
 		id = id[:10]

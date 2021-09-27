@@ -313,7 +313,9 @@ func envAwareClone(c *Container) *Container {
 	// when gnomock runs inside docker container, the other container is only
 	// accessible through the host
 	if isInDocker() {
-		if isHostDockerInternalAvailable() {
+		if hostAddr := customDockerHostAddr(); hostAddr != "" {
+			containerCopy.Host = hostAddr
+		} else if isHostDockerInternalAvailable() {
 			containerCopy.Host = "host.docker.internal"
 		} else {
 			containerCopy.Host = c.gateway
