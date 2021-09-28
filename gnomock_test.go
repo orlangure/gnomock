@@ -192,6 +192,42 @@ func TestGnomock_withCommand(t *testing.T) {
 	require.NoError(t, r.Close())
 }
 
+func TestGnomock_witUseLocalImagesFirst(t *testing.T) {
+	t.Parallel()
+
+	const (
+		mongoImage         = "docker.io/library/mongo:4.4"
+		circleciMongoImage = "docker.io/circleci/mongo:4.4"
+	)
+
+	container, err := gnomock.StartCustom(
+		mongoImage,
+		gnomock.DefaultTCP(testutil.GoodPort80),
+		gnomock.WithUseLocalImagesFirst(),
+	)
+	require.Nil(t, err)
+	require.NotNil(t, container)
+	require.NoError(t, gnomock.Stop(container))
+
+	container, err = gnomock.StartCustom(
+		mongoImage,
+		gnomock.DefaultTCP(testutil.GoodPort80),
+		gnomock.WithUseLocalImagesFirst(),
+	)
+	require.Nil(t, err)
+	require.NotNil(t, container)
+	require.NoError(t, gnomock.Stop(container))
+
+	container, err = gnomock.StartCustom(
+		circleciMongoImage,
+		gnomock.DefaultTCP(testutil.GoodPort80),
+		gnomock.WithUseLocalImagesFirst(),
+	)
+	require.Nil(t, err)
+	require.NotNil(t, container)
+	require.NoError(t, gnomock.Stop(container))
+}
+
 func initf(context.Context, *gnomock.Container) error {
 	return nil
 }

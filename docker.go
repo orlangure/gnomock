@@ -79,6 +79,7 @@ func (d *docker) isExistingLocalImage(ctx context.Context, image string) (bool, 
 			}
 		}
 	}
+
 	return false, nil
 }
 
@@ -113,45 +114,9 @@ func (d *docker) pullImage(ctx context.Context, image string, cfg *Options) erro
 func (d *docker) startContainer(ctx context.Context, image string, ports NamedPorts, cfg *Options) (*Container, error) {
 	d.log.Info("starting container")
 
-	pullImage := true
-	if cfg.UseLocalImagesFirst {
-		isExisting, err := d.isExistingLocalImage(ctx, image)
-		if err != nil {
-			return nil, fmt.Errorf("can't list image: %w", err)
-		}
-		if isExisting {
-			pullImage = false
-		}
-	}
-
-	var resp *container.ContainerCreateCreatedBody
-	var err error
-	// execute at most twice
-	for i := 0; i < 2; i++ {
-		if pullImage {
-			if err = d.pullImage(ctx, image, cfg); err != nil {
-				return nil, fmt.Errorf("can't pull image: %w", err)
-			}
-		}
-
-		resp, err = d.createContainer(ctx, image, ports, cfg)
-		if err != nil {
-			rxp, rxpErr := regexp.Compile(noSuchImagePattern)
-			if rxpErr != nil {
-				return nil, fmt.Errorf("can't find existing image: %w", err)
-			}
-			if rxp.MatchString(err.Error())  {
-				// should retry
-				pullImage = true
-				continue
-			}
-
-			return nil, fmt.Errorf("can't create container: %w", err)
-		}
-		break
-	}
+	resp, err := d.prepareContainer(ctx, image, ports, cfg)
 	if err != nil {
-		return nil, fmt.Errorf("can't create container: %w", err)
+		return nil, fmt.Errorf("can't prepare container: %w", err)
 	}
 
 	sidecarChan := make(chan string)
@@ -173,9 +138,10 @@ func (d *docker) startContainer(ctx context.Context, image string, ports NamedPo
 				return cleaner.Notify(context.Background(), c.DefaultAddress(), resp.ID)
 			}),
 		}
-		if cfg.UseLocalImagesFirst{
-			opts = append(opts,WithUseLocalImagesFirst())
+		if cfg.UseLocalImagesFirst {
+			opts = append(opts, WithUseLocalImagesFirst())
 		}
+
 		if sc, err := StartCustom(
 			cleaner.Image, DefaultTCP(cleaner.Port),
 			opts...,
@@ -201,6 +167,60 @@ func (d *docker) startContainer(ctx context.Context, image string, ports NamedPo
 	d.log.Infow("container started", "container", container)
 
 	return container, nil
+}
+
+func (d *docker) prepareContainer(
+	ctx context.Context,
+	image string,
+	ports NamedPorts,
+	cfg *Options,
+) (*container.ContainerCreateCreatedBody, error) {
+	pullImage := true
+
+	if cfg.UseLocalImagesFirst {
+		isExisting, err := d.isExistingLocalImage(ctx, image)
+		if err != nil {
+			return nil, fmt.Errorf("can't list image: %w", err)
+		}
+
+		if isExisting {
+			pullImage = false
+		}
+	}
+
+	var (
+		err  error
+		resp *container.ContainerCreateCreatedBody
+	)
+
+	// execute at most twice
+	for i := 0; i < 2; i++ {
+		if pullImage {
+			if err = d.pullImage(ctx, image, cfg); err != nil {
+				return nil, fmt.Errorf("can't pull image: %w", err)
+			}
+		}
+
+		resp, err = d.createContainer(ctx, image, ports, cfg)
+		if err != nil {
+			rxp, rxpErr := regexp.Compile(noSuchImagePattern)
+			if rxpErr != nil {
+				return nil, fmt.Errorf("can't find existing image: %w", err)
+			}
+
+			if rxp.MatchString(err.Error()) {
+				// should retry
+				pullImage = true
+				continue
+			}
+
+			return nil, fmt.Errorf("can't create container: %w", err)
+		}
+
+		break
+	}
+
+	return resp, err
 }
 
 func (d *docker) waitForContainerNetwork(ctx context.Context, id string, ports NamedPorts) (*Container, error) {
