@@ -154,7 +154,7 @@ func WithDisableAutoCleanup() Option {
 	}
 }
 
-// WithUseLocalImagesFirst will try to use existing local image rather than always pull the image.
+// UseLocalImagesFirst if possible to avoid hitting the Docker Hub pull rate limit.
 func WithUseLocalImagesFirst() Option {
 	return func(o *Options) {
 		o.UseLocalImagesFirst = true
@@ -231,7 +231,8 @@ type Options struct {
 	// will try to stop containers created by it right after the tests exit.
 	DisableAutoCleanup bool `json:"disable_cleanup"`
 
-	// UseLocalImagesFirst to avoid hitting the docker hub pull rate limit.
+	// WithUseLocalImagesFirst allows to use existing local images if possible
+	// instead of always pulling the images.
 	UseLocalImagesFirst bool `json:"use_local_images_first"`
 
 	// Base64 encoded JSON string with docker access credentials. JSON string

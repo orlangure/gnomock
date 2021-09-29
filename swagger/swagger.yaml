@@ -475,6 +475,9 @@ components:
         disable_cleanup:
           type: boolean
           description: Disables auto removal of this container after tests.
+        use_local_images_first:
+          type: boolean
+          description: If possible to avoid hitting the Docker Hub pull rate limit.
         auth:
           type: string
           description: >

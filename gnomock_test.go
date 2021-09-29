@@ -192,6 +192,7 @@ func TestGnomock_withCommand(t *testing.T) {
 	require.NoError(t, r.Close())
 }
 
+// See https://github.com/orlangure/gnomock/issues/302
 func TestGnomock_witUseLocalImagesFirst(t *testing.T) {
 	t.Parallel()
 
@@ -205,7 +206,7 @@ func TestGnomock_witUseLocalImagesFirst(t *testing.T) {
 		gnomock.DefaultTCP(testutil.GoodPort80),
 		gnomock.WithUseLocalImagesFirst(),
 	)
-	require.Nil(t, err)
+	require.NoError(t, err)
 	require.NotNil(t, container)
 	require.NoError(t, gnomock.Stop(container))
 
@@ -214,7 +215,7 @@ func TestGnomock_witUseLocalImagesFirst(t *testing.T) {
 		gnomock.DefaultTCP(testutil.GoodPort80),
 		gnomock.WithUseLocalImagesFirst(),
 	)
-	require.Nil(t, err)
+	require.NoError(t, err)
 	require.NotNil(t, container)
 	require.NoError(t, gnomock.Stop(container))
 
@@ -223,7 +224,7 @@ func TestGnomock_witUseLocalImagesFirst(t *testing.T) {
 		gnomock.DefaultTCP(testutil.GoodPort80),
 		gnomock.WithUseLocalImagesFirst(),
 	)
-	require.Nil(t, err)
+	require.NoError(t, err)
 	require.NotNil(t, container)
 	require.NoError(t, gnomock.Stop(container))
 }

@@ -27,7 +27,6 @@ const (
 	localhostAddr             = "127.0.0.1"
 	defaultStopTimeout        = time.Second * 1
 	duplicateContainerPattern = `Conflict. The container name "(?:.+?)" is already in use by container "(\w+)". You have to remove \(or rename\) that container to be able to reuse that name.` // nolint:lll
-	noSuchImagePattern        = `Error response from daemon: No such image: (.+:.+)`
 	dockerSockAddr            = "/var/run/docker.sock"
 )
 
@@ -60,12 +59,6 @@ func (g *g) dockerConnect() (*docker, error) {
 	return &docker{client: cli, log: g.log}, nil
 }
 
-// isExistingLocalImage it doesn't work perfectly.
-// If the input image is "docker.io/library/mongo:4.4" and existing image tag is
-// "mongo:4.4", it will return true(expected).
-// If the input image is "docker.io/circleci/mongo:4.4" and existing image tag is
-// "mongo:4.4"(not "circleci/mongo:4.4"), it will still return true(unexpected).
-// We should handle this corner case.
 func (d *docker) isExistingLocalImage(ctx context.Context, image string) (bool, error) {
 	images, err := d.client.ImageList(ctx, types.ImageListOptions{All: true})
 	if err != nil {
@@ -74,6 +67,10 @@ func (d *docker) isExistingLocalImage(ctx context.Context, image string) (bool, 
 
 	for _, img := range images {
 		for _, repoTag := range img.RepoTags {
+			if !strings.Contains(repoTag, "/") {
+				repoTag = "library/" + repoTag
+			}
+
 			if strings.HasSuffix(image, repoTag) {
 				return true, nil
 			}
@@ -188,36 +185,15 @@ func (d *docker) prepareContainer(
 		}
 	}
 
-	var (
-		err  error
-		resp *container.ContainerCreateCreatedBody
-	)
-
-	// execute at most twice
-	for i := 0; i < 2; i++ {
-		if pullImage {
-			if err = d.pullImage(ctx, image, cfg); err != nil {
-				return nil, fmt.Errorf("can't pull image: %w", err)
-			}
+	if pullImage {
+		if err := d.pullImage(ctx, image, cfg); err != nil {
+			return nil, fmt.Errorf("can't pull image: %w", err)
 		}
+	}
 
-		resp, err = d.createContainer(ctx, image, ports, cfg)
-		if err != nil {
-			rxp, rxpErr := regexp.Compile(noSuchImagePattern)
-			if rxpErr != nil {
-				return nil, fmt.Errorf("can't find existing image: %w", err)
-			}
-
-			if rxp.MatchString(err.Error()) {
-				// should retry
-				pullImage = true
-				continue
-			}
-
-			return nil, fmt.Errorf("can't create container: %w", err)
-		}
-
-		break
+	resp, err := d.createContainer(ctx, image, ports, cfg)
+	if err != nil {
+		return nil, fmt.Errorf("can't create container: %w", err)
 	}
 
 	return resp, err
