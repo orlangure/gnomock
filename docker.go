@@ -9,6 +9,7 @@ import (
 	"os"
 	"regexp"
 	"strconv"
+	"strings"
 	"sync"
 	"time"
 
@@ -58,6 +59,27 @@ func (g *g) dockerConnect() (*docker, error) {
 	return &docker{client: cli, log: g.log}, nil
 }
 
+func (d *docker) isExistingLocalImage(ctx context.Context, image string) (bool, error) {
+	images, err := d.client.ImageList(ctx, types.ImageListOptions{All: true})
+	if err != nil {
+		return false, fmt.Errorf("can't list image: %w", err)
+	}
+
+	for _, img := range images {
+		for _, repoTag := range img.RepoTags {
+			if !strings.Contains(repoTag, "/") {
+				repoTag = "library/" + repoTag
+			}
+
+			if strings.HasSuffix(image, repoTag) {
+				return true, nil
+			}
+		}
+	}
+
+	return false, nil
+}
+
 func (d *docker) pullImage(ctx context.Context, image string, cfg *Options) error {
 	d.log.Info("pulling image")
 
@@ -89,13 +111,9 @@ func (d *docker) pullImage(ctx context.Context, image string, cfg *Options) erro
 func (d *docker) startContainer(ctx context.Context, image string, ports NamedPorts, cfg *Options) (*Container, error) {
 	d.log.Info("starting container")
 
-	if err := d.pullImage(ctx, image, cfg); err != nil {
-		return nil, fmt.Errorf("can't pull image: %w", err)
-	}
-
-	resp, err := d.createContainer(ctx, image, ports, cfg)
+	resp, err := d.prepareContainer(ctx, image, ports, cfg)
 	if err != nil {
-		return nil, fmt.Errorf("can't create container: %w", err)
+		return nil, fmt.Errorf("can't prepare container: %w", err)
 	}
 
 	sidecarChan := make(chan string)
@@ -107,8 +125,7 @@ func (d *docker) startContainer(ctx context.Context, image string, ports NamedPo
 			return
 		}
 
-		if sc, err := StartCustom(
-			cleaner.Image, DefaultTCP(cleaner.Port),
+		opts := []Option{
 			WithDisableAutoCleanup(),
 			WithHostMounts(dockerSockAddr, dockerSockAddr),
 			WithHealthCheck(func(ctx context.Context, c *Container) error {
@@ -117,6 +134,14 @@ func (d *docker) startContainer(ctx context.Context, image string, ports NamedPo
 			WithInit(func(ctx context.Context, c *Container) error {
 				return cleaner.Notify(context.Background(), c.DefaultAddress(), resp.ID)
 			}),
+		}
+		if cfg.UseLocalImagesFirst {
+			opts = append(opts, WithUseLocalImagesFirst())
+		}
+
+		if sc, err := StartCustom(
+			cleaner.Image, DefaultTCP(cleaner.Port),
+			opts...,
 		); err == nil {
 			sidecarChan <- sc.ID
 		}
@@ -139,6 +164,39 @@ func (d *docker) startContainer(ctx context.Context, image string, ports NamedPo
 	d.log.Infow("container started", "container", container)
 
 	return container, nil
+}
+
+func (d *docker) prepareContainer(
+	ctx context.Context,
+	image string,
+	ports NamedPorts,
+	cfg *Options,
+) (*container.ContainerCreateCreatedBody, error) {
+	pullImage := true
+
+	if cfg.UseLocalImagesFirst {
+		isExisting, err := d.isExistingLocalImage(ctx, image)
+		if err != nil {
+			return nil, fmt.Errorf("can't list image: %w", err)
+		}
+
+		if isExisting {
+			pullImage = false
+		}
+	}
+
+	if pullImage {
+		if err := d.pullImage(ctx, image, cfg); err != nil {
+			return nil, fmt.Errorf("can't pull image: %w", err)
+		}
+	}
+
+	resp, err := d.createContainer(ctx, image, ports, cfg)
+	if err != nil {
+		return nil, fmt.Errorf("can't create container: %w", err)
+	}
+
+	return resp, err
 }
 
 func (d *docker) waitForContainerNetwork(ctx context.Context, id string, ports NamedPorts) (*Container, error) {
