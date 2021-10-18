@@ -5,7 +5,6 @@ import (
 	"errors"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"net/http"
 	"testing"
 	"time"
@@ -151,7 +150,7 @@ func TestGnomock_withLogWriter(t *testing.T) {
 	go func() {
 		defer close(signal)
 
-		log, err := ioutil.ReadAll(r)
+		log, err := io.ReadAll(r)
 		require.NoError(t, err)
 		require.Contains(t, string(log), "starting with env1 = '', env2 = ''\n")
 	}()
@@ -180,7 +179,7 @@ func TestGnomock_withCommand(t *testing.T) {
 	go func() {
 		defer close(signal)
 
-		log, err := ioutil.ReadAll(r)
+		log, err := io.ReadAll(r)
 		require.NoError(t, err)
 		require.Contains(t, string(log), "[foo bar]")
 	}()
@@ -243,7 +242,7 @@ func requireResponse(t *testing.T, url string, expected string) {
 
 	require.Equal(t, http.StatusOK, resp.StatusCode)
 
-	body, err := ioutil.ReadAll(resp.Body)
+	body, err := io.ReadAll(resp.Body)
 
 	require.NoError(t, err)
 	require.Equal(t, expected, string(body))

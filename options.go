@@ -3,7 +3,6 @@ package gnomock
 import (
 	"context"
 	"io"
-	"io/ioutil"
 	"time"
 )
 
@@ -260,7 +259,7 @@ func buildConfig(opts ...Option) *Options {
 		healthcheck:         nopHealthcheck,
 		healthcheckInterval: defaultHealthcheckInterval,
 		Timeout:             defaultTimeout,
-		logWriter:           ioutil.Discard,
+		logWriter:           io.Discard,
 	}
 
 	for _, opt := range opts {

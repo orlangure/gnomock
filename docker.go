@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"net/url"
 	"os"
 	"regexp"
@@ -98,7 +97,7 @@ func (d *docker) pullImage(ctx context.Context, image string, cfg *Options) erro
 		}
 	}()
 
-	_, err = ioutil.ReadAll(reader)
+	_, err = io.ReadAll(reader)
 	if err != nil {
 		return fmt.Errorf("can't read server output: %w", err)
 	}

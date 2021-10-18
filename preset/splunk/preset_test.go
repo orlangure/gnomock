@@ -7,7 +7,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"net/http"
 	"net/url"
 	"testing"
@@ -92,7 +92,7 @@ func TestPreset(t *testing.T) {
 			} `json:"result"`
 		}{}
 
-		bs, err := ioutil.ReadAll(res.Body)
+		bs, err := io.ReadAll(res.Body)
 		require.NoError(t, err)
 		require.NoError(t, json.Unmarshal(bs, &r))
 		require.Equal(t, "99", r.Result.Count)

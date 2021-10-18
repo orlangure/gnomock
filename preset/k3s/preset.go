@@ -32,7 +32,7 @@ package k3s
 import (
 	"context"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"net/http"
 
 	"github.com/orlangure/gnomock"
@@ -189,7 +189,7 @@ func ConfigBytes(c *gnomock.Container) (configBytes []byte, err error) {
 		return nil, fmt.Errorf("invalid kubeconfig response code '%d'", res.StatusCode)
 	}
 
-	configBytes, err = ioutil.ReadAll(res.Body)
+	configBytes, err = io.ReadAll(res.Body)
 	if err != nil {
 		return nil, fmt.Errorf("can't read kubeconfig body: %w", err)
 	}

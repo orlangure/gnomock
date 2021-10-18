@@ -7,7 +7,6 @@ import (
 	"errors"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"net/http"
 	"net/url"
 	"os"
@@ -288,7 +287,7 @@ func requestWithAuth(ctx context.Context, method, password string, isJSON bool) 
 			}
 		}()
 
-		bs, err = ioutil.ReadAll(resp.Body)
+		bs, err = io.ReadAll(resp.Body)
 		if err != nil {
 			return nil, fmt.Errorf("can't read response body: %w", err)
 		}

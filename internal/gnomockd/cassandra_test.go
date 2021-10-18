@@ -3,9 +3,10 @@ package gnomockd_test
 import (
 	"bytes"
 	"encoding/json"
-	"io/ioutil"
+	"io"
 	"net/http"
 	"net/http/httptest"
+	"os"
 	"testing"
 
 	"github.com/orlangure/gnomock"
@@ -18,7 +19,7 @@ func TestCassandra(t *testing.T) {
 	t.Parallel()
 
 	h := gnomockd.Handler()
-	bs, err := ioutil.ReadFile("./testdata/cassandra.json")
+	bs, err := os.ReadFile("./testdata/cassandra.json")
 	require.NoError(t, err)
 
 	buf := bytes.NewBuffer(bs)
@@ -29,7 +30,7 @@ func TestCassandra(t *testing.T) {
 
 	defer func() { require.NoError(t, res.Body.Close()) }()
 
-	body, err := ioutil.ReadAll(res.Body)
+	body, err := io.ReadAll(res.Body)
 	require.NoError(t, err)
 
 	require.Equalf(t, http.StatusOK, res.StatusCode, string(body))
