@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"flag"
 	"fmt"
-	"io/ioutil"
 	"log"
 	"os"
 	"path"
@@ -331,7 +330,7 @@ func circleci(params presetParams) error {
 //
 // nolint:gosec
 func replacePlaceholder(targetFile, tmplFile, placeholder string, params presetParams) error {
-	targetBs, err := ioutil.ReadFile(targetFile)
+	targetBs, err := os.ReadFile(targetFile)
 	if err != nil {
 		return fmt.Errorf("can't read %s: %w", targetFile, err)
 	}
@@ -350,7 +349,7 @@ func replacePlaceholder(targetFile, tmplFile, placeholder string, params presetP
 
 	targetStr := strings.ReplaceAll(string(targetBs), placeholder, buf.String())
 
-	if err := ioutil.WriteFile(targetFile, []byte(targetStr), 0644); err != nil {
+	if err := os.WriteFile(targetFile, []byte(targetStr), 0644); err != nil {
 		return fmt.Errorf("can't write %s: %w", targetFile, err)
 	}
 

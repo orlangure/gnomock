@@ -5,9 +5,10 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"net/http"
 	"net/http/httptest"
+	"os"
 	"testing"
 
 	influxdb2 "github.com/influxdata/influxdb-client-go/v2"
@@ -22,7 +23,7 @@ func TestInfluxDB(t *testing.T) {
 	t.Parallel()
 
 	h := gnomockd.Handler()
-	bs, err := ioutil.ReadFile("./testdata/influxdb.json")
+	bs, err := os.ReadFile("./testdata/influxdb.json")
 	require.NoError(t, err)
 
 	buf := bytes.NewBuffer(bs)
@@ -33,7 +34,7 @@ func TestInfluxDB(t *testing.T) {
 
 	defer func() { require.NoError(t, res.Body.Close()) }()
 
-	body, err := ioutil.ReadAll(res.Body)
+	body, err := io.ReadAll(res.Body)
 	require.NoError(t, err)
 
 	require.Equalf(t, http.StatusOK, res.StatusCode, string(body))

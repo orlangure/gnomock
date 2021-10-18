@@ -5,10 +5,11 @@ import (
 	"crypto/tls"
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"net/http"
 	"net/http/httptest"
 	"net/url"
+	"os"
 	"testing"
 
 	"github.com/orlangure/gnomock"
@@ -21,7 +22,7 @@ func TestSplunk(t *testing.T) {
 	t.Parallel()
 
 	h := gnomockd.Handler()
-	bs, err := ioutil.ReadFile("./testdata/splunk.json")
+	bs, err := os.ReadFile("./testdata/splunk.json")
 	require.NoError(t, err)
 
 	buf := bytes.NewBuffer(bs)
@@ -32,7 +33,7 @@ func TestSplunk(t *testing.T) {
 
 	defer func() { require.NoError(t, res.Body.Close()) }()
 
-	body, err := ioutil.ReadAll(res.Body)
+	body, err := io.ReadAll(res.Body)
 	require.NoError(t, err)
 
 	require.Equalf(t, http.StatusOK, res.StatusCode, string(body))
@@ -71,7 +72,7 @@ func TestSplunk(t *testing.T) {
 		} `json:"result"`
 	}{}
 
-	bs, err = ioutil.ReadAll(res.Body)
+	bs, err = io.ReadAll(res.Body)
 	require.NoError(t, err)
 	require.NoError(t, json.Unmarshal(bs, &out))
 	require.Equal(t, "525", out.Result.Count)

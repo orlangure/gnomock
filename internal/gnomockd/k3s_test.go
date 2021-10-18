@@ -4,9 +4,10 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
-	"io/ioutil"
+	"io"
 	"net/http"
 	"net/http/httptest"
+	"os"
 	"testing"
 
 	"github.com/orlangure/gnomock"
@@ -22,7 +23,7 @@ func TestK3s(t *testing.T) {
 	t.Parallel()
 
 	h := gnomockd.Handler()
-	bs, err := ioutil.ReadFile("./testdata/k3s.json")
+	bs, err := os.ReadFile("./testdata/k3s.json")
 	require.NoError(t, err)
 
 	buf := bytes.NewBuffer(bs)
@@ -33,7 +34,7 @@ func TestK3s(t *testing.T) {
 
 	defer func() { require.NoError(t, res.Body.Close()) }()
 
-	body, err := ioutil.ReadAll(res.Body)
+	body, err := io.ReadAll(res.Body)
 	require.NoError(t, err)
 
 	require.Equalf(t, http.StatusOK, res.StatusCode, string(body))

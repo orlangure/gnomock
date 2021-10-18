@@ -5,8 +5,9 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"log"
+	"os"
 	"sync"
 
 	mysqldriver "github.com/go-sql-driver/mysql"
@@ -68,7 +69,7 @@ func (p *P) Ports() gnomock.NamedPorts {
 func (p *P) Options() []gnomock.Option {
 	setLoggerOnce.Do(func() {
 		// err is always nil for non-nil logger
-		_ = mysqldriver.SetLogger(log.New(ioutil.Discard, "", -1))
+		_ = mysqldriver.SetLogger(log.New(io.Discard, "", -1))
 	})
 
 	p.setDefaults()
@@ -115,7 +116,7 @@ func (p *P) initf() gnomock.InitFunc {
 
 		if len(p.QueriesFiles) > 0 {
 			for _, f := range p.QueriesFiles {
-				bs, err := ioutil.ReadFile(f) // nolint:gosec
+				bs, err := os.ReadFile(f) // nolint:gosec
 				if err != nil {
 					return fmt.Errorf("can't read queries file '%s': %w", f, err)
 				}

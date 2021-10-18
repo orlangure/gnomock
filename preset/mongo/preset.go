@@ -8,7 +8,6 @@ import (
 	"errors"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"os"
 	"path"
 	"strings"
@@ -109,7 +108,7 @@ func (p *P) initf(ctx context.Context, c *gnomock.Container) error {
 		return fmt.Errorf("can't connect: %w", err)
 	}
 
-	topLevelDirs, err := ioutil.ReadDir(p.DataPath)
+	topLevelDirs, err := os.ReadDir(p.DataPath)
 	if err != nil {
 		return fmt.Errorf("can't read test data path: %w", err)
 	}
@@ -133,7 +132,7 @@ func (p *P) useCustomUser() bool {
 }
 
 func (p *P) setupDB(client *mongodb.Client, dirName string) error {
-	dataFiles, err := ioutil.ReadDir(path.Join(p.DataPath, dirName))
+	dataFiles, err := os.ReadDir(path.Join(p.DataPath, dirName))
 	if err != nil {
 		return fmt.Errorf("can't read test data sub path '%s', %w", dirName, err)
 	}

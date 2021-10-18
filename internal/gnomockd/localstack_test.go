@@ -4,9 +4,10 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"net/http"
 	"net/http/httptest"
+	"os"
 	"strings"
 	"testing"
 
@@ -24,7 +25,7 @@ func TestLocalstack(t *testing.T) {
 	t.Parallel()
 
 	h := gnomockd.Handler()
-	bs, err := ioutil.ReadFile("./testdata/localstack.json")
+	bs, err := os.ReadFile("./testdata/localstack.json")
 	require.NoError(t, err)
 
 	buf := bytes.NewBuffer(bs)
@@ -35,7 +36,7 @@ func TestLocalstack(t *testing.T) {
 
 	defer func() { require.NoError(t, res.Body.Close()) }()
 
-	body, err := ioutil.ReadAll(res.Body)
+	body, err := io.ReadAll(res.Body)
 	require.NoError(t, err)
 
 	require.Equalf(t, http.StatusOK, res.StatusCode, string(body))
@@ -83,7 +84,7 @@ func TestLocalstack_invalidService(t *testing.T) {
 	t.Parallel()
 
 	h := gnomockd.Handler()
-	bs, err := ioutil.ReadFile("./testdata/localstack_invalid_service.json")
+	bs, err := os.ReadFile("./testdata/localstack_invalid_service.json")
 	require.NoError(t, err)
 
 	buf := bytes.NewBuffer(bs)
@@ -94,7 +95,7 @@ func TestLocalstack_invalidService(t *testing.T) {
 
 	defer func() { require.NoError(t, res.Body.Close()) }()
 
-	body, err := ioutil.ReadAll(res.Body)
+	body, err := io.ReadAll(res.Body)
 	require.NoError(t, err)
 
 	require.Equalf(t, http.StatusBadRequest, res.StatusCode, string(body))
@@ -104,7 +105,7 @@ func TestLocalstack_unknownService(t *testing.T) {
 	t.Parallel()
 
 	h := gnomockd.Handler()
-	bs, err := ioutil.ReadFile("./testdata/localstack_unknown_service.json")
+	bs, err := os.ReadFile("./testdata/localstack_unknown_service.json")
 	require.NoError(t, err)
 
 	buf := bytes.NewBuffer(bs)
@@ -115,7 +116,7 @@ func TestLocalstack_unknownService(t *testing.T) {
 
 	defer func() { require.NoError(t, res.Body.Close()) }()
 
-	body, err := ioutil.ReadAll(res.Body)
+	body, err := io.ReadAll(res.Body)
 	require.NoError(t, err)
 
 	require.Equalf(t, http.StatusBadRequest, res.StatusCode, string(body))

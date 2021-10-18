@@ -2,7 +2,6 @@ package localstack
 
 import (
 	"fmt"
-	"io/ioutil"
 	"os"
 	"path"
 	"path/filepath"
@@ -65,7 +64,7 @@ func (p *P) initS3(c *gnomock.Container) error {
 }
 
 func (p *P) createBuckets(svc *s3.S3) ([]string, error) {
-	files, err := ioutil.ReadDir(p.S3Path)
+	files, err := os.ReadDir(p.S3Path)
 	if err != nil {
 		return nil, fmt.Errorf("can't read s3 initial files: %w", err)
 	}

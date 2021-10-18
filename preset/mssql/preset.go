@@ -5,7 +5,7 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
-	"io/ioutil"
+	"os"
 
 	_ "github.com/denisenkom/go-mssqldb" // mssql driver
 	"github.com/orlangure/gnomock"
@@ -118,7 +118,7 @@ func (p *P) initf() gnomock.InitFunc {
 
 		if len(p.QueriesFiles) > 0 {
 			for _, f := range p.QueriesFiles {
-				bs, err := ioutil.ReadFile(f) // nolint:gosec
+				bs, err := os.ReadFile(f) // nolint:gosec
 				if err != nil {
 					return fmt.Errorf("can't read queries file '%s': %w", f, err)
 				}
