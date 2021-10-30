@@ -70,29 +70,35 @@ go get github.com/orlangure/gnomock
 Setting up a **Postgres** container with schema setup example:
 
 ```go
+package db_test
+
 import (
 	"database/sql"
+	"fmt"
+	"testing"
 
 	_ "github.com/lib/pq" // postgres driver
 	"github.com/orlangure/gnomock"
 	"github.com/orlangure/gnomock/preset/postgres"
 )
 
-p := postgres.Preset(
-    postgres.WithUser("gnomock", "gnomick"),
-    postgres.WithDatabase("mydb"),
-    postgres.WithQueriesFile("/var/project/db/schema.sql"),
-)
-container, _ := gnomock.Start(p)
-defer func() { _ = gnomock.Stop(container) }()
+func TestDB(t *testing.T) {
+	p := postgres.Preset(
+		postgres.WithUser("gnomock", "gnomick"),
+		postgres.WithDatabase("mydb"),
+		postgres.WithQueriesFile("/var/project/db/schema.sql"),
+	)
+	container, _ := gnomock.Start(p)
+	t.Cleanup(func() { _ = gnomock.Stop(container) })
 
-connStr := fmt.Sprintf(
-    "host=%s port=%d user=%s password=%s  dbname=%s sslmode=disable",
-    container.Host, container.DefaultPort(),
-    "gnomock", "gnomick", "mydb",
-)
-db, _ := sql.Open("postgres", connStr)
-// db has the required schema and data, and is ready to use
+	connStr := fmt.Sprintf(
+		"host=%s port=%d user=%s password=%s  dbname=%s sslmode=disable",
+		container.Host, container.DefaultPort(),
+		"gnomock", "gnomick", "mydb",
+	)
+	db, _ := sql.Open("postgres", connStr)
+	// db has the required schema and data, and is ready to use
+}
 ```
 
 See package
