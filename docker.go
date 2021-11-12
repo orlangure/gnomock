@@ -29,6 +29,8 @@ const (
 	dockerSockAddr            = "/var/run/docker.sock"
 )
 
+var duplicateContainerRegexp = regexp.MustCompile(duplicateContainerPattern)
+
 type docker struct {
 	client *client.Client
 	log    *zap.SugaredLogger
@@ -307,12 +309,7 @@ func (d *docker) createContainer(ctx context.Context, image string, ports NamedP
 		return &resp, nil
 	}
 
-	rxp, rxpErr := regexp.Compile(duplicateContainerPattern)
-	if rxpErr != nil {
-		return nil, fmt.Errorf("can't find conflicting container id: %w", err)
-	}
-
-	matches := rxp.FindStringSubmatch(err.Error())
+	matches := duplicateContainerRegexp.FindStringSubmatch(err.Error())
 	if len(matches) == 2 {
 		d.log.Infow("duplicate container found, stopping", "container", matches[1])
 
@@ -339,16 +336,18 @@ func (d *docker) boundNamedPorts(json types.ContainerJSON, namedPorts NamedPorts
 
 		hostPortNum, err := strconv.Atoi(bindings[0].HostPort)
 		if err != nil {
-			return nil, err
+			return nil, fmt.Errorf("invalid host port value '%s': %w", bindings[0].HostPort, err)
 		}
 
-		portName, err := namedPorts.Find(containerPort.Proto(), containerPort.Int())
+		proto, intPort := containerPort.Proto(), containerPort.Int()
+
+		portName, err := namedPorts.Find(proto, intPort)
 		if err != nil {
-			return nil, err
+			return nil, fmt.Errorf("can't find port %s/%d: %w", proto, intPort, err)
 		}
 
 		boundNamedPorts[portName] = Port{
-			Protocol: containerPort.Proto(),
+			Protocol: proto,
 			Port:     hostPortNum,
 		}
 	}

@@ -1,6 +1,9 @@
 package gnomock
 
-import "errors"
+import (
+	"errors"
+	"strings"
+)
 
 // DefaultPort should be used with simple containers that expose only one TCP
 // port. Use DefaultTCP function when creating a container, and use DefaultPort
@@ -59,7 +62,7 @@ func (p NamedPorts) Get(name string) Port {
 // protocol are known.
 func (p NamedPorts) Find(proto string, portNum int) (string, error) {
 	for name, port := range p {
-		if proto == port.Protocol && portNum == port.Port {
+		if strings.EqualFold(proto, port.Protocol) && portNum == port.Port {
 			return name, nil
 		}
 	}

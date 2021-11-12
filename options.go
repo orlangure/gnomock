@@ -153,7 +153,7 @@ func WithDisableAutoCleanup() Option {
 	}
 }
 
-// UseLocalImagesFirst if possible to avoid hitting the Docker Hub pull rate limit.
+// WithUseLocalImagesFirst if possible to avoid hitting the Docker Hub pull rate limit.
 func WithUseLocalImagesFirst() Option {
 	return func(o *Options) {
 		o.UseLocalImagesFirst = true
