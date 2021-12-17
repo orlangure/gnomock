@@ -20,50 +20,59 @@ import (
 func TestPreset_s3(t *testing.T) {
 	t.Parallel()
 
-	p := localstack.Preset(
-		localstack.WithServices(localstack.S3),
-	)
-	c, err := gnomock.Start(p)
-
-	defer func() { require.NoError(t, gnomock.Stop(c)) }()
-
-	require.NoError(t, err)
-
-	s3Endpoint := fmt.Sprintf("http://%s/", c.Address(localstack.APIPort))
-	config := &aws.Config{
-		Region:           aws.String("us-east-1"),
-		Endpoint:         aws.String(s3Endpoint),
-		S3ForcePathStyle: aws.Bool(true),
-		Credentials:      credentials.NewStaticCredentials("a", "b", "c"),
+	for _, version := range []string{"0.12.2", "0.13.1"} {
+		t.Run(version, testS3(version))
 	}
-	sess, err := session.NewSession(config)
-	require.NoError(t, err)
+}
 
-	svc := s3.New(sess)
+func testS3(version string) func(*testing.T) {
+	return func(t *testing.T) {
+		p := localstack.Preset(
+			localstack.WithServices(localstack.S3),
+			localstack.WithVersion(version),
+		)
+		c, err := gnomock.Start(p)
 
-	_, err = svc.CreateBucket(&s3.CreateBucketInput{
-		Bucket: aws.String("foo"),
-	})
-	require.NoError(t, err)
+		defer func() { require.NoError(t, gnomock.Stop(c)) }()
 
-	out, err := svc.ListObjectsV2(&s3.ListObjectsV2Input{
-		Bucket: aws.String("foo"),
-	})
-	require.NoError(t, err)
-	require.Empty(t, out.Contents)
+		require.NoError(t, err)
 
-	_, err = svc.PutObject(&s3.PutObjectInput{
-		Body:   bytes.NewReader([]byte("this is a file")),
-		Key:    aws.String("file"),
-		Bucket: aws.String("foo"),
-	})
-	require.NoError(t, err)
+		s3Endpoint := fmt.Sprintf("http://%s/", c.Address(localstack.APIPort))
+		config := &aws.Config{
+			Region:           aws.String("us-east-1"),
+			Endpoint:         aws.String(s3Endpoint),
+			S3ForcePathStyle: aws.Bool(true),
+			Credentials:      credentials.NewStaticCredentials("a", "b", "c"),
+		}
+		sess, err := session.NewSession(config)
+		require.NoError(t, err)
 
-	out, err = svc.ListObjectsV2(&s3.ListObjectsV2Input{
-		Bucket: aws.String("foo"),
-	})
-	require.NoError(t, err)
-	require.Equal(t, 1, len(out.Contents))
+		svc := s3.New(sess)
+
+		_, err = svc.CreateBucket(&s3.CreateBucketInput{
+			Bucket: aws.String("foo"),
+		})
+		require.NoError(t, err)
+
+		out, err := svc.ListObjectsV2(&s3.ListObjectsV2Input{
+			Bucket: aws.String("foo"),
+		})
+		require.NoError(t, err)
+		require.Empty(t, out.Contents)
+
+		_, err = svc.PutObject(&s3.PutObjectInput{
+			Body:   bytes.NewReader([]byte("this is a file")),
+			Key:    aws.String("file"),
+			Bucket: aws.String("foo"),
+		})
+		require.NoError(t, err)
+
+		out, err = svc.ListObjectsV2(&s3.ListObjectsV2Input{
+			Bucket: aws.String("foo"),
+		})
+		require.NoError(t, err)
+		require.Equal(t, 1, len(out.Contents))
+	}
 }
 
 func TestPreset_wrongS3Path(t *testing.T) {

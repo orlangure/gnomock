@@ -22,7 +22,7 @@ const (
 	APIPort = "api"
 )
 
-const defaultVersion = "0.12.2"
+const defaultVersion = "0.13.1"
 
 func init() {
 	registry.Register("localstack", func() gnomock.Preset { return &P{} })
@@ -129,7 +129,9 @@ func (p *P) healthcheck(services []string) gnomock.HealthcheckFunc {
 
 		for _, service := range services {
 			status := hr.Services[service]
-			if status != "running" {
+			// available status was added in 0.13.0: it allows to lazy load the
+			// services after the first request
+			if status != "running" && status != "available" {
 				return fmt.Errorf("service '%s' is not running", service)
 			}
 		}
