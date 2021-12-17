@@ -7,7 +7,7 @@ info:
     testing toolkit. It allows to use Gnomock outside of Go ecosystem. Not all
     Gnomock features exist in this wrapper, but official presets, as well as
     basic general configuration, are supported.
-  version: 1.7.0
+  version: 1.19.0
   contact:
     url: https://github.com/orlangure/gnomock/
   license:
