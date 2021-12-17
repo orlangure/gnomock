@@ -122,7 +122,7 @@ versions might work as well.*</small>
 
 | Preset | Go package | HTTP API | Go API | Supported versions |
 |--------|------------|----------|--------|---------------------|
-Localstack (AWS) | [Go package](https://github.com/orlangure/gnomock/tree/master/preset/localstack) | [Docs](https://app.swaggerhub.com/apis/orlangure/gnomock/1.7.0#/presets/startLocalstack) | [Reference](https://pkg.go.dev/github.com/orlangure/gnomock/preset/localstack?tab=doc) | `0.12.2`
+Localstack (AWS) | [Go package](https://github.com/orlangure/gnomock/tree/master/preset/localstack) | [Docs](https://app.swaggerhub.com/apis/orlangure/gnomock/1.7.0#/presets/startLocalstack) | [Reference](https://pkg.go.dev/github.com/orlangure/gnomock/preset/localstack?tab=doc) | `0.12.2`, `0.13.1`
 Splunk | [Go package](https://github.com/orlangure/gnomock/tree/master/preset/splunk) | [Docs](https://app.swaggerhub.com/apis/orlangure/gnomock/1.7.0#/presets/startSplunk) | [Reference](https://pkg.go.dev/github.com/orlangure/gnomock/preset/splunk?tab=doc) | `8.0.2`
 Redis | [Go package](https://github.com/orlangure/gnomock/tree/master/preset/redis) | [Docs](https://app.swaggerhub.com/apis/orlangure/gnomock/1.7.0#/presets/startRedis) | [Reference](https://pkg.go.dev/github.com/orlangure/gnomock/preset/redis?tab=doc) | `5.0.10`, `6.0.9`
 Memcached | [Go package](https://github.com/orlangure/gnomock/tree/master/preset/memcached) | [Docs](https://app.swaggerhub.com/apis/orlangure/gnomock/1.7.0#/presets/startMemcached) | [Reference](https://pkg.go.dev/github.com/orlangure/gnomock/preset/memcached?tab=doc) | `1.6.9`
