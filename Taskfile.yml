@@ -37,7 +37,7 @@ tasks:
       - task: swagger:update-version
       - task: git:clone:python
       - task: generate:sdk:python
-      - task: test:sdk:python
+      # - task: test:sdk:python
       - task: git:commit:python
       - rm -rf ./dist
       - deactivate || true
