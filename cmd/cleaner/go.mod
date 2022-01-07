@@ -6,7 +6,7 @@ require github.com/orlangure/gnomock v0.15.2
 
 require (
 	github.com/Microsoft/go-winio v0.5.1 // indirect
-	github.com/containerd/containerd v1.5.8 // indirect
+	github.com/containerd/containerd v1.5.9 // indirect
 	github.com/docker/distribution v2.7.1+incompatible // indirect
 	github.com/docker/docker v20.10.8+incompatible // indirect
 	github.com/docker/go-connections v0.4.0 // indirect
