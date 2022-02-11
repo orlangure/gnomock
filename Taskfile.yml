@@ -65,6 +65,8 @@ tasks:
         msg: version is not set
       - sh: test "{{.CURRENT_BRANCH}}" != "master"
         msg: version changes cannot happen on master branch
+      - sh: test $release
+        msg: release flag is not set
 
   git:clone:python:
     cmds:
@@ -136,45 +138,113 @@ tasks:
     env:
       DOCKER_BUILDKIT: "1"
     cmds:
-      - docker build --progress plain --tag orlangure/gnomock .
+      - task: gnomock:build:server:amd64
+      - task: gnomock:build:server:arm64
+    dir: .
+
+  gnomock:build:server:amd64:
+    env:
+      DOCKER_BUILDKIT: "1"
+    cmds:
+      - docker build --build-arg GOARCH=amd64 --platform linux/amd64 --progress plain --tag orlangure/gnomock:amd64 .
+    status:
+      - test -z $release
+      - test {{ eq ARCH "amd64" }} == false
+    dir: .
+
+  gnomock:build:server:arm64:
+    env:
+      DOCKER_BUILDKIT: "1"
+    cmds:
+      - docker build --build-arg GOARCH=arm64 --platform linux/arm64 --progress plain --tag orlangure/gnomock:arm64 .
+    status:
+      - test -z $release
+      - test {{ eq ARCH "arm64" }} == false
     dir: .
 
   gnomock:build:cleaner:
     env:
       DOCKER_BUILDKIT: "1"
     cmds:
-      - docker build --progress plain --tag orlangure/gnomock-cleaner .
+      - task: gnomock:build:cleaner:amd64
+      - task: gnomock:build:cleaner:arm64
     dir: ./cmd/cleaner
 
+  gnomock:build:cleaner:amd64:
+    env:
+      DOCKER_BUILDKIT: "1"
+    cmds:
+      - docker build --build-arg GOARCH=amd64 --platform linux/amd64 --progress plain --tag orlangure/gnomock-cleaner:amd64 .
+    status:
+      - test -z $release
+      - test {{ eq ARCH "amd64" }} == false
+    dir: ./cmd/cleaner
+
+  gnomock:build:cleaner:arm64:
+    env:
+      DOCKER_BUILDKIT: "1"
+    cmds:
+      - docker build --build-arg GOARCH=arm64 --platform linux/arm64 --progress plain --tag orlangure/gnomock-cleaner:arm64 .
+    status:
+      - test -z $release
+      - test {{ eq ARCH "arm64" }} == false
+    dir: ./cmd/cleaner
+
+  # to release, set env `release` to true
   gnomock:upload:cleaner:
     vars:
       CURRENT_BRANCH:
         sh: git branch --show-current
     cmds:
       - task: gnomock:build:cleaner
-      - docker push orlangure/gnomock-cleaner
-      - docker tag orlangure/gnomock-cleaner orlangure/gnomock-cleaner:{{.version}}
-      - docker push orlangure/gnomock-cleaner:{{.version}}
+
+        # latest manifest
+      - docker push orlangure/gnomock-cleaner:amd64
+      - docker push orlangure/gnomock-cleaner:arm64
+      - docker manifest create --amend orlangure/gnomock-cleaner:latest orlangure/gnomock-cleaner:amd64 orlangure/gnomock-cleaner:arm64
+      - docker manifest push orlangure/gnomock-cleaner:latest
+
+        # version manifest
+      - docker tag orlangure/gnomock-cleaner:amd64 orlangure/gnomock-cleaner:{{.version}}-amd64
+      - docker tag orlangure/gnomock-cleaner:arm64 orlangure/gnomock-cleaner:{{.version}}-arm64
+      - docker push orlangure/gnomock-cleaner:{{.version}}-amd64
+      - docker push orlangure/gnomock-cleaner:{{.version}}-arm64
+      - docker manifest create --amend orlangure/gnomock-cleaner:{{.version}} orlangure/gnomock-cleaner:{{.version}}-amd64 orlangure/gnomock-cleaner:{{.version}}-arm64
+      - docker manifest push orlangure/gnomock-cleaner:{{.version}}
     preconditions:
       - sh: test $version
         msg: version is not set
       - sh: test "{{.CURRENT_BRANCH}}" == "master"
         msg: docker images must be built on master
 
+  # to release, set env `release` to true
   gnomock:upload:server:
     vars:
       CURRENT_BRANCH:
         sh: git branch --show-current
     cmds:
       - task: gnomock:build:server
-      - docker push orlangure/gnomock
-      - docker tag orlangure/gnomock orlangure/gnomock:{{.version}}
-      - docker push orlangure/gnomock:{{.version}}
+
+        # latest manifest
+      - docker push orlangure/gnomock:arm64
+      - docker push orlangure/gnomock:amd64
+      - docker manifest create --amend orlangure/gnomock:latest orlangure/gnomock:amd64 orlangure/gnomock:arm64
+      - docker manifest push orlangure/gnomock:latest
+
+        # version manifest
+      - docker tag orlangure/gnomock:amd64 orlangure/gnomock:{{.version}}-amd64
+      - docker tag orlangure/gnomock:arm64 orlangure/gnomock:{{.version}}-arm64
+      - docker push orlangure/gnomock:{{.version}}-amd64
+      - docker push orlangure/gnomock:{{.version}}-arm64
+      - docker manifest create --amend orlangure/gnomock:{{.version}} orlangure/gnomock:{{.version}}-amd64 orlangure/gnomock:{{.version}}-arm64
+      - docker manifest push orlangure/gnomock:{{.version}}
     preconditions:
       - sh: test $version
         msg: version is not set
       - sh: test "{{.CURRENT_BRANCH}}" == "master"
         msg: docker images must be built on master
+      - sh: test $release
+        msg: release flag is not set
 
   release:gnomock:docker:
     cmds:
