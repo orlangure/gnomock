@@ -67,6 +67,10 @@ jobs:
         uses: arduino/setup-task@v1
         with:
           version: '3.0.0'
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v1
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v1
       - name: Build orlangure/gnomock image
         run: task gnomock:build:server
       - name: Start Gnomock server
