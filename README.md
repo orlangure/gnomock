@@ -45,6 +45,7 @@ services running in ephemeral Docker containers:
 - [Official presets](#official-presets)
 - [Similar projects](#similar-projects)
 - [Troubleshooting](#troubleshooting)
+- [Giving back](#giving-back) 💰
 
 ## Getting started
 
@@ -221,3 +222,16 @@ argument to `docker run` to mount the current working directory under the same
 path inside the `gnomock` container. If you prefer to keep a permanent
 `gnomock` container running, you can mount your entire `$HOME` directory (or
 any other directory where you keep the code).
+
+## Giving back
+
+This is a free and open source project that hopefully helps its users, at least
+a little. Even though I don't need donations to support it, I understand that
+there are people that wish to give back anyway. If you are one of them, I
+encourage you to [plant some trees with Tree
+Nation](https://tree-nation.com/plant/offer) 🌲 🌳 🌴
+
+If you want me to know about your contribution, make sure to use
+`orlangure+gnomock@gmail.com` as the recipient email.
+
+Thank you!
