@@ -117,6 +117,10 @@ func WithOptions(options *Options) Option {
 			o.Timeout = options.Timeout
 		}
 
+		if options.CustomNamedPorts != nil {
+			o.CustomNamedPorts = options.CustomNamedPorts
+		}
+
 		o.Env = append(o.Env, options.Env...)
 		o.Debug = options.Debug
 		o.ContainerName = options.ContainerName
@@ -157,6 +161,14 @@ func WithDisableAutoCleanup() Option {
 func WithUseLocalImagesFirst() Option {
 	return func(o *Options) {
 		o.UseLocalImagesFirst = true
+	}
+}
+
+// WithCustomNamedPorts allows to define custom ports for a container. This
+// option should be used to override the ports defined by presets.
+func WithCustomNamedPorts(namedPorts NamedPorts) Option {
+	return func(o *Options) {
+		o.CustomNamedPorts = namedPorts
 	}
 }
 
@@ -233,6 +245,18 @@ type Options struct {
 	// WithUseLocalImagesFirst allows to use existing local images if possible
 	// instead of always pulling the images.
 	UseLocalImagesFirst bool `json:"use_local_images_first"`
+
+	// CustomNamedPorts allows to override the ports set by the presets. This
+	// option is useful for cases when the presets need to be created with
+	// custom port definitions. This is an advanced feature and should be used
+	// with care.
+	//
+	// Note that when using this option, you should provide custom named ports
+	// with names matching the original ports returned by the used preset.
+	//
+	// When calling StartCustom directly from Go, it is possible to provide the
+	// ports directly to the function.
+	CustomNamedPorts NamedPorts `json:"custom_named_ports"`
 
 	// Base64 encoded JSON string with docker access credentials. JSON string
 	// should include two fields: username and password. For Docker Hub, if 2FA
