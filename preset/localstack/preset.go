@@ -22,7 +22,7 @@ const (
 	APIPort = "api"
 )
 
-const defaultVersion = "0.13.1"
+const defaultVersion = "0.14.0"
 
 func init() {
 	registry.Register("localstack", func() gnomock.Preset { return &P{} })
