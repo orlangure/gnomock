@@ -97,3 +97,23 @@ func TestPreset_duplicateContainerName(t *testing.T) {
 	require.Error(t, gnomock.Stop(originalContainer))
 	require.NoError(t, gnomock.Stop(newContainer))
 }
+
+func TestPreset_customNamedPorts(t *testing.T) {
+	t.Parallel()
+
+	p := &testutil.TestPreset{Img: testutil.TestImage}
+	presetPorts := p.Ports()
+	pr := presetPorts["web80"]
+	pr.HostPort = 23080
+	presetPorts["web80"] = pr
+
+	container, err := gnomock.Start(
+		p,
+		gnomock.WithCustomNamedPorts(presetPorts),
+		gnomock.WithDebugMode(),
+	)
+
+	t.Cleanup(func() { require.NoError(t, gnomock.Stop(container)) })
+	require.NoError(t, err)
+	require.Equal(t, 23080, container.Ports.Get("web80").Port)
+}

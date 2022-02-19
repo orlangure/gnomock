@@ -478,6 +478,8 @@ components:
         use_local_images_first:
           type: boolean
           description: If possible to avoid hitting the Docker Hub pull rate limit.
+        custom_named_ports:
+          $ref: '#/components/schemas/named-ports'
         auth:
           type: string
           description: >

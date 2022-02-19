@@ -78,7 +78,7 @@ type g struct {
 // include tag, which is set to "latest" by default. Optional configuration is
 // available through Option functions. The returned container must be stopped
 // when no longer needed using its Stop() method.
-func StartCustom(image string, ports NamedPorts, opts ...Option) (c *Container, err error) {
+func StartCustom(image string, ports NamedPorts, opts ...Option) (*Container, error) {
 	config, image := buildConfig(opts...), buildImage(image)
 
 	g, err := newG(config.Debug)
@@ -88,9 +88,24 @@ func StartCustom(image string, ports NamedPorts, opts ...Option) (c *Container, 
 
 	defer func() { _ = g.log.Sync() }()
 
+	if config.CustomNamedPorts != nil {
+		ports = config.CustomNamedPorts
+	}
+
 	g.log.Infow("starting", "image", image, "ports", ports)
 	g.log.Infow("using config", "image", image, "ports", ports, "config", config)
 
+	c, err := newContainer(g, image, ports, config)
+	if err != nil {
+		return c, err
+	}
+
+	g.log.Infow("container is ready to use", "id", c.ID, "ports", c.Ports)
+
+	return c, nil
+}
+
+func newContainer(g *g, image string, ports NamedPorts, config *Options) (c *Container, err error) {
 	ctx, cancel := context.WithTimeout(config.ctx, config.Timeout)
 	defer cancel()
 
@@ -126,8 +141,6 @@ func StartCustom(image string, ports NamedPorts, opts ...Option) (c *Container, 
 	if err != nil {
 		return c, fmt.Errorf("can't init container: %w", err)
 	}
-
-	g.log.Infow("container is ready to use", "id", c.ID, "ports", c.Ports)
 
 	return c, nil
 }
