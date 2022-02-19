@@ -4,7 +4,7 @@ go 1.17
 
 require (
 	github.com/Microsoft/go-winio v0.5.1 // indirect
-	github.com/aws/aws-sdk-go v1.43.0
+	github.com/aws/aws-sdk-go v1.43.2
 	github.com/bradfitz/gomemcache v0.0.0-20190913173617-a41fca850d0b
 	github.com/containerd/containerd v1.5.9 // indirect
 	github.com/denisenkom/go-mssqldb v0.12.0
@@ -36,15 +36,15 @@ require (
 	golang.org/x/sys v0.0.0-20211124211545-fe61309f8881 // indirect
 	google.golang.org/genproto v0.0.0-20211118181313-81c1377c94b1 // indirect
 	google.golang.org/grpc v1.42.0 // indirect
-	k8s.io/api v0.23.3
-	k8s.io/apimachinery v0.23.3
-	k8s.io/client-go v0.23.3
+	k8s.io/api v0.23.4
+	k8s.io/apimachinery v0.23.4
+	k8s.io/client-go v0.23.4
 )
 
 require (
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/deepmap/oapi-codegen v1.8.2 // indirect
-	github.com/docker/distribution v2.7.1+incompatible // indirect
+	github.com/docker/distribution v2.8.0+incompatible // indirect
 	github.com/docker/go-units v0.4.0 // indirect
 	github.com/go-logr/logr v1.2.0 // indirect
 	github.com/go-stack/stack v1.8.0 // indirect
