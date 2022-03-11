@@ -8,7 +8,7 @@ require (
 	github.com/bradfitz/gomemcache v0.0.0-20190913173617-a41fca850d0b
 	github.com/containerd/containerd v1.5.9 // indirect
 	github.com/denisenkom/go-mssqldb v0.12.0
-	github.com/docker/docker v20.10.12+incompatible
+	github.com/docker/docker v20.10.13+incompatible
 	github.com/docker/go-connections v0.4.0
 	github.com/elastic/go-elasticsearch/v7 v7.17.1
 	github.com/go-redis/redis v6.15.9+incompatible
