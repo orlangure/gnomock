@@ -78,6 +78,30 @@ jobs:
       - name: Test Gnomock connection
         run: curl localhost:23042/stop -d '{"id":"42"}'
 
+  test-service-containers:
+    name: "[core] service container"
+    runs-on: ubuntu-latest
+    services:
+      gnomock:
+        image: orlangure/gnomock:v0.20.0
+        options: -v /var/run/docker.sock:/var/run/docker.sock
+        ports:
+        - 23042:23042
+    steps:
+      - name: Setup postgres
+        run: |
+          brew install httpie
+          http --ignore-stdin -v :23042/start/postgres options[custom_named_ports][default][protocol]=tcp options[custom_named_ports][default][port]:=5432 options[custom_named_ports][default][host_port]:=15432 options[debug]:=true
+
+      - name: Connect 1
+        run: PGPASSWORD=password psql -h 127.0.0.1 -U postgres -p 15432 -c "select 1;"
+
+      - name: Connect 2
+        run: PGPASSWORD=password psql -h 127.0.0.1 -U postgres -p 15432 -c "select 1;"
+
+      - name: Connect 3
+        run: PGPASSWORD=password psql -h 127.0.0.1 -U postgres -p 15432 -c "select 1;"
+
   test-localstack:
     name: "[preset] localstack"
     runs-on: ubuntu-latest
