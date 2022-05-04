@@ -16,8 +16,6 @@ import (
 const (
 	registryPlaceholder = `// new presets go here
 `
-	pytestPlaceholder = `### gnomock-generator
-`
 	startPresetPlaceholder = `### /start/preset
 `
 	requestBodyPlaceholder = `### preset-request
@@ -82,10 +80,6 @@ func generate() error {
 		}
 
 		if err := registry(pp); err != nil {
-			return err
-		}
-
-		if err := sdktestPkg(pp); err != nil {
 			return err
 		}
 
@@ -224,34 +218,6 @@ func registry(params presetParams) error {
 		params,
 	); err != nil {
 		return fmt.Errorf("can't generate registry code: %w", err)
-	}
-
-	return nil
-}
-
-// sdktestPkg generates code required for testing the generated SDK. It creates
-// a `testdata` folder for a new preset and adds a test stub to `test_sdk.py`.
-//
-// Test generator is the most basic possible: it will generate wrong names for
-// any preset that doesn't have a single word, simple case name like "Redis" or
-// "Kubernetes": names like RabbitMQ will break.
-func sdktestPkg(params presetParams) error {
-	testPath := path.Join("sdktest", "python", "test")
-	dir := path.Join(testPath, "testdata", strings.ToLower(params.Name))
-
-	if err := os.MkdirAll(dir, os.ModePerm); err != nil {
-		return fmt.Errorf("can't create testdata dir: %w", err)
-	}
-
-	pytestFileName := path.Join(testPath, "test_sdk.py")
-
-	if err := replacePlaceholder(
-		pytestFileName,
-		"cmd/generator/templates/sdktest/python/test/test_sdk.py.template",
-		pytestPlaceholder,
-		params,
-	); err != nil {
-		return fmt.Errorf("can't generate python tests: %w", err)
 	}
 
 	return nil

@@ -78,23 +78,6 @@ jobs:
       - name: Test Gnomock connection
         run: curl localhost:23042/stop -d '{"id":"42"}'
 
-  test-sdk:
-    name: "[sdk] python"
-    runs-on: ubuntu-latest
-    env:
-      CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
-    steps:
-      - name: Check out code into the Go module directory
-        uses: actions/checkout@v1
-      - name: Install Task
-        uses: arduino/setup-task@v1
-        with:
-          version: '3.0.0'
-      - name: Generate
-        run: task generate:sdk:python
-      - name: Test
-        run: task test:sdk:python
-
   test-localstack:
     name: "[preset] localstack"
     runs-on: ubuntu-latest

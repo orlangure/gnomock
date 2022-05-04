@@ -180,8 +180,7 @@ give Gnomock an advantage:
   Preset implementation whenever necessary.
 - Gnomock's vision includes **being useful not only in Go** projects, but in
   any projects via HTTP. It already supports almost all its features over HTTP
-  layer, has a clear OpenAPI spec, and even a proof of concept wrapper in
-  Python.
+  layer and has a clear OpenAPI spec.
 - Gnomock has a friendly **garden gnome mascot**😻
 
 ## Troubleshooting

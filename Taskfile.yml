@@ -28,32 +28,12 @@ tasks:
           ./internal/cleaner \
           ./internal/health
 
-  #
-  # SDK release routines
-  #
-
-  release:sdk:python:
-    cmds:
-      - task: swagger:update-version
-      - task: git:clone:python
-      - task: generate:sdk:python
-      # - task: test:sdk:python
-      - task: git:commit:python
-      - rm -rf ./dist
-      - deactivate || true
-      - python3 setup.py sdist bdist_wheel
-      - python3 -m twine upload dist/*
-    dir: ./sdktest/python/gnomock
-
   swagger:update-version:
     cmds:
       - |
         sed -Ei '' 's/^  version: (.*)$/  version: {{.version}}/' swagger/swagger.yaml
       - |
-        sed -Ei '' 's/^packageVersion: (.*)$/packageVersion: {{.version}}/' swagger/config/python.yaml
-      - |
         sed -Ei '' 's/apis\/orlangure\/gnomock\/(.*)#/apis\/orlangure\/gnomock\/{{.version}}#/' README.md
-      - git add README.md swagger/config/python.yaml swagger/swagger.yaml
       - git commit -m 'Update version to {{.version}}'
     silent: true
     dir: .
@@ -67,54 +47,6 @@ tasks:
         msg: version changes cannot happen on master branch
       - sh: test $release
         msg: release flag is not set
-
-  git:clone:python:
-    cmds:
-      - rm -rf gnomock
-      - git clone --depth 1 https://github.com/orlangure/gnomock-python-sdk gnomock
-    dir: ./sdktest/python
-
-  generate:sdk:python:
-    cmds:
-      - |
-        docker run --rm -v $PWD:/local \
-          openapitools/openapi-generator-cli:v4.3.1 generate \
-          -i /local/swagger/swagger.yaml \
-          -g python \
-          -o /local/sdktest/python/gnomock \
-          -c /local/swagger/config/python.yaml \
-          --git-user-id orlangure \
-          --git-repo-id gnomock-python-sdk
-    silent: true
-    dir: .
-
-  git:commit:python:
-    cmds:
-      - rm .travis.yml
-      - git add .
-      - git commit -m 'Bump version to {{.version}}'
-      - git push
-    dir: ./sdktest/python/gnomock
-    preconditions:
-      - sh: test $version
-        msg: version is not set
-
-  test:sdk:python:
-    cmds:
-      - task: gnomock:run
-      - |
-        {{ if not .CI }}
-        python3 -m venv venv
-        source venv/bin/activate
-        {{ else }}
-        docker system df
-        docker system prune -f
-        docker system df
-        {{ end }}
-        pip3 install -r requirements.txt
-        python3 -m pytest -n 1 -v -k TestSDK
-      - task: gnomock:stop
-    dir: ./sdktest/python
 
   gnomock:run:
     cmds:
