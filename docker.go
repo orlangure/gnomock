@@ -15,6 +15,7 @@ import (
 	"github.com/docker/docker/api/types"
 	"github.com/docker/docker/api/types/container"
 	"github.com/docker/docker/api/types/mount"
+	"github.com/docker/docker/api/types/network"
 	"github.com/docker/docker/client"
 	"github.com/docker/go-connections/nat"
 	"github.com/orlangure/gnomock/internal/cleaner"
@@ -30,6 +31,7 @@ const (
 )
 
 var duplicateContainerRegexp = regexp.MustCompile(duplicateContainerPattern)
+var networkLock sync.Mutex
 
 type docker struct {
 	client *client.Client
@@ -304,7 +306,17 @@ func (d *docker) createContainer(ctx context.Context, image string, ports NamedP
 		Mounts:       mounts,
 	}
 
-	resp, err := d.client.ContainerCreate(ctx, containerConfig, hostConfig, nil, nil, cfg.ContainerName)
+	var networkConfig *network.NetworkingConfig = nil
+	var err error
+
+	if cfg.Network != "" {
+		networkConfig, err = d.getNetworkConfig(ctx, cfg.Network)
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	resp, err := d.client.ContainerCreate(ctx, containerConfig, hostConfig, networkConfig, nil, cfg.ContainerName)
 	if err == nil {
 		return &resp, nil
 	}
@@ -324,6 +336,61 @@ func (d *docker) createContainer(ctx context.Context, image string, ports NamedP
 	}
 
 	return &resp, err
+}
+
+func (d *docker) getNetworkConfig(ctx context.Context, name string) (*network.NetworkingConfig, error) {
+	networkLock.Lock()
+	defer networkLock.Unlock()
+
+	networkID, err := d.getNetwork(ctx, name)
+	if err != nil {
+		return nil, err
+	}
+
+	if networkID == "" {
+		networkID, err = d.createNetwork(ctx, name)
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	return &network.NetworkingConfig{
+		EndpointsConfig: map[string]*network.EndpointSettings{
+			name: {
+				NetworkID: networkID,
+			},
+		},
+	}, nil
+}
+
+func (d *docker) getNetwork(ctx context.Context, name string) (string, error) {
+	retrievedNetworks, err := d.client.NetworkList(ctx, types.NetworkListOptions{})
+
+	if err != nil {
+		return "", fmt.Errorf("could not get network: %w", err)
+	}
+
+	existingNetworks := make([]types.NetworkResource, 0)
+	for _, network := range retrievedNetworks {
+		if network.Name == name {
+			existingNetworks = append(existingNetworks, network)
+		}
+	}
+
+	if len(existingNetworks) > 0 {
+		return existingNetworks[0].ID, nil
+	}
+
+	return "", nil
+}
+
+func (d *docker) createNetwork(ctx context.Context, name string) (string, error) {
+	response, err := d.client.NetworkCreate(ctx, name, types.NetworkCreate{})
+	if err != nil {
+		return "", fmt.Errorf("can't create network: %w", err)
+	}
+
+	return response.ID, nil
 }
 
 func (d *docker) boundNamedPorts(json types.ContainerJSON, namedPorts NamedPorts) (NamedPorts, error) {
