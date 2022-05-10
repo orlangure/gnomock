@@ -192,7 +192,7 @@ func TestGnomock_withCommand(t *testing.T) {
 }
 
 // See https://github.com/orlangure/gnomock/issues/302
-func TestGnomock_witUseLocalImagesFirst(t *testing.T) {
+func TestGnomock_withUseLocalImagesFirst(t *testing.T) {
 	t.Parallel()
 
 	const (
@@ -225,6 +225,38 @@ func TestGnomock_witUseLocalImagesFirst(t *testing.T) {
 	)
 	require.NoError(t, err)
 	require.NotNil(t, container)
+	require.NoError(t, gnomock.Stop(container))
+}
+
+func TestGnomock_withNetwork(t *testing.T) {
+	t.Parallel()
+
+	namedPorts := gnomock.NamedPorts{
+		"web80":   gnomock.TCP(testutil.GoodPort80),
+		"web8080": gnomock.TCP(testutil.GoodPort8080),
+	}
+	container, err := gnomock.StartCustom(
+		testutil.TestImage, namedPorts,
+		gnomock.WithHealthCheckInterval(time.Microsecond*500),
+		gnomock.WithHealthCheck(testutil.Healthcheck),
+		gnomock.WithInit(initf),
+		gnomock.WithContext(context.Background()),
+		gnomock.WithTimeout(time.Minute),
+		gnomock.WithEnv("GNOMOCK_TEST_1=foo"),
+		gnomock.WithEnv("GNOMOCK_TEST_2=bar"),
+		gnomock.WithNetwork("gnomock_network"),
+		gnomock.WithRegistryAuth(""),
+	)
+
+	require.NoError(t, err)
+	require.NotNil(t, container)
+
+	addr := fmt.Sprintf("http://%s/", container.Address("web80"))
+	requireResponse(t, addr, "80")
+
+	addr = fmt.Sprintf("http://%s/", container.Address("web8080"))
+	requireResponse(t, addr, "8080")
+
 	require.NoError(t, gnomock.Stop(container))
 }
 
