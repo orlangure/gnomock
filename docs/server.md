@@ -34,7 +34,7 @@ docker run --rm \
     -p 23042:23042 \
     -v /var/run/docker.sock:/var/run/docker.sock \
     -v $PWD:$PWD \
-    --privileged \ # this flag may be required on some systems
+    --privileged \
     orlangure/gnomock
 ```
 
@@ -45,6 +45,8 @@ can use any port you like, just make sure to configure the client properly.
 with the docker engine running on host. Without it `gnomock` can't access
 docker.
 
+`--privileged` may be required on some systems.
+ 
 If you use any file-related `gnomock` options, like `WithQueriesFile`, you have
 to make the path you use available inside the container:
 
