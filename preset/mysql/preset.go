@@ -1,4 +1,11 @@
-// Package mysql provides a Gnomock Preset for MySQL database
+// Package mysql provides a Gnomock Preset for MySQL database.
+//
+// This preset uses different docker images for amd64 and arm64 architectures.
+// Even though the versions should be compatible, you should make sure that the
+// tag being used exists in the following repositories:
+//
+// amd64: https://hub.docker.com/_/mysql/
+// arm64: https://hub.docker.com/r/mysql/mysql-server
 package mysql
 
 import (
@@ -53,11 +60,6 @@ type P struct {
 	Queries      []string `json:"queries"`
 	QueriesFiles []string `json:"queries_files"`
 	Version      string   `json:"version"`
-}
-
-// Image returns an image that should be pulled to create this container.
-func (p *P) Image() string {
-	return fmt.Sprintf("docker.io/library/mysql:%s", p.Version)
 }
 
 // Ports returns ports that should be used to access this container.
