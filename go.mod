@@ -26,7 +26,7 @@ require (
 	github.com/segmentio/kafka-go v0.4.31
 	github.com/streadway/amqp v1.0.0
 	github.com/stretchr/testify v1.7.1
-	go.mongodb.org/mongo-driver v1.9.0
+	go.mongodb.org/mongo-driver v1.9.1
 	go.uber.org/multierr v1.7.0 // indirect
 	go.uber.org/zap v1.21.0
 	golang.org/x/net v0.0.0-20220425223048-2871e0cb64e4 // indirect
