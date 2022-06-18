@@ -18,7 +18,7 @@ require (
 	github.com/google/gofuzz v1.2.0 // indirect
 	github.com/google/uuid v1.3.0
 	github.com/gorilla/mux v1.8.0
-	github.com/influxdata/influxdb-client-go/v2 v2.8.2
+	github.com/influxdata/influxdb-client-go/v2 v2.9.0
 	github.com/klauspost/compress v1.15.1 // indirect
 	github.com/lib/pq v1.10.6
 	github.com/moby/term v0.0.0-20210619224110-3f7ff695adc6 // indirect
