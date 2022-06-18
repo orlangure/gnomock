@@ -7,3 +7,10 @@ updates:
       time: "09:00"
     assignees:
       - "orlangure"
+  - package-ecosystem: "gomod"
+    directory: "/cmd/cleaner"
+    schedule:
+      interval: "daily"
+      time: "09:00"
+    assignees:
+      - "orlangure"
