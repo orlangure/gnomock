@@ -23,7 +23,7 @@ require (
 	github.com/lib/pq v1.10.6
 	github.com/moby/term v0.0.0-20210619224110-3f7ff695adc6 // indirect
 	github.com/morikuni/aec v1.0.0 // indirect
-	github.com/segmentio/kafka-go v0.4.31
+	github.com/segmentio/kafka-go v0.4.32
 	github.com/streadway/amqp v1.0.0
 	github.com/stretchr/testify v1.7.2
 	go.mongodb.org/mongo-driver v1.9.1
