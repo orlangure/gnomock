@@ -27,6 +27,9 @@
 // To connect to this cluster, use `Config` function that can be used together
 // with Kubernetes client for Go, or `ConfigBytes` that can be saved as
 // `kubeconfig` file and used by `kubectl`.
+//
+// This preset currently doesn't work on arm64 architecture, or on Ubuntu 22.04
+// (latest supported Ubuntu version is 20.04) due to internal cgroup changes.
 package k3s
 
 import (
