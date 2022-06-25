@@ -28,6 +28,7 @@ jobs:
 
   test-core:
     machine: true
+    resource_class: large
     steps:
       - setup-for-go-test
       - run:
@@ -39,6 +40,7 @@ jobs:
 
   test-localstack:
     machine: true
+    resource_class: large
     steps:
       - setup-for-go-test
       - run:
@@ -50,6 +52,7 @@ jobs:
 
   test-elastic:
     machine: true
+    resource_class: large
     steps:
       - setup-for-go-test
       - run:
@@ -61,6 +64,7 @@ jobs:
 
   test-memcached:
     machine: true
+    resource_class: large
     steps:
       - setup-for-go-test
       - run:
@@ -72,6 +76,7 @@ jobs:
 
   test-rabbitmq:
     machine: true
+    resource_class: large
     steps:
       - setup-for-go-test
       - run:
@@ -83,6 +88,7 @@ jobs:
 
   test-kafka:
     machine: true
+    resource_class: large
     steps:
       - setup-for-go-test
       - run:
@@ -94,6 +100,7 @@ jobs:
 
   test-postgres:
     machine: true
+    resource_class: large
     steps:
       - setup-for-go-test
       - run:
@@ -105,6 +112,7 @@ jobs:
 
   test-mariadb:
     machine: true
+    resource_class: large
     steps:
       - setup-for-go-test
       - run:
@@ -116,6 +124,7 @@ jobs:
 
   test-splunk:
     machine: true
+    resource_class: large
     steps:
       - setup-for-go-test
       - run:
@@ -127,6 +136,7 @@ jobs:
 
   test-redis:
     machine: true
+    resource_class: large
     steps:
       - setup-for-go-test
       - run:
@@ -138,6 +148,7 @@ jobs:
 
   test-mysql:
     machine: true
+    resource_class: large
     steps:
       - setup-for-go-test
       - run:
@@ -149,6 +160,7 @@ jobs:
 
   test-mssql:
     machine: true
+    resource_class: large
     steps:
       - setup-for-go-test
       - run:
@@ -160,6 +172,7 @@ jobs:
 
   test-mongo:
     machine: true
+    resource_class: large
     steps:
       - setup-for-go-test
       - run:
@@ -170,7 +183,9 @@ jobs:
           command: go test -race -cover -v ./internal/gnomockd -run TestMongo
 
   test-k3s:
-    machine: true
+    machine:
+      image: ubuntu-2004:2022.04.2
+    resource_class: large
     steps:
       - setup-for-go-test
       - run:
@@ -182,6 +197,7 @@ jobs:
 
   test-cockroachdb:
     machine: true
+    resource_class: large
     steps:
       - setup-for-go-test
       - run:
@@ -193,6 +209,7 @@ jobs:
 
   test-influxdb:
     machine: true
+    resource_class: large
     steps:
       - setup-for-go-test
       - run:
@@ -204,6 +221,7 @@ jobs:
 
   test-cassandra:
     machine: true
+    resource_class: large
     steps:
       - setup-for-go-test
       - run:
