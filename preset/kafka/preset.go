@@ -23,10 +23,11 @@ const (
 )
 
 const (
-	defaultVersion = "2.5.1-L0"
-	brokerPort     = 49092
-	zookeeperPort  = 2181
-	webPort        = 3030
+	defaultVersion   = "2.5.1-L0"
+	defaultImageName = "lensesio/fast-data-dev"
+	brokerPort       = 49092
+	zookeeperPort    = 2181
+	webPort          = 3030
 )
 
 // Message is a single message sent to Kafka.
@@ -71,7 +72,7 @@ type P struct {
 
 // Image returns an image that should be pulled to create this container.
 func (p *P) Image() string {
-	return fmt.Sprintf("docker.io/lensesio/fast-data-dev:%s", p.Version)
+	return fmt.Sprintf("%s:%s", p.ImageName, p.Version)
 }
 
 // Ports returns ports that should be used to access this container.
@@ -140,6 +141,10 @@ func (p *P) healthcheck(ctx context.Context, c *gnomock.Container) (err error) {
 func (p *P) setDefaults() {
 	if p.Version == "" {
 		p.Version = defaultVersion
+	}
+
+	if p.ImageName == "" {
+		p.ImageName = defaultImageName
 	}
 }
 
