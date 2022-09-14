@@ -66,6 +66,7 @@ type P struct {
 	Topics        []string  `json:"topics"`
 	Messages      []Message `json:"messages"`
 	MessagesFiles []string  `json:"messages_files"`
+	ImageName     string    `json:"image_name"`
 }
 
 // Image returns an image that should be pulled to create this container.

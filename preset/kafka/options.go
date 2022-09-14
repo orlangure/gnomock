@@ -19,6 +19,12 @@ func WithTopics(topics ...string) Option {
 	}
 }
 
+func WithImage(imageName string) Option {
+	return func(o *P) {
+		o.ImageName = imageName
+	}
+}
+
 // WithMessages makes sure that these messages can be consumed during the test
 // once the container is ready.
 func WithMessages(messages ...Message) Option {
