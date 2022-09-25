@@ -1038,6 +1038,10 @@ components:
           description: Kafka version.
           default: 2.5.1-L0
           example: latest
+        use_schema_registry:
+          type: boolean
+          description: Set to true to wait for schema registry on startup
+          default: false
       description: >
         This object describes a Kafka container.
 
