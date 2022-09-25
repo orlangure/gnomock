@@ -1,7 +1,7 @@
 package main
 
 // all known presets should go right here so that they are available when
-// requested over HTTP:
+// requested over HTTP.
 import (
 	_ "github.com/orlangure/gnomock/preset/cassandra"
 	_ "github.com/orlangure/gnomock/preset/cockroachdb"
@@ -19,5 +19,5 @@ import (
 	_ "github.com/orlangure/gnomock/preset/rabbitmq"
 	_ "github.com/orlangure/gnomock/preset/redis"
 	_ "github.com/orlangure/gnomock/preset/splunk"
-	// new presets go here
+	// new presets go here.
 )

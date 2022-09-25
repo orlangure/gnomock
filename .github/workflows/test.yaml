@@ -9,16 +9,16 @@ jobs:
     name: "[core] lint"
     runs-on: ubuntu-latest
     steps:
-      - name: Set up Go 1.17
+      - name: Set up Go 1.19
         uses: actions/setup-go@v1
         with:
-          go-version: 1.17
+          go-version: 1.19
       - name: Check out code into the Go module directory
         uses: actions/checkout@v1
       - name: Get dependencies
         run: go get -v -t -d ./...
       - name: Get golangci-lint
-        run: curl -sfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh| sh -s -- -b $(go env GOPATH)/bin v1.39.0
+        run: curl -sfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh| sh -s -- -b $(go env GOPATH)/bin v1.49.0
       - name: Lint
         run: $(go env GOPATH)/bin/golangci-lint run --timeout 10m0s ./...
 
@@ -32,10 +32,10 @@ jobs:
     env:
       CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
     steps:
-      - name: Set up Go 1.17
+      - name: Set up Go 1.19
         uses: actions/setup-go@v1
         with:
-          go-version: 1.17
+          go-version: 1.19
       - name: Check out code into the Go module directory
         uses: actions/checkout@v1
       - name: Get dependencies
@@ -90,6 +90,9 @@ jobs:
     steps:
       - name: Setup postgres
         run: |
+          /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+          echo 'eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"' >> /home/runner/.bash_profile
+          eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
           brew install httpie
           http --ignore-stdin -v :23042/start/postgres options[custom_named_ports][default][protocol]=tcp options[custom_named_ports][default][port]:=5432 options[custom_named_ports][default][host_port]:=15432 options[debug]:=true
 
@@ -108,10 +111,10 @@ jobs:
     env:
       CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
     steps:
-      - name: Set up Go 1.17
+      - name: Set up Go 1.19
         uses: actions/setup-go@v1
         with:
-          go-version: 1.17
+          go-version: 1.19
       - name: Check out code into the Go module directory
         uses: actions/checkout@v1
       - name: Get dependencies
@@ -131,10 +134,10 @@ jobs:
     env:
       CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
     steps:
-      - name: Set up Go 1.17
+      - name: Set up Go 1.19
         uses: actions/setup-go@v1
         with:
-          go-version: 1.17
+          go-version: 1.19
       - name: Check out code into the Go module directory
         uses: actions/checkout@v1
       - name: Get dependencies
@@ -154,10 +157,10 @@ jobs:
     env:
       CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
     steps:
-      - name: Set up Go 1.17
+      - name: Set up Go 1.19
         uses: actions/setup-go@v1
         with:
-          go-version: 1.17
+          go-version: 1.19
       - name: Check out code into the Go module directory
         uses: actions/checkout@v1
       - name: Get dependencies
@@ -177,10 +180,10 @@ jobs:
     env:
       CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
     steps:
-      - name: Set up Go 1.17
+      - name: Set up Go 1.19
         uses: actions/setup-go@v1
         with:
-          go-version: 1.17
+          go-version: 1.19
       - name: Check out code into the Go module directory
         uses: actions/checkout@v1
       - name: Get dependencies
@@ -200,10 +203,10 @@ jobs:
     env:
       CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
     steps:
-      - name: Set up Go 1.17
+      - name: Set up Go 1.19
         uses: actions/setup-go@v1
         with:
-          go-version: 1.17
+          go-version: 1.19
       - name: Check out code into the Go module directory
         uses: actions/checkout@v1
       - name: Get dependencies
@@ -223,10 +226,10 @@ jobs:
     env:
       CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
     steps:
-      - name: Set up Go 1.17
+      - name: Set up Go 1.19
         uses: actions/setup-go@v1
         with:
-          go-version: 1.17
+          go-version: 1.19
       - name: Check out code into the Go module directory
         uses: actions/checkout@v1
       - name: Get dependencies
@@ -246,10 +249,10 @@ jobs:
     env:
       CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
     steps:
-      - name: Set up Go 1.17
+      - name: Set up Go 1.19
         uses: actions/setup-go@v1
         with:
-          go-version: 1.17
+          go-version: 1.19
       - name: Check out code into the Go module directory
         uses: actions/checkout@v1
       - name: Get dependencies
@@ -269,10 +272,10 @@ jobs:
     env:
       CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
     steps:
-      - name: Set up Go 1.17
+      - name: Set up Go 1.19
         uses: actions/setup-go@v1
         with:
-          go-version: 1.17
+          go-version: 1.19
       - name: Check out code into the Go module directory
         uses: actions/checkout@v1
       - name: Get dependencies
@@ -292,10 +295,10 @@ jobs:
     env:
       CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
     steps:
-      - name: Set up Go 1.17
+      - name: Set up Go 1.19
         uses: actions/setup-go@v1
         with:
-          go-version: 1.17
+          go-version: 1.19
       - name: Check out code into the Go module directory
         uses: actions/checkout@v1
       - name: Get dependencies
@@ -315,10 +318,10 @@ jobs:
     env:
       CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
     steps:
-      - name: Set up Go 1.17
+      - name: Set up Go 1.19
         uses: actions/setup-go@v1
         with:
-          go-version: 1.17
+          go-version: 1.19
       - name: Check out code into the Go module directory
         uses: actions/checkout@v1
       - name: Get dependencies
@@ -338,10 +341,10 @@ jobs:
     env:
       CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
     steps:
-      - name: Set up Go 1.17
+      - name: Set up Go 1.19
         uses: actions/setup-go@v1
         with:
-          go-version: 1.17
+          go-version: 1.19
       - name: Check out code into the Go module directory
         uses: actions/checkout@v1
       - name: Get dependencies
@@ -361,10 +364,10 @@ jobs:
     env:
       CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
     steps:
-      - name: Set up Go 1.17
+      - name: Set up Go 1.19
         uses: actions/setup-go@v1
         with:
-          go-version: 1.17
+          go-version: 1.19
       - name: Check out code into the Go module directory
         uses: actions/checkout@v1
       - name: Get dependencies
@@ -384,10 +387,10 @@ jobs:
     env:
       CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
     steps:
-      - name: Set up Go 1.17
+      - name: Set up Go 1.19
         uses: actions/setup-go@v1
         with:
-          go-version: 1.17
+          go-version: 1.19
       - name: Check out code into the Go module directory
         uses: actions/checkout@v1
       - name: Get dependencies
@@ -407,10 +410,10 @@ jobs:
     env:
       CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
     steps:
-      - name: Set up Go 1.17
+      - name: Set up Go 1.19
         uses: actions/setup-go@v1
         with:
-          go-version: 1.17
+          go-version: 1.19
       - name: Check out code into the Go module directory
         uses: actions/checkout@v1
       - name: Get dependencies
@@ -430,10 +433,10 @@ jobs:
     env:
       CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
     steps:
-      - name: Set up Go 1.17
+      - name: Set up Go 1.19
         uses: actions/setup-go@v1
         with:
-          go-version: 1.17
+          go-version: 1.19
       - name: Check out code into the Go module directory
         uses: actions/checkout@v1
       - name: Get dependencies
@@ -453,10 +456,10 @@ jobs:
     env:
       CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
     steps:
-      - name: Set up Go 1.17
+      - name: Set up Go 1.19
         uses: actions/setup-go@v1
         with:
-          go-version: 1.17
+          go-version: 1.19
       - name: Check out code into the Go module directory
         uses: actions/checkout@v1
       - name: Get dependencies

@@ -2,7 +2,6 @@ linters:
   enable:
     - bodyclose
     - cyclop
-    - deadcode
     - depguard
     - dogsled
     - errcheck
@@ -23,7 +22,6 @@ linters:
     - gosec
     - gosimple
     - govet
-    - ifshort
     - ineffassign
     - lll
     - misspell
@@ -33,17 +31,12 @@ linters:
     - prealloc
     - predeclared
     - revive
-    - rowserrcheck
-    - sqlclosecheck
     - staticcheck
-    - structcheck
     - stylecheck
     - typecheck
     - unconvert
     - unparam
     - unused
-    - varcheck
-    - wastedassign
     - whitespace
     - wsl
 
