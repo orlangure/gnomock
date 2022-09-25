@@ -2,6 +2,7 @@ package kafka_test
 
 import (
 	"context"
+	"net/http"
 	"testing"
 	"time"
 
@@ -93,4 +94,25 @@ func TestPreset_withDefaults(t *testing.T) {
 	c, err := kafkaclient.Dial("tcp", container.Address(kafka.BrokerPort))
 	require.NoError(t, err)
 	require.NoError(t, c.Close())
+}
+
+func TestPreset_withSchemaRegistry(t *testing.T) {
+	p := kafka.Preset(kafka.WithSchemaRegistry())
+	container, err := gnomock.Start(
+		p,
+		gnomock.WithContainerName("kafka-with-registry"),
+		gnomock.WithTimeout(time.Minute*10),
+	)
+	require.NoError(t, err)
+
+	defer func() { require.NoError(t, gnomock.Stop(container)) }()
+
+	c, err := kafkaclient.Dial("tcp", container.Address(kafka.BrokerPort))
+	require.NoError(t, err)
+	require.NoError(t, c.Close())
+
+	out, err := http.Get("http://" + container.Address(kafka.SchemaRegistryPort))
+	require.NoError(t, err)
+	require.Equal(t, http.StatusOK, out.StatusCode)
+	require.NoError(t, out.Body.Close())
 }

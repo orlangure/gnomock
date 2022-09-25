@@ -7,6 +7,7 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"net/http"
 	"os"
 	"time"
 
@@ -17,16 +18,18 @@ import (
 
 // The following ports are exposed by this preset:.
 const (
-	BrokerPort    = "broker"
-	ZooKeeperPort = "zookeeper"
-	WebPort       = "web"
+	BrokerPort         = "broker"
+	ZooKeeperPort      = "zookeeper"
+	WebPort            = "web"
+	SchemaRegistryPort = "registry"
 )
 
 const (
-	defaultVersion = "2.5.1-L0"
-	brokerPort     = 49092
-	zookeeperPort  = 2181
-	webPort        = 3030
+	defaultVersion     = "2.5.1-L0"
+	brokerPort         = 49092
+	zookeeperPort      = 2181
+	webPort            = 3030
+	schemaRegistryPort = 8081
 )
 
 // Message is a single message sent to Kafka.
@@ -62,10 +65,11 @@ func Preset(opts ...Option) gnomock.Preset {
 
 // P is a Gnomock Preset implementation of Kafka.
 type P struct {
-	Version       string    `json:"version"`
-	Topics        []string  `json:"topics"`
-	Messages      []Message `json:"messages"`
-	MessagesFiles []string  `json:"messages_files"`
+	Version           string    `json:"version"`
+	Topics            []string  `json:"topics"`
+	Messages          []Message `json:"messages"`
+	MessagesFiles     []string  `json:"messages_files"`
+	UseSchemaRegistry bool      `json:"use_schema_registry"`
 }
 
 // Image returns an image that should be pulled to create this container.
@@ -83,6 +87,7 @@ func (p *P) Ports() gnomock.NamedPorts {
 
 	namedPorts[ZooKeeperPort] = gnomock.TCP(zookeeperPort)
 	namedPorts[WebPort] = gnomock.TCP(webPort)
+	namedPorts[SchemaRegistryPort] = gnomock.TCP(schemaRegistryPort)
 
 	return namedPorts
 }
@@ -131,6 +136,24 @@ func (p *P) healthcheck(ctx context.Context, c *gnomock.Container) (err error) {
 		NumPartitions:     1,
 	}); err != nil {
 		return fmt.Errorf("can't create topic: %w", err)
+	}
+
+	if p.UseSchemaRegistry {
+		url := "http://" + c.Address(SchemaRegistryPort)
+
+		req, err := http.NewRequestWithContext(ctx, http.MethodGet, url, nil)
+		if err != nil {
+			return fmt.Errorf("invalid request: %w", err)
+		}
+
+		res, err := http.DefaultClient.Do(req)
+		if err != nil {
+			return fmt.Errorf("schema registry is not available: %w", err)
+		}
+
+		if err := res.Body.Close(); err != nil {
+			return fmt.Errorf("error closing schema registry response body: %w", err)
+		}
 	}
 
 	return nil

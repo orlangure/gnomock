@@ -34,3 +34,13 @@ func WithMessagesFile(files string) Option {
 		o.MessagesFiles = append(o.MessagesFiles, files)
 	}
 }
+
+// WithSchemaRegistry makes the container wait for the schema registry port to
+// become available. Note that it takes longer to setup schema registry than
+// the broker itself. Gnomock will not wait for the registry by default, but it
+// may become available eventually.
+func WithSchemaRegistry() Option {
+	return func(o *P) {
+		o.UseSchemaRegistry = true
+	}
+}
