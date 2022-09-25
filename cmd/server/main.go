@@ -35,5 +35,5 @@ func main() {
 	}
 
 	addr := fmt.Sprintf(":%d", port)
-	log.Println(http.ListenAndServe(addr, gnomockd.Handler()))
+	log.Println(http.ListenAndServe(addr, gnomockd.Handler())) // nolint: gosec
 }

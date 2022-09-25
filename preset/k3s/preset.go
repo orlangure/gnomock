@@ -15,10 +15,10 @@
 // working on recent Linux Kernel versions, please make sure to avoid using
 // older versions for each API level:
 //
-// 	v1.18.19
-// 	v1.19.11
-// 	v1.20.7
-// 	v1.21.1
+//   - v1.18.19
+//   - v1.19.11
+//   - v1.20.7
+//   - v1.21.1
 //
 // Keep in mind that k3s runs in a single docker container, meaning it might be
 // limited in memory, CPU and storage. Also remember that this cluster always

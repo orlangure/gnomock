@@ -7,12 +7,9 @@ type Option func(*P)
 // WithData sets up initial container state according to the directory
 // structure at the given path:
 //
-//	- path:
-// 	  - first
-// 	    - one
-// 	    - two
-// 	  - second
-// 	    - three
+//   - path/first/one
+//   - path/first/two
+//   - path/second/three
 //
 // For such directory structure, two databases are created: "first" and
 // "second". Under "first" database there are two collections, "one" and "two",

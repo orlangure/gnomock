@@ -14,7 +14,7 @@ import (
 )
 
 const (
-	registryPlaceholder = `// new presets go here
+	registryPlaceholder = `// new presets go here.
 `
 	startPresetPlaceholder = `### /start/preset
 `
@@ -36,7 +36,7 @@ var (
 var fMap = template.FuncMap{
 	"lower": strings.ToLower,
 	"title": func(s string) string {
-		return strings.Title(strings.ToLower(s))
+		return strings.Title(strings.ToLower(s)) // nolint: staticcheck
 	},
 	"snake": func(s string) string {
 		snake := matchFirstCap.ReplaceAllString(s, "${1}_${2}")
@@ -315,7 +315,7 @@ func replacePlaceholder(targetFile, tmplFile, placeholder string, params presetP
 
 	targetStr := strings.ReplaceAll(string(targetBs), placeholder, buf.String())
 
-	if err := os.WriteFile(targetFile, []byte(targetStr), 0644); err != nil {
+	if err := os.WriteFile(targetFile, []byte(targetStr), 0o644); err != nil {
 		return fmt.Errorf("can't write %s: %w", targetFile, err)
 	}
 
