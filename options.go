@@ -96,6 +96,12 @@ func WithContainerName(name string) Option {
 	}
 }
 
+func WithNetwork(name string) Option {
+	return func(o *Options) {
+		o.Network = name
+	}
+}
+
 // WithPrivileged starts a container in privileged mode (like `docker run
 // --privileged`). This option should not be used unless you really need it.
 // One use case for this option would be to run a Preset that has some kind of
@@ -268,6 +274,11 @@ type Options struct {
 	// which stands for
 	//	{"username":"foo","password":"bar"}
 	Auth string `json:"auth"`
+
+	// Network allows to specify the name of the network which the container
+	// will run on. If the specified network doesn't exist, it will create it.
+	//  Otherwise, it will use the existing network.
+	Network string `json:"network"`
 
 	ctx                 context.Context
 	init                InitFunc
