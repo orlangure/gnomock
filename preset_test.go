@@ -98,6 +98,44 @@ func TestPreset_duplicateContainerName(t *testing.T) {
 	require.NoError(t, gnomock.Stop(newContainer))
 }
 
+func TestPreset_reusableContainerSucceeds(t *testing.T) {
+	t.Parallel()
+
+	p := &testutil.TestPreset{Img: testutil.TestImage}
+	originalContainer, err := gnomock.Start(
+		p,
+		gnomock.WithTimeout(time.Minute),
+		gnomock.WithContainerName("gnomock-reuse"),
+		gnomock.WithDebugMode(),
+	)
+	require.NoError(t, err)
+
+	newContainer, err := gnomock.Start(
+		p,
+		gnomock.WithTimeout(time.Minute),
+		gnomock.WithContainerName("gnomock-reuse"),
+		gnomock.WithDebugMode(),
+		gnomock.WithContainerReuse(),
+	)
+	require.NoError(t, err)
+
+	require.Equal(t, originalContainer.ID, newContainer.ID)
+	require.NoError(t, gnomock.Stop(newContainer))
+}
+
+func TestPreset_reusableContainerFailsWithoutName(t *testing.T) {
+	t.Parallel()
+
+	p := &testutil.TestPreset{Img: testutil.TestImage}
+	_, err := gnomock.Start(
+		p,
+		gnomock.WithTimeout(time.Minute),
+		gnomock.WithContainerReuse(),
+		gnomock.WithDebugMode(),
+	)
+	require.EqualError(t, err, "can't start container: container name is required when container reuse is enabled")
+}
+
 func TestPreset_customNamedPorts(t *testing.T) {
 	t.Parallel()
 
