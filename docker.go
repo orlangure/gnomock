@@ -111,17 +111,18 @@ func (d *docker) pullImage(ctx context.Context, image string, cfg *Options) erro
 }
 
 func (d *docker) startContainer(ctx context.Context, image string, ports NamedPorts, cfg *Options) (*Container, error) {
-	d.log.Info("starting container")
-
 	if cfg.Reuse {
 		container, ok, err := d.findReusableContainer(ctx, image, ports, cfg)
 		if err != nil {
 			return nil, err
 		}
 		if ok {
+			d.log.Info("re-using container")
 			return container, nil
 		}
 	}
+
+	d.log.Info("starting container")
 
 	resp, err := d.prepareContainer(ctx, image, ports, cfg)
 	if err != nil {
