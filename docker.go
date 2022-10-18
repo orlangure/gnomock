@@ -14,6 +14,7 @@ import (
 
 	"github.com/docker/docker/api/types"
 	"github.com/docker/docker/api/types/container"
+	"github.com/docker/docker/api/types/filters"
 	"github.com/docker/docker/api/types/mount"
 	"github.com/docker/docker/client"
 	"github.com/docker/go-connections/nat"
@@ -112,6 +113,16 @@ func (d *docker) pullImage(ctx context.Context, image string, cfg *Options) erro
 func (d *docker) startContainer(ctx context.Context, image string, ports NamedPorts, cfg *Options) (*Container, error) {
 	d.log.Info("starting container")
 
+	if cfg.Reuse {
+		container, ok, err := d.findReusableContainer(ctx, image, ports, cfg)
+		if err != nil {
+			return nil, err
+		}
+		if ok {
+			return container, nil
+		}
+	}
+
 	resp, err := d.prepareContainer(ctx, image, ports, cfg)
 	if err != nil {
 		return nil, fmt.Errorf("can't prepare container: %w", err)
@@ -122,7 +133,7 @@ func (d *docker) startContainer(ctx context.Context, image string, ports NamedPo
 	go func() {
 		defer close(sidecarChan)
 
-		if cfg.DisableAutoCleanup || cfg.Debug {
+		if cfg.DisableAutoCleanup || cfg.Reuse || cfg.Debug {
 			return
 		}
 
@@ -324,6 +335,30 @@ func (d *docker) createContainer(ctx context.Context, image string, ports NamedP
 	}
 
 	return &resp, err
+}
+
+func (d *docker) findReusableContainer(ctx context.Context, image string, ports NamedPorts, cfg *Options) (*Container, bool, error) {
+	if cfg.ContainerName == "" {
+		return nil, false, fmt.Errorf("container name is required when container reuse is enabled")
+	}
+
+	list, err := d.client.ContainerList(ctx, types.ContainerListOptions{
+		Filters: filters.NewArgs(
+			filters.Arg("name", cfg.ContainerName),
+			filters.Arg("ancestor", image),
+			filters.Arg("status", "running"),
+		),
+	})
+	if err != nil || len(list) < 1 {
+		return nil, false, err
+	}
+
+	container, err := d.waitForContainerNetwork(ctx, list[0].ID, ports)
+	if err != nil {
+		return nil, false, err
+	}
+
+	return container, true, nil
 }
 
 func (d *docker) boundNamedPorts(json types.ContainerJSON, namedPorts NamedPorts) (NamedPorts, error) {

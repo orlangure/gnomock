@@ -187,6 +187,13 @@ func WithRegistryAuth(auth string) Option {
 	}
 }
 
+// TODO
+func WithContainerReuse() Option {
+	return func(o *Options) {
+		o.Reuse = true
+	}
+}
+
 // HealthcheckFunc defines a function to be used to determine container health.
 // It receives a host and a port, and returns an error if the container is not
 // ready, or nil when the container can be used. One example of HealthcheckFunc
@@ -268,6 +275,9 @@ type Options struct {
 	// which stands for
 	//	{"username":"foo","password":"bar"}
 	Auth string `json:"auth"`
+
+	// TODO
+	Reuse bool `json:"reuse"`
 
 	ctx                 context.Context
 	init                InitFunc
