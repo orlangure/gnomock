@@ -187,7 +187,10 @@ func WithRegistryAuth(auth string) Option {
 	}
 }
 
-// TODO
+// WithContainerReuse disables Gnomock default behaviour of automatic container
+// cleanup and also disables the automatic replacement of a pre-existing
+// container with the same name and image. Effectively this makes Gnomock reuse
+// a container from a previous Gnomock execution.
 func WithContainerReuse() Option {
 	return func(o *Options) {
 		o.Reuse = true
@@ -276,7 +279,8 @@ type Options struct {
 	//	{"username":"foo","password":"bar"}
 	Auth string `json:"auth"`
 
-	// TODO
+	// Reuse prevents the container from being automatically stopped and enables
+	// its re-use in posterior executions.
 	Reuse bool `json:"reuse"`
 
 	ctx                 context.Context
