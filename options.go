@@ -188,7 +188,7 @@ func WithRegistryAuth(auth string) Option {
 }
 
 // WithContainerReuse disables Gnomock default behaviour of automatic container
-// cleanup and also disables the automatic replacement of a pre-existing
+// cleanup and also disables the automatic replacement at startup of an existing
 // container with the same name and image. Effectively this makes Gnomock reuse
 // a container from a previous Gnomock execution.
 func WithContainerReuse() Option {
