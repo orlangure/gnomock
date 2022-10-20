@@ -4,10 +4,10 @@ go 1.19
 
 require (
 	github.com/Microsoft/go-winio v0.5.2 // indirect
-	github.com/aws/aws-sdk-go v1.44.105
+	github.com/aws/aws-sdk-go v1.44.119
 	github.com/bradfitz/gomemcache v0.0.0-20220106215444-fb4bf637b56d
-	github.com/denisenkom/go-mssqldb v0.12.2
-	github.com/docker/docker v20.10.18+incompatible
+	github.com/denisenkom/go-mssqldb v0.12.3
+	github.com/docker/docker v20.10.20+incompatible
 	github.com/docker/go-connections v0.4.0
 	github.com/elastic/go-elasticsearch/v7 v7.17.1
 	github.com/go-redis/redis v6.15.9+incompatible
@@ -18,20 +18,20 @@ require (
 	github.com/google/gofuzz v1.2.0 // indirect
 	github.com/google/uuid v1.3.0
 	github.com/gorilla/mux v1.8.0
-	github.com/influxdata/influxdb-client-go/v2 v2.10.0
+	github.com/influxdata/influxdb-client-go/v2 v2.11.0
 	github.com/lib/pq v1.10.7
 	github.com/moby/term v0.0.0-20210619224110-3f7ff695adc6 // indirect
 	github.com/morikuni/aec v1.0.0 // indirect
 	github.com/segmentio/kafka-go v0.4.35
 	github.com/streadway/amqp v1.0.0
 	github.com/stretchr/testify v1.8.0
-	go.mongodb.org/mongo-driver v1.10.2
+	go.mongodb.org/mongo-driver v1.10.3
 	go.uber.org/multierr v1.7.0 // indirect
 	go.uber.org/zap v1.23.0
-	golang.org/x/sync v0.0.0-20220923202941-7f9b1623fab7
-	k8s.io/api v0.25.2
-	k8s.io/apimachinery v0.25.2
-	k8s.io/client-go v0.25.2
+	golang.org/x/sync v0.1.0
+	k8s.io/api v0.25.3
+	k8s.io/apimachinery v0.25.3
+	k8s.io/client-go v0.25.3
 )
 
 require (
@@ -71,6 +71,7 @@ require (
 	github.com/pmezard/go-difflib v1.0.0 // indirect
 	github.com/sirupsen/logrus v1.8.1 // indirect
 	github.com/spf13/pflag v1.0.5 // indirect
+	github.com/stretchr/objx v0.4.0 // indirect
 	github.com/xdg-go/pbkdf2 v1.0.0 // indirect
 	github.com/xdg-go/scram v1.1.1 // indirect
 	github.com/xdg-go/stringprep v1.0.3 // indirect

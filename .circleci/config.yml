@@ -225,7 +225,6 @@ jobs:
 workflows:
   build-workflow:
     jobs:
-      - lint
       - test-core
       - test-localstack
       - test-elastic
