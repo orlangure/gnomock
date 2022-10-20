@@ -14,6 +14,7 @@ import (
 
 	"github.com/docker/docker/api/types"
 	"github.com/docker/docker/api/types/container"
+	"github.com/docker/docker/api/types/filters"
 	"github.com/docker/docker/api/types/mount"
 	"github.com/docker/docker/client"
 	"github.com/docker/go-connections/nat"
@@ -110,6 +111,18 @@ func (d *docker) pullImage(ctx context.Context, image string, cfg *Options) erro
 }
 
 func (d *docker) startContainer(ctx context.Context, image string, ports NamedPorts, cfg *Options) (*Container, error) {
+	if cfg.Reuse {
+		container, ok, err := d.findReusableContainer(ctx, image, ports, cfg)
+		if err != nil {
+			return nil, err
+		}
+
+		if ok {
+			d.log.Info("re-using container")
+			return container, nil
+		}
+	}
+
 	d.log.Info("starting container")
 
 	resp, err := d.prepareContainer(ctx, image, ports, cfg)
@@ -117,36 +130,7 @@ func (d *docker) startContainer(ctx context.Context, image string, ports NamedPo
 		return nil, fmt.Errorf("can't prepare container: %w", err)
 	}
 
-	sidecarChan := make(chan string)
-
-	go func() {
-		defer close(sidecarChan)
-
-		if cfg.DisableAutoCleanup || cfg.Debug {
-			return
-		}
-
-		opts := []Option{
-			WithDisableAutoCleanup(),
-			WithHostMounts(dockerSockAddr, dockerSockAddr),
-			WithHealthCheck(func(ctx context.Context, c *Container) error {
-				return health.HTTPGet(ctx, c.DefaultAddress())
-			}),
-			WithInit(func(ctx context.Context, c *Container) error {
-				return cleaner.Notify(context.Background(), c.DefaultAddress(), resp.ID)
-			}),
-		}
-		if cfg.UseLocalImagesFirst {
-			opts = append(opts, WithUseLocalImagesFirst())
-		}
-
-		if sc, err := StartCustom(
-			cleaner.Image, DefaultTCP(cleaner.Port),
-			opts...,
-		); err == nil {
-			sidecarChan <- sc.ID
-		}
-	}()
+	sidecarChan := d.setupContainerCleanup(resp.ID, cfg)
 
 	err = d.client.ContainerStart(ctx, resp.ID, types.ContainerStartOptions{})
 	if err != nil {
@@ -165,6 +149,41 @@ func (d *docker) startContainer(ctx context.Context, image string, ports NamedPo
 	d.log.Infow("container started", "container", container)
 
 	return container, nil
+}
+
+func (d *docker) setupContainerCleanup(id string, cfg *Options) chan string {
+	sidecarChan := make(chan string)
+
+	go func() {
+		defer close(sidecarChan)
+
+		if cfg.DisableAutoCleanup || cfg.Reuse || cfg.Debug {
+			return
+		}
+
+		opts := []Option{
+			WithDisableAutoCleanup(),
+			WithHostMounts(dockerSockAddr, dockerSockAddr),
+			WithHealthCheck(func(ctx context.Context, c *Container) error {
+				return health.HTTPGet(ctx, c.DefaultAddress())
+			}),
+			WithInit(func(ctx context.Context, c *Container) error {
+				return cleaner.Notify(context.Background(), c.DefaultAddress(), id)
+			}),
+		}
+		if cfg.UseLocalImagesFirst {
+			opts = append(opts, WithUseLocalImagesFirst())
+		}
+
+		if sc, err := StartCustom(
+			cleaner.Image, DefaultTCP(cleaner.Port),
+			opts...,
+		); err == nil {
+			sidecarChan <- sc.ID
+		}
+	}()
+
+	return sidecarChan
 }
 
 func (d *docker) prepareContainer(
@@ -324,6 +343,35 @@ func (d *docker) createContainer(ctx context.Context, image string, ports NamedP
 	}
 
 	return &resp, err
+}
+
+func (d *docker) findReusableContainer(
+	ctx context.Context,
+	image string,
+	ports NamedPorts,
+	cfg *Options,
+) (*Container, bool, error) {
+	if cfg.ContainerName == "" {
+		return nil, false, fmt.Errorf("container name is required when container reuse is enabled")
+	}
+
+	list, err := d.client.ContainerList(ctx, types.ContainerListOptions{
+		Filters: filters.NewArgs(
+			filters.Arg("name", cfg.ContainerName),
+			filters.Arg("ancestor", image),
+			filters.Arg("status", "running"),
+		),
+	})
+	if err != nil || len(list) < 1 {
+		return nil, false, err
+	}
+
+	container, err := d.waitForContainerNetwork(ctx, list[0].ID, ports)
+	if err != nil {
+		return nil, false, err
+	}
+
+	return container, true, nil
 }
 
 func (d *docker) boundNamedPorts(json types.ContainerJSON, namedPorts NamedPorts) (NamedPorts, error) {
