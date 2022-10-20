@@ -130,9 +130,7 @@ func (d *docker) startContainer(ctx context.Context, image string, ports NamedPo
 		return nil, fmt.Errorf("can't prepare container: %w", err)
 	}
 
-	sidecarChan := make(chan string)
-
-	go d.autoContainerCleanup(sidecarChan, resp.ID, cfg)
+	sidecarChan := d.setupContainerCleanup(resp.ID, cfg)
 
 	err = d.client.ContainerStart(ctx, resp.ID, types.ContainerStartOptions{})
 	if err != nil {
@@ -153,33 +151,39 @@ func (d *docker) startContainer(ctx context.Context, image string, ports NamedPo
 	return container, nil
 }
 
-func (d *docker) autoContainerCleanup(sidecarChan chan string, id string, cfg *Options) {
-	defer close(sidecarChan)
+func (d *docker) setupContainerCleanup(id string, cfg *Options) chan string {
+	sidecarChan := make(chan string)
 
-	if cfg.DisableAutoCleanup || cfg.Reuse || cfg.Debug {
-		return
-	}
+	go func() {
+		defer close(sidecarChan)
 
-	opts := []Option{
-		WithDisableAutoCleanup(),
-		WithHostMounts(dockerSockAddr, dockerSockAddr),
-		WithHealthCheck(func(ctx context.Context, c *Container) error {
-			return health.HTTPGet(ctx, c.DefaultAddress())
-		}),
-		WithInit(func(ctx context.Context, c *Container) error {
-			return cleaner.Notify(context.Background(), c.DefaultAddress(), id)
-		}),
-	}
-	if cfg.UseLocalImagesFirst {
-		opts = append(opts, WithUseLocalImagesFirst())
-	}
+		if cfg.DisableAutoCleanup || cfg.Reuse || cfg.Debug {
+			return
+		}
 
-	if sc, err := StartCustom(
-		cleaner.Image, DefaultTCP(cleaner.Port),
-		opts...,
-	); err == nil {
-		sidecarChan <- sc.ID
-	}
+		opts := []Option{
+			WithDisableAutoCleanup(),
+			WithHostMounts(dockerSockAddr, dockerSockAddr),
+			WithHealthCheck(func(ctx context.Context, c *Container) error {
+				return health.HTTPGet(ctx, c.DefaultAddress())
+			}),
+			WithInit(func(ctx context.Context, c *Container) error {
+				return cleaner.Notify(context.Background(), c.DefaultAddress(), id)
+			}),
+		}
+		if cfg.UseLocalImagesFirst {
+			opts = append(opts, WithUseLocalImagesFirst())
+		}
+
+		if sc, err := StartCustom(
+			cleaner.Image, DefaultTCP(cleaner.Port),
+			opts...,
+		); err == nil {
+			sidecarChan <- sc.ID
+		}
+	}()
+
+	return sidecarChan
 }
 
 func (d *docker) prepareContainer(
