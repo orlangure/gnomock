@@ -19,3 +19,11 @@ type Preset interface {
 	// Preset implementation.
 	Options() []Option
 }
+
+// ResetFunc is a function that can be called to reset container state between
+// test provided to the WithContainerReset option.
+//
+// Some presets might implement a generic ResetFunc that should be fine for
+// most use cases. For custom usage, it can be implemented depending on a
+// use-case.
+type ResetFunc func(*Container) error

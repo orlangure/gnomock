@@ -2,6 +2,7 @@ package gnomock_test
 
 import (
 	"context"
+	"fmt"
 	"testing"
 	"time"
 
@@ -105,7 +106,7 @@ func TestPreset_reusableContainerSucceeds(t *testing.T) {
 	originalContainer, err := gnomock.Start(
 		p,
 		gnomock.WithTimeout(time.Minute),
-		gnomock.WithContainerName("gnomock-reuse"),
+		gnomock.WithContainerName("gnomock-reuse-success"),
 		gnomock.WithDebugMode(),
 	)
 	require.NoError(t, err)
@@ -113,7 +114,7 @@ func TestPreset_reusableContainerSucceeds(t *testing.T) {
 	newContainer, err := gnomock.Start(
 		p,
 		gnomock.WithTimeout(time.Minute),
-		gnomock.WithContainerName("gnomock-reuse"),
+		gnomock.WithContainerName("gnomock-reuse-success"),
 		gnomock.WithDebugMode(),
 		gnomock.WithContainerReuse(),
 	)
@@ -134,6 +135,59 @@ func TestPreset_reusableContainerFailsWithoutName(t *testing.T) {
 		gnomock.WithDebugMode(),
 	)
 	require.EqualError(t, err, "can't start container: container name is required when container reuse is enabled")
+}
+
+func TestPreset_reusableContainerResets(t *testing.T) {
+	t.Parallel()
+
+	p := &testutil.TestPreset{Img: testutil.TestImage}
+	originalContainer, err := gnomock.Start(
+		p,
+		gnomock.WithTimeout(time.Minute),
+		gnomock.WithContainerName("gnomock-reuse-reset-no-error"),
+	)
+	require.NoError(t, err)
+
+	resetCalled := false
+	c, err := gnomock.Start(
+		p,
+		gnomock.WithTimeout(time.Minute),
+		gnomock.WithContainerName("gnomock-reuse-reset-no-error"),
+		gnomock.WithContainerReuse(),
+		gnomock.WithContainerReset(func(c *gnomock.Container) error {
+			resetCalled = true
+			return nil
+		}),
+	)
+	require.NoError(t, err)
+	require.NotNil(t, c)
+	require.True(t, resetCalled)
+	require.Equal(t, originalContainer.DefaultAddress(), c.DefaultAddress())
+}
+
+func TestPreset_reusableContainerResetsWithError(t *testing.T) {
+	t.Parallel()
+
+	p := &testutil.TestPreset{Img: testutil.TestImage}
+	originalContainer, err := gnomock.Start(
+		p,
+		gnomock.WithTimeout(time.Minute),
+		gnomock.WithContainerName("gnomock-reuse-reset-with-error"),
+	)
+	require.NoError(t, err)
+	t.Cleanup(func() { require.NoError(t, gnomock.Stop(originalContainer)) })
+
+	c, err := gnomock.Start(
+		p,
+		gnomock.WithTimeout(time.Minute),
+		gnomock.WithContainerName("gnomock-reuse-reset-with-error"),
+		gnomock.WithContainerReuse(),
+		gnomock.WithContainerReset(func(c *gnomock.Container) error {
+			return fmt.Errorf("unable to reset")
+		}),
+	)
+	require.ErrorContains(t, err, "unable to reset")
+	require.Nil(t, c)
 }
 
 func TestPreset_customNamedPorts(t *testing.T) {

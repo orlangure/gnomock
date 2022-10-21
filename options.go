@@ -197,6 +197,19 @@ func WithContainerReuse() Option {
 	}
 }
 
+// WithContainerReset can be used together with WithContainerReuse to perform
+// arbitrary work on the reusable container. For example, this work might
+// include deleting data created by other tests, or restoring the desired
+// container state in any other way.
+//
+// Initialization function is called on the container after the cleanup
+// completes.
+func WithContainerReset(f func(*Container) error) Option {
+	return func(o *Options) {
+		o.resetFunc = f
+	}
+}
+
 // HealthcheckFunc defines a function to be used to determine container health.
 // It receives a host and a port, and returns an error if the container is not
 // ready, or nil when the container can be used. One example of HealthcheckFunc
@@ -288,6 +301,7 @@ type Options struct {
 	healthcheck         HealthcheckFunc
 	healthcheckInterval time.Duration
 	logWriter           io.Writer
+	resetFunc           ResetFunc
 }
 
 func buildConfig(opts ...Option) *Options {

@@ -21,6 +21,19 @@ const (
 	defaultVersion  = "12.5"
 )
 
+var (
+	persistentSchemas = map[string]any{
+		"pg_toast":           nil,
+		"pg_temp_1":          nil,
+		"pg_toast_temp_1":    nil,
+		"pg_catalog":         nil,
+		"information_schema": nil,
+	}
+	persistentUsers = map[string]any{
+		"postgres": nil,
+	}
+)
+
 func init() {
 	registry.Register("postgres", func() gnomock.Preset { return &P{} })
 }
@@ -172,4 +185,81 @@ func connect(c *gnomock.Container, db string) (*sql.DB, error) {
 	}
 
 	return conn, conn.Ping()
+}
+
+func Reset() gnomock.ResetFunc {
+	return func(c *gnomock.Container) error {
+		db, err := connect(c, defaultDatabase)
+		if err != nil {
+			return fmt.Errorf("database connection failed: %w", err)
+		}
+
+		defer func() { _ = db.Close() }()
+
+		if err := dropSchemas(db); err != nil {
+			return fmt.Errorf("can't drop schemas: %w", err)
+		}
+
+		if err := dropUsers(db); err != nil {
+			return fmt.Errorf("can't drop users: %w", err)
+		}
+
+		return nil
+	}
+}
+
+func dropSchemas(db *sql.DB) error {
+	rows, err := db.Query("select nspname from pg_catalog.pg_namespace")
+	if err != nil {
+		return fmt.Errorf("can't list postgres namespaces: %w", err)
+	}
+
+	defer func() { _ = rows.Close() }()
+
+	for rows.Next() {
+		var namespace string
+
+		if err := rows.Scan(&namespace); err != nil {
+			return fmt.Errorf("unexpected namespace value: %w", err)
+		}
+
+		if _, ok := persistentSchemas[namespace]; !ok {
+			dropStmt := fmt.Sprintf("drop schema %s cascade", namespace)
+			if _, err := db.Exec(dropStmt); err != nil {
+				return fmt.Errorf("can't drop namespace %s: %w", namespace, err)
+			}
+		}
+	}
+
+	if _, err := db.Exec("create schema public"); err != nil {
+		return fmt.Errorf("can't create public schema: %w", err)
+	}
+
+	return nil
+}
+
+func dropUsers(db *sql.DB) error {
+	rows, err := db.Query("select usename from pg_catalog.pg_user")
+	if err != nil {
+		return fmt.Errorf("can't list postgres users: %w", err)
+	}
+
+	defer func() { _ = rows.Close() }()
+
+	for rows.Next() {
+		var user string
+
+		if err := rows.Scan(&user); err != nil {
+			return fmt.Errorf("unexpected user value: %w", err)
+		}
+
+		if _, ok := persistentUsers[user]; !ok {
+			dropStmt := fmt.Sprintf("drop user %s", user)
+			if _, err := db.Exec(dropStmt); err != nil {
+				return fmt.Errorf("can't drop role %s: %w", user, err)
+			}
+		}
+	}
+
+	return nil
 }
