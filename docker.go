@@ -119,6 +119,15 @@ func (d *docker) startContainer(ctx context.Context, image string, ports NamedPo
 
 		if ok {
 			d.log.Info("re-using container")
+
+			if cfg.resetFunc != nil {
+				d.log.Info("resetting container")
+
+				if err := cfg.resetFunc(container); err != nil {
+					return nil, fmt.Errorf("can't reset container state: %w", err)
+				}
+			}
+
 			return container, nil
 		}
 	}
