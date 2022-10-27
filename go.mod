@@ -9,7 +9,7 @@ require (
 	github.com/denisenkom/go-mssqldb v0.12.3
 	github.com/docker/docker v20.10.20+incompatible
 	github.com/docker/go-connections v0.4.0
-	github.com/elastic/go-elasticsearch/v7 v7.17.1
+	github.com/elastic/go-elasticsearch/v7 v7.17.7
 	github.com/go-redis/redis v6.15.9+incompatible
 	github.com/go-redis/redis/v7 v7.4.1
 	github.com/go-sql-driver/mysql v1.6.0
@@ -71,7 +71,6 @@ require (
 	github.com/pmezard/go-difflib v1.0.0 // indirect
 	github.com/sirupsen/logrus v1.8.1 // indirect
 	github.com/spf13/pflag v1.0.5 // indirect
-	github.com/stretchr/objx v0.4.0 // indirect
 	github.com/xdg-go/pbkdf2 v1.0.0 // indirect
 	github.com/xdg-go/scram v1.1.1 // indirect
 	github.com/xdg-go/stringprep v1.0.3 // indirect
