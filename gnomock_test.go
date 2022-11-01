@@ -191,6 +191,35 @@ func TestGnomock_withCommand(t *testing.T) {
 	require.NoError(t, r.Close())
 }
 
+func TestGnomock_withEntrypoint(t *testing.T) {
+	r, w := io.Pipe()
+
+	container, err := gnomock.StartCustom(
+		testutil.TestImage,
+		gnomock.DefaultTCP(testutil.GoodPort80),
+		gnomock.WithLogWriter(w),
+		gnomock.WithEntrypoint("/app"),
+		gnomock.WithCommand("foo", "bar"),
+	)
+	require.NoError(t, err)
+
+	signal := make(chan struct{})
+
+	go func() {
+		defer close(signal)
+
+		log, err := io.ReadAll(r)
+		require.NoError(t, err)
+		require.Contains(t, string(log), "bar")
+	}()
+
+	require.NoError(t, gnomock.Stop(container))
+
+	require.NoError(t, w.Close())
+	<-signal
+	require.NoError(t, r.Close())
+}
+
 // See https://github.com/orlangure/gnomock/issues/302
 func TestGnomock_witUseLocalImagesFirst(t *testing.T) {
 	t.Parallel()
