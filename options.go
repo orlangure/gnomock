@@ -136,7 +136,7 @@ func WithCommand(cmd string, args ...string) Option {
 }
 
 // WithEntrypoint overwrites the entrypoint, and its arguments, defined
-// in the original docker image
+// in the original docker image.
 func WithEntrypoint(entrypoint string, args ...string) Option {
 	return func(o *Options) {
 		o.Entrypoint = append([]string{entrypoint}, args...)
