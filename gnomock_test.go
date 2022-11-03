@@ -227,11 +227,10 @@ func TestGnomock_withEntrypoint(t *testing.T) {
 			testutil.TestImage,
 			gnomock.DefaultTCP(testutil.GoodPort80),
 			gnomock.WithLogWriter(w),
-			gnomock.WithEntrypoint("sh", "-c"),
-			gnomock.WithCommand("/app", "foo", "bar"),
+			gnomock.WithEntrypoint("echo"),
 		)
 
-		require.ErrorContains(t, err, "\"sh\": executable file not found in $PATH")
+		require.ErrorContains(t, err, "\"echo\": executable file not found in $PATH")
 		require.NoError(t, w.Close())
 	})
 }
