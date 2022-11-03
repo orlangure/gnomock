@@ -192,32 +192,48 @@ func TestGnomock_withCommand(t *testing.T) {
 }
 
 func TestGnomock_withEntrypoint(t *testing.T) {
-	r, w := io.Pipe()
+	t.Run("overwriting entrypoint with the same entrypoint as the original image", func(t *testing.T) {
+		r, w := io.Pipe()
 
-	container, err := gnomock.StartCustom(
-		testutil.TestImage,
-		gnomock.DefaultTCP(testutil.GoodPort80),
-		gnomock.WithLogWriter(w),
-		gnomock.WithEntrypoint("/app"),
-		gnomock.WithCommand("foo", "bar"),
-	)
-	require.NoError(t, err)
-
-	signal := make(chan struct{})
-
-	go func() {
-		defer close(signal)
-
-		log, err := io.ReadAll(r)
+		container, err := gnomock.StartCustom(
+			testutil.TestImage,
+			gnomock.DefaultTCP(testutil.GoodPort80),
+			gnomock.WithLogWriter(w),
+			gnomock.WithEntrypoint("/app"),
+			gnomock.WithCommand("foo", "bar"),
+		)
 		require.NoError(t, err)
-		require.Contains(t, string(log), "bar")
-	}()
 
-	require.NoError(t, gnomock.Stop(container))
+		signal := make(chan struct{})
 
-	require.NoError(t, w.Close())
-	<-signal
-	require.NoError(t, r.Close())
+		go func() {
+			defer close(signal)
+
+			log, err := io.ReadAll(r)
+			require.NoError(t, err)
+			require.Contains(t, string(log), "[foo bar]")
+		}()
+
+		require.NoError(t, gnomock.Stop(container))
+
+		require.NoError(t, w.Close())
+		<-signal
+		require.NoError(t, r.Close())
+	})
+	t.Run("overwriting entrypoint with a new entrypoint", func(t *testing.T) {
+		_, w := io.Pipe()
+
+		_, err := gnomock.StartCustom(
+			testutil.TestImage,
+			gnomock.DefaultTCP(testutil.GoodPort80),
+			gnomock.WithLogWriter(w),
+			gnomock.WithEntrypoint("sh", "-c"),
+			gnomock.WithCommand("/app", "foo", "bar"),
+		)
+
+		require.ErrorContains(t, err, "\"sh\": executable file not found in $PATH")
+		require.NoError(t, w.Close())
+	})
 }
 
 // See https://github.com/orlangure/gnomock/issues/302
