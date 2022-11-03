@@ -221,17 +221,13 @@ func TestGnomock_withEntrypoint(t *testing.T) {
 		require.NoError(t, r.Close())
 	})
 	t.Run("overwriting entrypoint with a new entrypoint", func(t *testing.T) {
-		_, w := io.Pipe()
-
 		_, err := gnomock.StartCustom(
 			testutil.TestImage,
 			gnomock.DefaultTCP(testutil.GoodPort80),
-			gnomock.WithLogWriter(w),
 			gnomock.WithEntrypoint("echo"),
 		)
 
 		require.ErrorContains(t, err, "\"echo\": executable file not found in $PATH")
-		require.NoError(t, w.Close())
 	})
 }
 
