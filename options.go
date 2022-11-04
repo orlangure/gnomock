@@ -135,6 +135,14 @@ func WithCommand(cmd string, args ...string) Option {
 	}
 }
 
+// WithEntrypoint overwrites the entrypoint, and its arguments, defined
+// in the original docker image.
+func WithEntrypoint(entrypoint string, args ...string) Option {
+	return func(o *Options) {
+		o.Entrypoint = append([]string{entrypoint}, args...)
+	}
+}
+
 // WithHostMounts allows to bind host path (`src`) inside the container under
 // `dst` path.
 func WithHostMounts(src, dst string) Option {
@@ -244,6 +252,10 @@ type Options struct {
 	// level.
 	Cmd []string `json:"cmd"`
 
+	// Entrypoint is the binary that will always be executed when the container
+	// is run. The difference between this and Cmd, is that Cmd will be given as an
+	// argument to Entrypoint.
+	Entrypoint []string `json:"entrypoint"`
 	// HostMounts allows to mount local paths into the container.
 	HostMounts map[string]string `json:"host_mounts"`
 

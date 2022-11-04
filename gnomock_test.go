@@ -191,6 +191,46 @@ func TestGnomock_withCommand(t *testing.T) {
 	require.NoError(t, r.Close())
 }
 
+func TestGnomock_withEntrypoint(t *testing.T) {
+	t.Run("overwriting entrypoint with the same entrypoint as the original image", func(t *testing.T) {
+		r, w := io.Pipe()
+
+		container, err := gnomock.StartCustom(
+			testutil.TestImage,
+			gnomock.DefaultTCP(testutil.GoodPort80),
+			gnomock.WithLogWriter(w),
+			gnomock.WithEntrypoint("/app"),
+			gnomock.WithCommand("foo", "bar"),
+		)
+		require.NoError(t, err)
+
+		signal := make(chan struct{})
+
+		go func() {
+			defer close(signal)
+
+			log, err := io.ReadAll(r)
+			require.NoError(t, err)
+			require.Contains(t, string(log), "[foo bar]")
+		}()
+
+		require.NoError(t, gnomock.Stop(container))
+
+		require.NoError(t, w.Close())
+		<-signal
+		require.NoError(t, r.Close())
+	})
+	t.Run("overwriting entrypoint with a new entrypoint", func(t *testing.T) {
+		_, err := gnomock.StartCustom(
+			testutil.TestImage,
+			gnomock.DefaultTCP(testutil.GoodPort80),
+			gnomock.WithEntrypoint("echo"),
+		)
+
+		require.ErrorContains(t, err, "\"echo\": executable file not found in $PATH")
+	})
+}
+
 // See https://github.com/orlangure/gnomock/issues/302
 func TestGnomock_witUseLocalImagesFirst(t *testing.T) {
 	t.Parallel()

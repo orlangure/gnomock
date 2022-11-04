@@ -306,6 +306,10 @@ func (d *docker) createContainer(ctx context.Context, image string, ports NamedP
 		containerConfig.Cmd = cfg.Cmd
 	}
 
+	if len(cfg.Entrypoint) > 0 {
+		containerConfig.Entrypoint = cfg.Entrypoint
+	}
+
 	mounts := []mount.Mount{}
 	for src, dst := range cfg.HostMounts {
 		mounts = append(mounts, mount.Mount{
