@@ -322,7 +322,7 @@ func (d *docker) createContainer(ctx context.Context, image string, ports NamedP
 	portBindings := d.portBindings(exposedPorts, ports)
 	hostConfig := &container.HostConfig{
 		PortBindings: portBindings,
-		AutoRemove:   true,
+		AutoRemove:   !cfg.Debug,
 		Privileged:   cfg.Privileged,
 		Mounts:       mounts,
 	}
