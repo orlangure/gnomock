@@ -325,6 +325,7 @@ func (d *docker) createContainer(ctx context.Context, image string, ports NamedP
 		AutoRemove:   true,
 		Privileged:   cfg.Privileged,
 		Mounts:       mounts,
+		ExtraHosts:   cfg.ExtraHosts,
 	}
 
 	resp, err := d.client.ContainerCreate(ctx, containerConfig, hostConfig, nil, nil, cfg.ContainerName)
