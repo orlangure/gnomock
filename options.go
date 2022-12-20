@@ -205,6 +205,14 @@ func WithContainerReuse() Option {
 	}
 }
 
+// WithExtraHosts allows to provide custom entries to the hosts file of the container.
+// It is similar to the `--add-host` flag of docker.
+func WithExtraHosts(hosts []string) Option {
+	return func(o *Options) {
+		o.ExtraHosts = hosts
+	}
+}
+
 // HealthcheckFunc defines a function to be used to determine container health.
 // It receives a host and a port, and returns an error if the container is not
 // ready, or nil when the container can be used. One example of HealthcheckFunc
@@ -290,6 +298,10 @@ type Options struct {
 	// which stands for
 	//	{"username":"foo","password":"bar"}
 	Auth string `json:"auth"`
+
+	// ExtraHosts allows to add entries to the hosts file of the container.
+	// It is similar to the `--add-host` flag of docker.
+	ExtraHosts []string `json:"extraHosts"`
 
 	// Reuse prevents the container from being automatically stopped and enables
 	// its re-use in posterior executions.
