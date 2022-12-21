@@ -268,6 +268,44 @@ func TestGnomock_witUseLocalImagesFirst(t *testing.T) {
 	require.NoError(t, gnomock.Stop(container))
 }
 
+func TestGnomock_withExtraHosts(t *testing.T) {
+	t.Parallel()
+
+	const (
+		busyboxImage = "docker.io/library/busybox:1.35.0"
+		retries      = "5"
+	)
+
+	container, err := gnomock.StartCustom(
+		busyboxImage,
+		gnomock.DefaultTCP(testutil.GoodPort80),
+		gnomock.WithExtraHosts([]string{"test:127.0.0.1"}),
+		gnomock.WithCommand("ping", "-c", retries, "test"),
+	)
+	require.NoError(t, err)
+	require.NotNil(t, container)
+	require.NoError(t, gnomock.Stop(container))
+
+	container, err = gnomock.StartCustom(
+		busyboxImage,
+		gnomock.DefaultTCP(testutil.GoodPort80),
+		gnomock.WithCommand("ping", "-c", retries, "test"),
+	)
+	require.Error(t, err)
+	require.Nil(t, container)
+	require.NoError(t, gnomock.Stop(container))
+
+	container, err = gnomock.StartCustom(
+		busyboxImage,
+		gnomock.DefaultTCP(testutil.GoodPort80),
+		gnomock.WithExtraHosts([]string{"test:127.0.0.1"}),
+		gnomock.WithCommand("ping", "-c", retries, "google.com"),
+	)
+	require.NoError(t, err)
+	require.NotNil(t, container)
+	require.NoError(t, gnomock.Stop(container))
+}
+
 func initf(context.Context, *gnomock.Container) error {
 	return nil
 }
