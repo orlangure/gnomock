@@ -22,7 +22,6 @@ func TestPreset(t *testing.T) {
 	c, err := gnomock.Start(
 		p,
 		gnomock.WithContainerName("k3s"),
-		gnomock.WithDebugMode(),
 	)
 	require.NoError(t, err)
 
