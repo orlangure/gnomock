@@ -438,6 +438,18 @@ func (d *docker) stopContainer(ctx context.Context, id string) error {
 	return nil
 }
 
+func (d *docker) removeContainer(ctx context.Context, id string) error {
+	d.lock.Lock()
+	defer d.lock.Unlock()
+
+	err := d.client.ContainerRemove(ctx, id, types.ContainerRemoveOptions{})
+	if err != nil && !client.IsErrNotFound(err) {
+		return fmt.Errorf("can't remove container %s: %w", id, err)
+	}
+
+	return nil
+}
+
 // hostAddr returns an address of a host that runs the containers. If
 // DOCKER_HOST environment variable is not set, if its value is an invalid URL,
 // or if it is a `unix:///` socket address, it returns local address.

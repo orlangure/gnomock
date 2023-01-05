@@ -164,10 +164,8 @@ func TestGnomock_withDebugMode(t *testing.T) {
 		testutil.TestImage, gnomock.DefaultTCP(testutil.GoodPort80),
 		gnomock.WithDebugMode(),
 	)
-
 	require.NoError(t, err)
 	require.NotNil(t, container)
-	require.NoError(t, gnomock.Stop(container))
 
 	containerList, err = cli.ContainerList(context.Background(), types.ContainerListOptions{
 		All: true,
@@ -178,7 +176,17 @@ func TestGnomock_withDebugMode(t *testing.T) {
 	})
 	require.NoError(t, err)
 	require.Len(t, containerList, 1)
-	require.NoError(t, cli.ContainerRemove(context.Background(), container.ID, types.ContainerRemoveOptions{}))
+	require.NoError(t, gnomock.Stop(container))
+
+	containerList, err = cli.ContainerList(context.Background(), types.ContainerListOptions{
+		All: true,
+		Filters: filters.NewArgs(filters.KeyValuePair{
+			Key:   "id",
+			Value: container.ID,
+		}),
+	})
+	require.NoError(t, err)
+	require.Len(t, containerList, 0)
 }
 
 func TestGnomock_withLogWriter(t *testing.T) {

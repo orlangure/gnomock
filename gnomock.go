@@ -252,7 +252,7 @@ func (g *g) stop(c *Container) error {
 		}
 	}
 
-	return nil
+	return cli.removeContainer(context.Background(), id)
 }
 
 func buildImage(image string) string {
