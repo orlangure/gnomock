@@ -17,9 +17,11 @@ import (
 	"github.com/docker/docker/api/types/filters"
 	"github.com/docker/docker/api/types/mount"
 	"github.com/docker/docker/client"
+	"github.com/docker/docker/errdefs"
 	"github.com/docker/go-connections/nat"
 	"github.com/orlangure/gnomock/internal/cleaner"
 	"github.com/orlangure/gnomock/internal/health"
+	"github.com/pkg/errors"
 	"go.uber.org/zap"
 )
 
@@ -442,8 +444,8 @@ func (d *docker) removeContainer(ctx context.Context, id string) error {
 	d.lock.Lock()
 	defer d.lock.Unlock()
 
-	err := d.client.ContainerRemove(ctx, id, types.ContainerRemoveOptions{})
-	if err != nil && !client.IsErrNotFound(err) {
+	err := d.client.ContainerRemove(ctx, id, types.ContainerRemoveOptions{Force: true})
+	if err != nil && !client.IsErrNotFound(err) && isDeletionAlreadyInProgessError(err, id) {
 		return fmt.Errorf("can't remove container %s: %w", id, err)
 	}
 
@@ -464,4 +466,10 @@ func (d *docker) hostAddr() string {
 	}
 
 	return localhostAddr
+}
+
+func isDeletionAlreadyInProgessError(err error, id string) bool {
+	return errors.Is(err, errdefs.Conflict(
+		errors.Wrap(fmt.Errorf("removal of container %s is already in progress", id),
+			"Error response from daemon")))
 }
