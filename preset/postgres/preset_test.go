@@ -105,3 +105,28 @@ func TestPreset_wrongQueriesFile(t *testing.T) {
 	require.Contains(t, err.Error(), "can't read queries file")
 	require.NoError(t, gnomock.Stop(c))
 }
+
+func TestPreset_withContainerReuseAndDatabase(t *testing.T) {
+	t.Parallel()
+
+	p := postgres.Preset(postgres.WithDatabase("reused"))
+
+	c1, err := gnomock.Start(
+		p,
+		gnomock.WithContainerReuse(),
+		gnomock.WithContainerName("reusable-postgres"),
+	)
+	require.NoError(t, err)
+	require.NotNil(t, c1)
+
+	c2, err := gnomock.Start(
+		p,
+		gnomock.WithContainerReuse(),
+		gnomock.WithContainerName("reusable-postgres"),
+	)
+	require.NoError(t, err)
+	require.NotNil(t, c2)
+	require.Equal(t, c1.ID, c2.ID)
+
+	t.Cleanup(func() { require.NoError(t, gnomock.Stop(c1, c2)) })
+}
