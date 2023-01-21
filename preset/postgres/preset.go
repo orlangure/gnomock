@@ -6,6 +6,7 @@ import (
 	"database/sql"
 	"fmt"
 	"os"
+	"strings"
 
 	_ "github.com/lib/pq" // postgres driver
 	"github.com/orlangure/gnomock"
@@ -114,7 +115,10 @@ func (p *P) initf() gnomock.InitFunc {
 
 			_, err = db.Exec("create database " + p.DB)
 			if err != nil {
-				return err
+				isDuplicateDB := strings.Contains(err.Error(), fmt.Sprintf(`pq: database "%s" already exists`, p.DB))
+				if !isDuplicateDB {
+					return err
+				}
 			}
 
 			_ = db.Close()
@@ -127,22 +131,8 @@ func (p *P) initf() gnomock.InitFunc {
 
 		defer func() { _ = db.Close() }()
 
-		if len(p.QueriesFiles) > 0 {
-			for _, f := range p.QueriesFiles {
-				bs, err := os.ReadFile(f) // nolint:gosec
-				if err != nil {
-					return fmt.Errorf("can't read queries file '%s': %w", f, err)
-				}
-
-				p.Queries = append([]string{string(bs)}, p.Queries...)
-			}
-		}
-
-		for _, q := range p.Queries {
-			_, err = db.Exec(q)
-			if err != nil {
-				return err
-			}
+		if err := p.executeQueries(db); err != nil {
+			return fmt.Errorf("can't execute setup queries: %w", err)
 		}
 
 		return nil
@@ -157,6 +147,28 @@ func (p *P) setDefaults() {
 	if p.Version == "" {
 		p.Version = defaultVersion
 	}
+}
+
+func (p *P) executeQueries(db *sql.DB) error {
+	if len(p.QueriesFiles) > 0 {
+		for _, f := range p.QueriesFiles {
+			bs, err := os.ReadFile(f) // nolint:gosec
+			if err != nil {
+				return fmt.Errorf("can't read queries file '%s': %w", f, err)
+			}
+
+			p.Queries = append([]string{string(bs)}, p.Queries...)
+		}
+	}
+
+	for _, q := range p.Queries {
+		_, err := db.Exec(q)
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
 }
 
 func connect(c *gnomock.Container, db string) (*sql.DB, error) {
