@@ -383,7 +383,7 @@ jobs:
 
   test-k3s:
     name: "[preset] k3s"
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04 
     env:
       CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
     steps:
