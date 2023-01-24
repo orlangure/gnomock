@@ -434,7 +434,7 @@ func (d *docker) stopContainer(ctx context.Context, id string) error {
 	stopTimeout := defaultStopTimeout
 
 	err := d.client.ContainerStop(ctx, id, &stopTimeout)
-	if err != nil {
+	if err != nil && !client.IsErrNotFound(err) {
 		return fmt.Errorf("can't stop container %s: %w", id, err)
 	}
 
