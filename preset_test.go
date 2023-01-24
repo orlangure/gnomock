@@ -5,6 +5,9 @@ import (
 	"testing"
 	"time"
 
+	"github.com/docker/docker/api/types"
+	"github.com/docker/docker/api/types/filters"
+	"github.com/docker/docker/client"
 	"github.com/orlangure/gnomock"
 	"github.com/orlangure/gnomock/internal/health"
 	"github.com/orlangure/gnomock/internal/testutil"
@@ -70,8 +73,18 @@ func TestPreset_containerRemainsIfDebug(t *testing.T) {
 	time.Sleep(time.Second)
 
 	// confirm it doesn't exist anymore
-	err = gnomock.Stop(container)
-	require.Error(t, err)
+	cli, err := client.NewClientWithOpts(client.FromEnv, client.WithAPIVersionNegotiation())
+	require.NoError(t, err)
+
+	containerList, err := cli.ContainerList(context.Background(), types.ContainerListOptions{
+		All: true,
+		Filters: filters.NewArgs(filters.KeyValuePair{
+			Key:   "id",
+			Value: container.ID,
+		}),
+	})
+	require.NoError(t, err)
+	require.Len(t, containerList, 0)
 }
 
 func TestPreset_duplicateContainerName(t *testing.T) {
