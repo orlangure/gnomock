@@ -71,6 +71,10 @@ func (d *docker) isExistingLocalImage(ctx context.Context, image string) (bool, 
 
 	for _, img := range images {
 		for _, repoTag := range img.RepoTags {
+			if image == repoTag {
+				return true, nil
+			}
+
 			if !strings.Contains(repoTag, "/") {
 				repoTag = "library/" + repoTag
 			}

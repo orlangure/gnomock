@@ -275,6 +275,7 @@ func TestGnomock_witUseLocalImagesFirst(t *testing.T) {
 		circleciMongoImage = "docker.io/circleci/mongo:4.4"
 	)
 
+	// this block will ensure having a local library/mongo image
 	container, err := gnomock.StartCustom(
 		mongoImage,
 		gnomock.DefaultTCP(testutil.GoodPort80),
@@ -284,23 +285,46 @@ func TestGnomock_witUseLocalImagesFirst(t *testing.T) {
 	require.NotNil(t, container)
 	require.NoError(t, gnomock.Stop(container))
 
-	container, err = gnomock.StartCustom(
-		mongoImage,
-		gnomock.DefaultTCP(testutil.GoodPort80),
-		gnomock.WithUseLocalImagesFirst(),
-	)
-	require.NoError(t, err)
-	require.NotNil(t, container)
-	require.NoError(t, gnomock.Stop(container))
+	t.Run("library mongo image", func(t *testing.T) {
+		t.Parallel()
 
-	container, err = gnomock.StartCustom(
-		circleciMongoImage,
-		gnomock.DefaultTCP(testutil.GoodPort80),
-		gnomock.WithUseLocalImagesFirst(),
-	)
-	require.NoError(t, err)
-	require.NotNil(t, container)
-	require.NoError(t, gnomock.Stop(container))
+		// this actually uses the local image
+		container, err := gnomock.StartCustom(
+			mongoImage,
+			gnomock.DefaultTCP(testutil.GoodPort80),
+			gnomock.WithUseLocalImagesFirst(),
+		)
+		require.NoError(t, err)
+		require.NotNil(t, container)
+		require.NoError(t, gnomock.Stop(container))
+	})
+
+	t.Run("circleci mongo image", func(t *testing.T) {
+		t.Parallel()
+
+		container, err := gnomock.StartCustom(
+			circleciMongoImage,
+			gnomock.DefaultTCP(testutil.GoodPort80),
+			gnomock.WithUseLocalImagesFirst(),
+		)
+		require.NoError(t, err)
+		require.NotNil(t, container)
+		require.NoError(t, gnomock.Stop(container))
+	})
+
+	t.Run("local image", func(t *testing.T) {
+		t.Parallel()
+		t.Skip("Enable this test when building from Dockerfile is supported")
+
+		container, err := gnomock.StartCustom(
+			"local-image",
+			gnomock.DefaultTCP(testutil.GoodPort80),
+			gnomock.WithUseLocalImagesFirst(),
+		)
+		require.NoError(t, err)
+		require.NotNil(t, container)
+		require.NoError(t, gnomock.Stop(container))
+	})
 }
 
 func TestGnomock_withExtraHosts(t *testing.T) {
