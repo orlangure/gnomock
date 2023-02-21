@@ -446,7 +446,7 @@ func (d *docker) removeContainer(ctx context.Context, id string) error {
 	defer d.lock.Unlock()
 
 	err := d.client.ContainerRemove(ctx, id, types.ContainerRemoveOptions{Force: true})
-	if err != nil && !client.IsErrNotFound(err) && isDeletionAlreadyInProgessError(err, id) {
+	if err != nil && !client.IsErrNotFound(err) && !isDeletionAlreadyInProgessError(err, id) {
 		return fmt.Errorf("can't remove container %s: %w", id, err)
 	}
 
