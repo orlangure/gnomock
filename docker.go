@@ -470,7 +470,11 @@ func (d *docker) hostAddr() string {
 }
 
 func isDeletionAlreadyInProgessError(err error, id string) bool {
-	return errors.Is(err, errdefs.Conflict(
-		errors.Wrap(fmt.Errorf("removal of container %s is already in progress", id),
-			"Error response from daemon")))
+	var e errdefs.ErrConflict
+	if errors.As(err, &e) {
+		if err.Error() == fmt.Sprintf("Error response from daemon: removal of container %s is already in progress", id) {
+			return true
+		}
+	}
+	return false
 }
