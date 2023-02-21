@@ -476,5 +476,6 @@ func isDeletionAlreadyInProgessError(err error, id string) bool {
 			return true
 		}
 	}
+
 	return false
 }
