@@ -148,7 +148,7 @@ func TestGnomock_withDebugMode(t *testing.T) {
 	require.NotNil(t, container)
 	require.NoError(t, gnomock.Stop(container))
 
-	containerList, err := testutil.ListContainerById(cli, container.ID)
+	containerList, err := testutil.ListContainerByID(cli, container.ID)
 	require.NoError(t, err)
 	require.Len(t, containerList, 0)
 
@@ -159,12 +159,12 @@ func TestGnomock_withDebugMode(t *testing.T) {
 	require.NoError(t, err)
 	require.NotNil(t, container)
 
-	containerList, err = testutil.ListContainerById(cli, container.ID)
+	containerList, err = testutil.ListContainerByID(cli, container.ID)
 	require.NoError(t, err)
 	require.Len(t, containerList, 1)
 	require.NoError(t, gnomock.Stop(container))
 
-	containerList, err = testutil.ListContainerById(cli, container.ID)
+	containerList, err = testutil.ListContainerByID(cli, container.ID)
 	require.NoError(t, err)
 	require.Len(t, containerList, 0)
 }

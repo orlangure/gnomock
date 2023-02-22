@@ -74,7 +74,7 @@ func TestPreset_containerRemainsIfDebug(t *testing.T) {
 	cli, err := client.NewClientWithOpts(client.FromEnv, client.WithAPIVersionNegotiation())
 	require.NoError(t, err)
 
-	containerList, err := testutil.ListContainerById(cli, container.ID)
+	containerList, err := testutil.ListContainerByID(cli, container.ID)
 	require.NoError(t, err)
 	require.Len(t, containerList, 0)
 }
@@ -102,7 +102,7 @@ func TestPreset_duplicateContainerName(t *testing.T) {
 	)
 	require.NoError(t, err)
 
-	containerList, err := testutil.ListContainerById(cli, originalContainer.ID)
+	containerList, err := testutil.ListContainerByID(cli, originalContainer.ID)
 	require.NoError(t, err)
 	require.Len(t, containerList, 0)
 	require.NoError(t, gnomock.Stop(newContainer))

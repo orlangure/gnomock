@@ -46,11 +46,11 @@ func TestCleaner(t *testing.T) {
 	require.NoError(t, gnomock.Stop(targetContainer))
 	require.NoError(t, gnomock.Stop(cleanerContainer))
 
-	containerList, err := testutil.ListContainerById(cli, targetContainer.ID)
+	containerList, err := testutil.ListContainerByID(cli, targetContainer.ID)
 	require.NoError(t, err)
 	require.Len(t, containerList, 0)
 
-	containerList, err = testutil.ListContainerById(cli, cleanerContainer.ID)
+	containerList, err = testutil.ListContainerByID(cli, cleanerContainer.ID)
 	require.NoError(t, err)
 	require.Len(t, containerList, 0)
 }

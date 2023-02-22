@@ -9,8 +9,8 @@ import (
 	"github.com/docker/docker/client"
 )
 
-// ListContainerById returns a list of Containers for the given container id
-func ListContainerById(cli *client.Client, id string) ([]types.Container, error) {
+// ListContainerByID returns a list of Containers for the given container id.
+func ListContainerByID(cli *client.Client, id string) ([]types.Container, error) {
 	return cli.ContainerList(context.Background(), types.ContainerListOptions{
 		All: true,
 		Filters: filters.NewArgs(filters.KeyValuePair{
