@@ -9,8 +9,6 @@ import (
 	"testing"
 	"time"
 
-	"github.com/docker/docker/api/types"
-	"github.com/docker/docker/api/types/filters"
 	"github.com/docker/docker/client"
 	"github.com/orlangure/gnomock"
 	"github.com/orlangure/gnomock/internal/testutil"
@@ -150,13 +148,7 @@ func TestGnomock_withDebugMode(t *testing.T) {
 	require.NotNil(t, container)
 	require.NoError(t, gnomock.Stop(container))
 
-	containerList, err := cli.ContainerList(context.Background(), types.ContainerListOptions{
-		All: true,
-		Filters: filters.NewArgs(filters.KeyValuePair{
-			Key:   "id",
-			Value: container.ID,
-		}),
-	})
+	containerList, err := testutil.ListContainerById(cli, container.ID)
 	require.NoError(t, err)
 	require.Len(t, containerList, 0)
 
@@ -167,24 +159,12 @@ func TestGnomock_withDebugMode(t *testing.T) {
 	require.NoError(t, err)
 	require.NotNil(t, container)
 
-	containerList, err = cli.ContainerList(context.Background(), types.ContainerListOptions{
-		All: true,
-		Filters: filters.NewArgs(filters.KeyValuePair{
-			Key:   "id",
-			Value: container.ID,
-		}),
-	})
+	containerList, err = testutil.ListContainerById(cli, container.ID)
 	require.NoError(t, err)
 	require.Len(t, containerList, 1)
 	require.NoError(t, gnomock.Stop(container))
 
-	containerList, err = cli.ContainerList(context.Background(), types.ContainerListOptions{
-		All: true,
-		Filters: filters.NewArgs(filters.KeyValuePair{
-			Key:   "id",
-			Value: container.ID,
-		}),
-	})
+	containerList, err = testutil.ListContainerById(cli, container.ID)
 	require.NoError(t, err)
 	require.Len(t, containerList, 0)
 }
