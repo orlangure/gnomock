@@ -5,6 +5,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/docker/docker/client"
 	"github.com/orlangure/gnomock"
 	"github.com/orlangure/gnomock/internal/cleaner"
 	"github.com/orlangure/gnomock/internal/health"
@@ -14,6 +15,9 @@ import (
 
 func TestCleaner(t *testing.T) {
 	t.Parallel()
+
+	cli, err := client.NewClientWithOpts(client.FromEnv, client.WithAPIVersionNegotiation())
+	require.NoError(t, err)
 
 	p := &testutil.TestPreset{Img: testutil.TestImage}
 	targetContainer, err := gnomock.Start(p, gnomock.WithDisableAutoCleanup())
@@ -39,8 +43,16 @@ func TestCleaner(t *testing.T) {
 	time.Sleep(time.Second * 5)
 
 	// both stop calls cause errors because both containers no longer exist
-	require.Error(t, gnomock.Stop(targetContainer))
-	require.Error(t, gnomock.Stop(cleanerContainer))
+	require.NoError(t, gnomock.Stop(targetContainer))
+	require.NoError(t, gnomock.Stop(cleanerContainer))
+
+	containerList, err := testutil.ListContainerByID(cli, targetContainer.ID)
+	require.NoError(t, err)
+	require.Len(t, containerList, 0)
+
+	containerList, err = testutil.ListContainerByID(cli, cleanerContainer.ID)
+	require.NoError(t, err)
+	require.Len(t, containerList, 0)
 }
 
 func TestCleaner_wrongRequest(t *testing.T) {

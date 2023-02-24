@@ -84,7 +84,7 @@ func TestGnomockd(t *testing.T) {
 
 		defer func() { require.NoError(t, res.Body.Close()) }()
 
-		require.Equal(t, http.StatusInternalServerError, res.StatusCode)
+		require.Equal(t, http.StatusOK, res.StatusCode)
 	})
 
 	t.Run("fixed host port using custom named ports", func(t *testing.T) {

@@ -17,9 +17,11 @@ import (
 	"github.com/docker/docker/api/types/filters"
 	"github.com/docker/docker/api/types/mount"
 	"github.com/docker/docker/client"
+	"github.com/docker/docker/errdefs"
 	"github.com/docker/go-connections/nat"
 	"github.com/orlangure/gnomock/internal/cleaner"
 	"github.com/orlangure/gnomock/internal/health"
+	"github.com/pkg/errors"
 	"go.uber.org/zap"
 )
 
@@ -322,7 +324,7 @@ func (d *docker) createContainer(ctx context.Context, image string, ports NamedP
 	portBindings := d.portBindings(exposedPorts, ports)
 	hostConfig := &container.HostConfig{
 		PortBindings: portBindings,
-		AutoRemove:   true,
+		AutoRemove:   !cfg.Debug,
 		Privileged:   cfg.Privileged,
 		Mounts:       mounts,
 		ExtraHosts:   cfg.ExtraHosts,
@@ -432,8 +434,20 @@ func (d *docker) stopContainer(ctx context.Context, id string) error {
 	stopTimeout := defaultStopTimeout
 
 	err := d.client.ContainerStop(ctx, id, &stopTimeout)
-	if err != nil {
+	if err != nil && !client.IsErrNotFound(err) {
 		return fmt.Errorf("can't stop container %s: %w", id, err)
+	}
+
+	return nil
+}
+
+func (d *docker) removeContainer(ctx context.Context, id string) error {
+	d.lock.Lock()
+	defer d.lock.Unlock()
+
+	err := d.client.ContainerRemove(ctx, id, types.ContainerRemoveOptions{Force: true})
+	if err != nil && !client.IsErrNotFound(err) && !isDeletionAlreadyInProgessError(err, id) {
+		return fmt.Errorf("can't remove container %s: %w", id, err)
 	}
 
 	return nil
@@ -453,4 +467,15 @@ func (d *docker) hostAddr() string {
 	}
 
 	return localhostAddr
+}
+
+func isDeletionAlreadyInProgessError(err error, id string) bool {
+	var e errdefs.ErrConflict
+	if errors.As(err, &e) {
+		if err.Error() == fmt.Sprintf("Error response from daemon: removal of container %s is already in progress", id) {
+			return true
+		}
+	}
+
+	return false
 }

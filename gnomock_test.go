@@ -9,6 +9,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/docker/docker/client"
 	"github.com/orlangure/gnomock"
 	"github.com/orlangure/gnomock/internal/testutil"
 	"github.com/stretchr/testify/require"
@@ -132,6 +133,40 @@ func TestGnomock_cantStart(t *testing.T) {
 	require.Error(t, err)
 	require.Nil(t, container)
 	require.NoError(t, gnomock.Stop(container))
+}
+
+func TestGnomock_withDebugMode(t *testing.T) {
+	t.Parallel()
+
+	cli, err := client.NewClientWithOpts(client.FromEnv, client.WithAPIVersionNegotiation())
+	require.NoError(t, err)
+
+	container, err := gnomock.StartCustom(
+		testutil.TestImage, gnomock.DefaultTCP(testutil.GoodPort80),
+	)
+	require.NoError(t, err)
+	require.NotNil(t, container)
+	require.NoError(t, gnomock.Stop(container))
+
+	containerList, err := testutil.ListContainerByID(cli, container.ID)
+	require.NoError(t, err)
+	require.Len(t, containerList, 0)
+
+	container, err = gnomock.StartCustom(
+		testutil.TestImage, gnomock.DefaultTCP(testutil.GoodPort80),
+		gnomock.WithDebugMode(),
+	)
+	require.NoError(t, err)
+	require.NotNil(t, container)
+
+	containerList, err = testutil.ListContainerByID(cli, container.ID)
+	require.NoError(t, err)
+	require.Len(t, containerList, 1)
+	require.NoError(t, gnomock.Stop(container))
+
+	containerList, err = testutil.ListContainerByID(cli, container.ID)
+	require.NoError(t, err)
+	require.Len(t, containerList, 0)
 }
 
 func TestGnomock_withLogWriter(t *testing.T) {
