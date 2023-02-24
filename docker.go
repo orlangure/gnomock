@@ -2,6 +2,7 @@ package gnomock
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"io"
 	"net/url"
@@ -21,13 +22,12 @@ import (
 	"github.com/docker/go-connections/nat"
 	"github.com/orlangure/gnomock/internal/cleaner"
 	"github.com/orlangure/gnomock/internal/health"
-	"github.com/pkg/errors"
 	"go.uber.org/zap"
 )
 
 const (
 	localhostAddr             = "127.0.0.1"
-	defaultStopTimeout        = time.Second * 1
+	defaultStopTimeoutSec     = 1
 	duplicateContainerPattern = `Conflict. The container name "(?:.+?)" is already in use by container "(\w+)". You have to remove \(or rename\) that container to be able to reuse that name.` // nolint:lll
 	dockerSockAddr            = "/var/run/docker.sock"
 )
@@ -55,7 +55,7 @@ func (g *g) dockerConnect() (*docker, error) {
 
 	cli, err := client.NewClientWithOpts(client.FromEnv, client.WithAPIVersionNegotiation())
 	if err != nil {
-		return nil, fmt.Errorf("%w: %s", ErrEnvClient, err)
+		return nil, errors.Join(ErrEnvClient, err)
 	}
 
 	g.log.Info("connected to docker engine")
@@ -193,7 +193,7 @@ func (d *docker) prepareContainer(
 	image string,
 	ports NamedPorts,
 	cfg *Options,
-) (*container.ContainerCreateCreatedBody, error) {
+) (*container.CreateResponse, error) {
 	pullImage := true
 
 	if cfg.UseLocalImagesFirst {
@@ -296,7 +296,12 @@ func (d *docker) portBindings(exposedPorts nat.PortSet, ports NamedPorts) nat.Po
 	return portBindings
 }
 
-func (d *docker) createContainer(ctx context.Context, image string, ports NamedPorts, cfg *Options) (*container.ContainerCreateCreatedBody, error) { // nolint:lll
+func (d *docker) createContainer(
+	ctx context.Context,
+	image string,
+	ports NamedPorts,
+	cfg *Options,
+) (*container.CreateResponse, error) {
 	exposedPorts := d.exposedPorts(ports)
 	containerConfig := &container.Config{
 		Image:        image,
@@ -431,9 +436,11 @@ func (d *docker) stopContainer(ctx context.Context, id string) error {
 	d.lock.Lock()
 	defer d.lock.Unlock()
 
-	stopTimeout := defaultStopTimeout
+	stopTimeout := defaultStopTimeoutSec
 
-	err := d.client.ContainerStop(ctx, id, &stopTimeout)
+	err := d.client.ContainerStop(ctx, id, container.StopOptions{
+		Timeout: &stopTimeout,
+	})
 	if err != nil && !client.IsErrNotFound(err) {
 		return fmt.Errorf("can't stop container %s: %w", id, err)
 	}

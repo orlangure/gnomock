@@ -110,8 +110,8 @@ func Ingest(ctx context.Context, c *gnomock.Container, adminPassword string, eve
 	for {
 		select {
 		case <-ctx.Done():
-			return fmt.Errorf("event count didn't match: want %d, got %d; last error: %v: %w",
-				expectedCount, lastCount, lastErr, context.Canceled)
+			return fmt.Errorf("event count didn't match: want %d, got %d; last error: %w",
+				expectedCount, lastCount, errors.Join(lastErr, context.Canceled))
 		default:
 			lastCount, lastErr = countEvents()
 			if lastErr == nil && lastCount == expectedCount {
