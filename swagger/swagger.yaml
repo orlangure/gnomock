@@ -330,6 +330,26 @@ paths:
       tags:
         - presets
 
+  /start/vault:
+    post:
+      summary: Start a new Gnomock Vault preset.
+      operationId: startVault
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/vault-request'
+      responses:
+        '200':
+          $ref: '#/components/responses/container-created'
+        '400':
+          $ref: '#/components/responses/invalid-configuration'
+        '500':
+          $ref: '#/components/responses/start-failed'
+      tags:
+        - presets
+
 ### /start/preset
 
   /stop:
@@ -1176,6 +1196,66 @@ components:
           default: latest
       description: >
         This object describes Cassandra container.
+
+    vault-request:
+      type: object
+      properties:
+        preset:
+          $ref: '#/components/schemas/vault'
+        options:
+          $ref: '#/components/schemas/options'
+      description: >
+        This request includes Vault and general configuration.
+
+    vault:
+      type: object
+      properties:
+        version:
+          type: string
+          description: Docker image tag (version)
+          default: latest
+        auth_token:
+          type: string
+          description: Sets authentication (root) token to be used to connect to this container
+          default: gnomock-vault-token
+        auth:
+          type: array
+          description: Adds a new auth method.
+          items:
+            type: object
+            properties:
+              path:
+                type: string
+                description:  The mountpath of the new auth method
+              type:
+                type: string
+                description: 'Represents the auth type (i.e: kubernetes)'
+        policies:
+          type: array
+          description: Adds additional policies.
+          items:
+            type: object
+            properties:
+              name:
+                type: string
+                description: The policy name
+              data:
+                type: string
+                description: The policy rule data
+        token_create:
+          type: object
+          description: Creates an additioanal (non-root) token with the providend policies in the provided file path
+          properties:
+            policies:
+              type: array
+              description: A list of policy names the created token should have.
+              items:
+                type: string
+            file_path:
+              type: string
+              description: The file in witch the created token will be saved to
+      description: >
+        This object describes Vault container.
 
 ### preset-request
 
