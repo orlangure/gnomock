@@ -30,7 +30,7 @@ func TestWithBlobstorageFiles(t *testing.T) {
 	azblobClient, err := azblob.NewClientFromConnectionString(connString, nil)
 	assert.NoError(t, err)
 
-	// o10n-container is automatically created, and now includes 10 files
+	// some-container is automatically created, and now includes 10 files
 	containerName := "some-container"
 
 	nextMarker := listAndCheckFiles(t, azblobClient, containerName, 4, 4, nil)
