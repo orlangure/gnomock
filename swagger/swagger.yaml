@@ -329,6 +329,26 @@ paths:
           $ref: '#/components/responses/start-failed'
       tags:
         - presets
+        -
+  /start/azurite:
+    post:
+      summary: Start a new Gnomock Azurite container
+      operationId: startAzurite
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/azurite-request'
+      responses:
+        '200':
+          $ref: '#/components/responses/container-created'
+        '400':
+          $ref: '#/components/responses/invalid-configuration'
+        '500':
+          $ref: '#/components/responses/start-failed'
+      tags:
+        - presets
 
 ### /start/preset
 
@@ -1176,6 +1196,32 @@ components:
           default: latest
       description: >
         This object describes Cassandra container.
+
+    azurite-request:
+      type: object
+      properties:
+        preset:
+          $ref: '#/components/schemas/azurite'
+        options:
+          $ref: '#/components/schemas/options'
+      description: >
+        This request includes Azurite and general configuration.
+
+    azurite:
+      type: object
+      properties:
+        blobstore_path:
+          type: string
+          description: >
+            Path to folder to setup initial blobstore state. Top level folders are
+            used as buckets; all child folders and files are uploaded as-is
+          example: /home/gnomock/project/testdata/azurite
+        version:
+          type: string
+          description: Docker image tag (version)
+          default: latest
+      description: >
+        This object describes Azurite container.
 
 ### preset-request
 

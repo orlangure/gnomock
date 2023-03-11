@@ -84,6 +84,15 @@ Gnomock:
    with the new endpoint. For example, for `memcached` preset the endpoint is
    `/preset/memcached`.
 
+1. Generate [client SDK
+   code](https://github.com/orlangure/gnomock#using-gnomock-server). Gnomock
+   uses OpenAPI to generate client code from swagger specification.
+
+1. Add client SDK tests for the new preset. These tests go into
+   [`sdktest`](https://github.com/orlangure/gnomock/tree/master/sdktest)
+   package. They allow to make sure that client code in languages other than Go
+   does not break after each update.
+
 1. Update [README](README.md) using the links to the new packages/docs.
 
 1. Add a job to test the new preset to [Github
