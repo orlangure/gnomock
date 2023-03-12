@@ -473,4 +473,26 @@ jobs:
           cat preset-cover.txt server-cover.txt > coverage.txt
           bash <(curl -s https://codecov.io/bash)
 
+  test-azurite:
+    name: "[preset] azurite"
+    runs-on: ubuntu-latest
+    env:
+      CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+    steps:
+      - name: Set up Go 1.20
+        uses: actions/setup-go@v1
+        with:
+          go-version: 1.20
+      - name: Check out code into the Go module directory
+        uses: actions/checkout@v1
+      - name: Get dependencies
+        run: go get -v -t -d ./...
+      - name: Test preset
+        run: go test -race -cover -coverprofile=preset-cover.txt -coverpkg=./... -v ./preset/azurite/...
+      - name: Test server
+        run: go test -race -cover -coverprofile=server-cover.txt -coverpkg=./... -v ./internal/gnomockd -run TestAzurite
+      - name: Report coverage
+        run: |
+          cat preset-cover.txt server-cover.txt > coverage.txt
+          bash <(curl -s https://codecov.io/bash)
 ### preset tests go here

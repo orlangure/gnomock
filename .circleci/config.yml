@@ -220,6 +220,18 @@ jobs:
           name: Test server
           command: go test -race -cover -v ./internal/gnomockd -run TestCassandra
 
+  test-azurite:
+    machine: true
+    resource_class: large
+    steps:
+      - setup-for-go-test
+      - run:
+          name: Test preset
+          command: go test -race -cover -v ./preset/azurite/...
+      - run:
+          name: Test server
+          command: go test -race -cover -v ./internal/gnomockd -run TestAzurite
+
 ### preset tests go here
 
 workflows:
