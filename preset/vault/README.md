@@ -53,10 +53,6 @@ path "secret/metadata/*" {
 	p := vault.Preset(
 		vault.WithVersion("latest"),
 		vault.WithAuthToken("root-token"),
-		vault.WithTokenCreate(vault.TokenCreate{
-			FilePath: tmpFile.Name(),
-			Policies: []string{"default"},
-		}),
 		vault.WithAuth([]vault.Auth{
 			{
 				Path: "k8s_cluster1",
