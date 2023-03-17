@@ -1,0 +1,21 @@
+{
+  "preset": {
+    "version": "latest",
+    "auth_token": "gnomock-vault-token",
+    "auth": [
+      {
+        "path": "k8s_cluster1",
+        "type": "kubernetes"
+      }
+    ],
+    "policies": [
+      {
+        "name": "empty_policy",
+        "data": "{}"
+      }
+    ],
+    "options": {
+
+    }
+  }
+}
