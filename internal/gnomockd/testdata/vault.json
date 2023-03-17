@@ -14,13 +14,8 @@
         "data": "{}"
       }
     ],
-    "token_create": {
-      "policies": [
-        "default"
-      ],
-      "file_path": "/tmp/token"
+    "options": {
+
     }
-  },
-  "options": {
   }
 }
