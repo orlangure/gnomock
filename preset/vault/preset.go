@@ -6,7 +6,6 @@ package vault
 import (
 	"context"
 	"fmt"
-	"os"
 
 	"github.com/hashicorp/vault/api"
 	"github.com/orlangure/gnomock"
@@ -37,11 +36,10 @@ func Preset(opts ...Option) gnomock.Preset {
 
 // P is a Gnomock Preset implementation for vault.
 type P struct {
-	Version     string       `json:"version"`
-	AuthToken   string       `json:"auth_token"`
-	Auth        []Auth       `json:"auth"`
-	Policies    []Policy     `json:"policies"`
-	TokenCreate *TokenCreate `json:"token_create"`
+	Version   string   `json:"version"`
+	AuthToken string   `json:"auth_token"`
+	Auth      []Auth   `json:"auth"`
+	Policies  []Policy `json:"policies"`
 }
 
 // Auth represents a vault authorization.
@@ -54,12 +52,6 @@ type Auth struct {
 type Policy struct {
 	Name string `json:"name"`
 	Data string `json:"data"`
-}
-
-// TokenCreate creates a token with the providend policies in the provided file path.
-type TokenCreate struct {
-	Policies []string `json:"policies"`
-	FilePath string   `json:"file_path"`
 }
 
 // Image returns an image that should be pulled to create this container.
@@ -97,7 +89,7 @@ func (p *P) setDefaults() {
 
 func (p *P) initf() gnomock.InitFunc {
 	return func(ctx context.Context, c *gnomock.Container) error {
-		cli, err := p.client(c)
+		cli, err := Client(c, p.AuthToken)
 		if err != nil {
 			return err
 		}
@@ -117,27 +109,12 @@ func (p *P) initf() gnomock.InitFunc {
 			}
 		}
 
-		if p.TokenCreate != nil {
-			tcr := api.TokenCreateRequest{
-				Policies: p.TokenCreate.Policies,
-			}
-
-			s, err := cli.Auth().Token().Create(&tcr)
-			if err != nil {
-				return fmt.Errorf("failed to create token: %w", err)
-			}
-
-			if err := os.WriteFile(p.TokenCreate.FilePath, []byte(s.Auth.ClientToken), 0o600); err != nil {
-				return fmt.Errorf("failed to write token to %s: %w", p.TokenCreate.FilePath, err)
-			}
-		}
-
 		return nil
 	}
 }
 
 func (p *P) healthcheck(ctx context.Context, c *gnomock.Container) error {
-	cli, err := p.client(c)
+	cli, err := Client(c, p.AuthToken)
 	if err != nil {
 		return err
 	}
@@ -147,7 +124,8 @@ func (p *P) healthcheck(ctx context.Context, c *gnomock.Container) error {
 	return err
 }
 
-func (p *P) client(c *gnomock.Container) (*api.Client, error) {
+// Client creates a configured vault client for the provided container and token.
+func Client(c *gnomock.Container, token string) (*api.Client, error) {
 	vaultConfig := api.DefaultConfig()
 	vaultConfig.Address = fmt.Sprintf("http://%s", c.DefaultAddress())
 
@@ -156,7 +134,27 @@ func (p *P) client(c *gnomock.Container) (*api.Client, error) {
 		return nil, err
 	}
 
-	vaultClient.SetToken(p.AuthToken)
+	vaultClient.SetToken(token)
 
 	return vaultClient, nil
+}
+
+// CreateToken creates an additional access token with the provided policies. Use the same password you provided
+// with the WithAuthToken option.
+func CreateToken(c *gnomock.Container, rootToken string, policies ...string) (string, error) {
+	cli, err := Client(c, rootToken)
+	if err != nil {
+		return "", err
+	}
+
+	tcr := api.TokenCreateRequest{
+		Policies: policies,
+	}
+
+	s, err := cli.Auth().Token().Create(&tcr)
+	if err != nil {
+		return "", fmt.Errorf("failed to create token: %w", err)
+	}
+
+	return s.Auth.ClientToken, nil
 }

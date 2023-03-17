@@ -2,8 +2,6 @@ package vault_test
 
 import (
 	"fmt"
-	"os"
-	"strings"
 	"testing"
 
 	"github.com/hashicorp/vault/api"
@@ -16,13 +14,12 @@ func TestPreset(t *testing.T) {
 	t.Parallel()
 
 	for _, version := range []string{"1.13", "1.12.4", "1.11.8", "1.10.11", "latest"} {
-		tmpfile, err := os.CreateTemp("", "token")
-		require.NoError(t, err)
-		t.Run(version, testPreset(version, tmpfile.Name()))
+		// tmpfile, err := os.CreateTemp("", "token")
+		t.Run(version, testPreset(version, "root-token"))
 	}
 }
 
-func testPreset(version string, filePath string) func(t *testing.T) {
+func testPreset(version, rootToken string) func(t *testing.T) {
 	const policy = `
 path "sys/mounts" {
   capabilities = ["list", "read"]
@@ -43,11 +40,7 @@ path "secret/metadata/*" {
 
 	p := vault.Preset(
 		vault.WithVersion(version),
-		vault.WithAuthToken("root-token"),
-		vault.WithAdditionalToken(vault.TokenCreate{
-			FilePath: filePath,
-			Policies: []string{"default"},
-		}),
+		vault.WithAuthToken(rootToken),
 		vault.WithAuth([]vault.Auth{
 			{
 				Path: "k8s_cluster1",
@@ -67,10 +60,6 @@ path "secret/metadata/*" {
 	)
 
 	return func(t *testing.T) {
-		defer func() {
-			_ = os.Remove(filePath)
-		}()
-
 		container, err := gnomock.Start(p)
 		require.NoError(t, err)
 
@@ -79,9 +68,8 @@ path "secret/metadata/*" {
 		vaultConfig := api.DefaultConfig()
 		vaultConfig.Address = fmt.Sprintf("http://%s", container.DefaultAddress())
 
-		cli, err := api.NewClient(vaultConfig)
+		cli, err := vault.Client(container, rootToken)
 		require.NoError(t, err)
-		cli.SetToken("root-token")
 
 		_, err = cli.Sys().Health()
 		require.NoError(t, err)
@@ -115,17 +103,6 @@ path "secret/metadata/*" {
 		}
 
 		require.True(t, found, "policy %s was not created", "policy1")
-
-		_, err = os.Stat(filePath)
-		require.NoError(t, err, "file %s does not exist", filePath)
-
-		d, err := os.ReadFile(filePath)
-		require.NoError(t, err, "could not read file %s", filePath)
-		require.True(t, strings.HasPrefix(string(d), "hvs."))
-
-		cli.SetToken(string(d))
-		_, err = cli.Sys().Health()
-		require.NoError(t, err, "generated token is not valid")
 	}
 }
 
@@ -141,12 +118,30 @@ func TestPreset_withDefaults(t *testing.T) {
 
 	defer func() { require.NoError(t, gnomock.Stop(container)) }()
 
-	vaultConfig := api.DefaultConfig()
-	vaultConfig.Address = fmt.Sprintf("http://%s", container.DefaultAddress())
-
-	cli, err := api.NewClient(vaultConfig)
+	cli, err := vault.Client(container, "gnomock-vault-token")
 	require.NoError(t, err)
-	cli.SetToken("gnomock-vault-token")
+
+	_, err = cli.Sys().Health()
+	require.NoError(t, err)
+}
+
+func TestCeateToken(t *testing.T) {
+	t.Parallel()
+
+	p := vault.Preset()
+	container, err := gnomock.Start(
+		p,
+		gnomock.WithContainerName("vault-create-token"),
+	)
+	require.NoError(t, err)
+
+	defer func() { require.NoError(t, gnomock.Stop(container)) }()
+
+	s, err := vault.CreateToken(container, "gnomock-vault-token", "default")
+	require.NoError(t, err)
+
+	cli, err := vault.Client(container, s)
+	require.NoError(t, err)
 
 	_, err = cli.Sys().Health()
 	require.NoError(t, err)

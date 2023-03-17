@@ -1242,18 +1242,6 @@ components:
               data:
                 type: string
                 description: The policy rule data
-        token_create:
-          type: object
-          description: Creates an additioanal (non-root) token with the providend policies in the provided file path
-          properties:
-            policies:
-              type: array
-              description: A list of policy names the created token should have.
-              items:
-                type: string
-            file_path:
-              type: string
-              description: The file in witch the created token will be saved to
       description: >
         This object describes Vault container.
 
