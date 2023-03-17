@@ -34,7 +34,7 @@ func WithPolicies(policies []Policy) Option {
 }
 
 // WithAdditionalToken creates an additional access token with the provided policies and stores it
-// in the provied file path.
+// in the provided file path.
 func WithAdditionalToken(tc TokenCreate) Option {
 	return func(p *P) {
 		p.TokenCreate = &tc
