@@ -254,4 +254,5 @@ workflows:
       - test-cockroachdb
       - test-influxdb
       - test-cassandra
+      - test-vault
 ### circleci jobs go here

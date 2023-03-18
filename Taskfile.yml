@@ -34,6 +34,7 @@ tasks:
         sed -Ei '' 's/^  version: (.*)$/  version: {{.version}}/' swagger/swagger.yaml
       - |
         sed -Ei '' 's/apis\/orlangure\/gnomock\/(.*)#/apis\/orlangure\/gnomock\/{{.version}}#/' README.md
+      - git add swagger/swagger.yaml
       - git commit -m 'Update version to {{.version}}'
     silent: true
     dir: .
