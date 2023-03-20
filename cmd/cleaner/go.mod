@@ -2,7 +2,7 @@ module github.com/orlangure/gnomock/cmd/cleaner
 
 go 1.20
 
-require github.com/orlangure/gnomock v0.25.0
+require github.com/orlangure/gnomock v0.26.0
 
 require (
 	github.com/Azure/go-ansiterm v0.0.0-20170929234023-d6e3b3328b78 // indirect
