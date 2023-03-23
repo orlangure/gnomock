@@ -219,6 +219,18 @@ jobs:
       - run:
           name: Test server
           command: go test -race -cover -v ./internal/gnomockd -run TestCassandra
+  
+  test-vault:
+    machine: true
+    resource_class: large
+    steps:
+      - setup-for-go-test
+      - run:
+          name: Test preset
+          command: go test -race -cover -v ./preset/vault/...
+      - run:
+          name: Test server
+          command: go test -race -cover -v ./internal/gnomockd -run TestVault
 
   test-azurite:
     machine: true
@@ -254,4 +266,5 @@ workflows:
       - test-cockroachdb
       - test-influxdb
       - test-cassandra
+      - test-vault
 ### circleci jobs go here

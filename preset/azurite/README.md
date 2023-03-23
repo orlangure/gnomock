@@ -1,4 +1,4 @@
-# Gnomock Blobstorage
+# Gnomock Azurite
 
 Gnomock Blobstorage is a [Gnomock](https://github.com/orlangure/gnomock) preset
 for running tests against Azure Blobstorage locally, powered by

@@ -7,7 +7,7 @@ info:
     testing toolkit. It allows to use Gnomock outside of Go ecosystem. Not all
     Gnomock features exist in this wrapper, but official presets, as well as
     basic general configuration, are supported.
-  version: 1.20.0
+  version: 1.26.0
   contact:
     url: https://github.com/orlangure/gnomock/
   license:
@@ -340,6 +340,26 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/azurite-request'
+      responses:
+        '200':
+          $ref: '#/components/responses/container-created'
+        '400':
+          $ref: '#/components/responses/invalid-configuration'
+        '500':
+          $ref: '#/components/responses/start-failed'
+      tags:
+        - presets
+
+  /start/vault:
+    post:
+      summary: Start a new Gnomock Vault preset.
+      operationId: startVault
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/vault-request'
       responses:
         '200':
           $ref: '#/components/responses/container-created'
@@ -1222,6 +1242,54 @@ components:
           default: latest
       description: >
         This object describes Azurite container.
+
+    vault-request:
+      type: object
+      properties:
+        preset:
+          $ref: '#/components/schemas/vault'
+        options:
+          $ref: '#/components/schemas/options'
+      description: >
+        This request includes Vault and general configuration.
+
+    vault:
+      type: object
+      properties:
+        auth_token:
+          type: string
+          description: Sets authentication (root) token to be used to connect to this container
+          default: gnomock-vault-token
+        auth:
+          type: array
+          description: Adds a new auth method.
+          items:
+            type: object
+            properties:
+              path:
+                type: string
+                description:  The mountpath of the new auth method
+              type:
+                type: string
+                description: 'Represents the auth type (i.e: kubernetes)'
+        version:
+          type: string
+          description: Docker image tag (version)
+          default: latest
+        policies:
+          type: array
+          description: Adds additional policies.
+          items:
+            type: object
+            properties:
+              name:
+                type: string
+                description: The policy name
+              data:
+                type: string
+                description: The policy rule data
+      description: >
+        This object describes Vault container.
 
 ### preset-request
 
