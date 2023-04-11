@@ -12,7 +12,7 @@ import (
 	"path"
 	"time"
 
-	"github.com/elastic/go-elasticsearch/v7"
+	"github.com/elastic/go-elasticsearch/v8"
 	"github.com/orlangure/gnomock"
 	"github.com/orlangure/gnomock/internal/registry"
 )
@@ -26,11 +26,11 @@ func init() {
 	registry.Register("elastic", func() gnomock.Preset { return &P{} })
 }
 
-// Preset creates a new Gmomock Elasticsearch preset. This preset includes an
+// Preset creates a new Gnomock Elasticsearch preset. This preset includes an
 // Elasticsearch specific healthcheck function and default Elasticsearch image
 // and port.
 //
-// By default, version 7.9.3 is used.
+// By default, version 8.7.0 is used.
 func Preset(opts ...Option) gnomock.Preset {
 	p := &P{}
 

@@ -11,7 +11,7 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/elastic/go-elasticsearch/v7"
+	"github.com/elastic/go-elasticsearch/v8"
 	"github.com/orlangure/gnomock"
 	"github.com/orlangure/gnomock/preset/elastic"
 	"github.com/stretchr/testify/require"
@@ -67,4 +67,3 @@ func TestPreset(t *testing.T) {
 	require.Equal(t, 0, out.Hits.Total.Value)
 }
 ```
-

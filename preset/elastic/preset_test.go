@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/elastic/go-elasticsearch/v7"
+	"github.com/elastic/go-elasticsearch/v8"
 	"github.com/orlangure/gnomock"
 	"github.com/orlangure/gnomock/internal/israce"
 	"github.com/orlangure/gnomock/preset/elastic"
@@ -20,7 +20,7 @@ func TestPreset(t *testing.T) {
 		t.Skip("elastic tests can't run with race detector due to https://github.com/elastic/go-elasticsearch/issues/147")
 	}
 
-	for _, version := range []string{"7.9.3", "6.8.13", "5.6"} {
+	for _, version := range []string{"8.7.0", "7.9.3", "6.8.13", "5.6"} {
 		t.Run(version, testPreset(version))
 	}
 }
