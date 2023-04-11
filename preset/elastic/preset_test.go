@@ -28,7 +28,7 @@ func TestPreset(t *testing.T) {
 func testPreset(version string) func(t *testing.T) {
 	return func(t *testing.T) {
 		p := elastic.Preset(
-			elastic.WithVersion("7.9.2"),
+			elastic.WithVersion(version),
 			elastic.WithInputFile("./testdata/titles"),
 			elastic.WithInputFile("./testdata/names"),
 		)
