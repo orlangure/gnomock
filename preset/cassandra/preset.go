@@ -76,7 +76,7 @@ func (p *P) setDefaults() {
 	}
 }
 
-func (p *P) healthcheck(ctx context.Context, c *gnomock.Container) error {
+func (p *P) healthcheck(_ context.Context, c *gnomock.Container) error {
 	cluster := gocql.NewCluster(c.DefaultAddress())
 	cluster.Authenticator = gocql.PasswordAuthenticator{
 		Username: DefaultUser,

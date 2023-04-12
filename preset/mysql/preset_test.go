@@ -30,7 +30,7 @@ func testPreset(version string) func(t *testing.T) {
 			mysql.WithDatabase("books"),
 			mysql.WithQueries(queries, query),
 			mysql.WithQueriesFile("./testdata/queries.sql"),
-			mysql.WithVersion("8.0.22"),
+			mysql.WithVersion(version),
 		)
 
 		container, err := gnomock.Start(p)

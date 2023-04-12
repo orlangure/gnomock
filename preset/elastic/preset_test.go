@@ -3,6 +3,7 @@ package elastic_test
 import (
 	"encoding/json"
 	"fmt"
+	"strings"
 	"testing"
 
 	"github.com/elastic/go-elasticsearch/v7"
@@ -27,8 +28,12 @@ func TestPreset(t *testing.T) {
 
 func testPreset(version string) func(t *testing.T) {
 	return func(t *testing.T) {
+		if !strings.HasPrefix(version, "7") {
+			t.Skip("elastic tests can't run with versions < 7")
+		}
+
 		p := elastic.Preset(
-			elastic.WithVersion("7.9.2"),
+			elastic.WithVersion(version),
 			elastic.WithInputFile("./testdata/titles"),
 			elastic.WithInputFile("./testdata/names"),
 		)

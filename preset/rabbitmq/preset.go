@@ -150,7 +150,7 @@ func (p *P) setDefaults() {
 	}
 }
 
-func (p *P) initf(ctx context.Context, c *gnomock.Container) (err error) {
+func (p *P) initf(_ context.Context, c *gnomock.Container) (err error) {
 	conn, err := p.connect(c)
 	if err != nil {
 		return fmt.Errorf("can't connect to rabbitmq: %w", err)
