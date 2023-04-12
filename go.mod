@@ -4,7 +4,7 @@ go 1.20
 
 require (
 	github.com/Microsoft/go-winio v0.5.2 // indirect
-	github.com/aws/aws-sdk-go v1.44.209
+	github.com/aws/aws-sdk-go v1.44.219
 	github.com/bradfitz/gomemcache v0.0.0-20230124162541-5f7a7d875746
 	github.com/denisenkom/go-mssqldb v0.12.3
 	github.com/docker/docker v23.0.1+incompatible
@@ -30,9 +30,9 @@ require (
 	go.uber.org/multierr v1.7.0 // indirect
 	go.uber.org/zap v1.24.0
 	golang.org/x/sync v0.1.0
-	k8s.io/api v0.26.1
-	k8s.io/apimachinery v0.26.1
-	k8s.io/client-go v0.26.1
+	k8s.io/api v0.26.2
+	k8s.io/apimachinery v0.26.2
+	k8s.io/client-go v0.26.2
 	github.com/Azure/azure-sdk-for-go/sdk/storage/azblob v1.0.0
 )
 
