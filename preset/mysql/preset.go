@@ -88,7 +88,7 @@ func (p *P) Options() []gnomock.Option {
 	return opts
 }
 
-func (p *P) healthcheck(ctx context.Context, c *gnomock.Container) error {
+func (p *P) healthcheck(_ context.Context, c *gnomock.Container) error {
 	addr := c.Address(gnomock.DefaultPort)
 
 	db, err := p.connect(addr)

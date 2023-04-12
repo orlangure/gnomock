@@ -90,7 +90,7 @@ func (p *P) Options() []gnomock.Option {
 	return opts
 }
 
-func (p *P) healthcheck(ctx context.Context, c *gnomock.Container) error {
+func (p *P) healthcheck(_ context.Context, c *gnomock.Container) error {
 	db, err := connect(c, defaultDatabase)
 	if err != nil {
 		return err
