@@ -35,7 +35,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
-	"log"
 	"net/http"
 	"path/filepath"
 	"strconv"
@@ -118,8 +117,18 @@ var kubeconfigHttpd = map[string]interface{}{
 	},
 }
 
+// kubeConfigHttpJSONBytes is a representation of kubeconfigHttpd as a JSON
+// encoded byte-array.
+var kubeConfigHttpJSONBytes []byte
+
 func init() {
 	registry.Register("kubernetes", func() gnomock.Preset { return &P{} })
+
+	var err error
+	kubeConfigHttpJSONBytes, err = json.Marshal(kubeconfigHttpd)
+	if err != nil {
+		panic(err)
+	}
 }
 
 // Preset creates a new Gmomock k3s preset. This preset includes a
@@ -161,12 +170,7 @@ func (p *P) Ports() gnomock.NamedPorts {
 func (p *P) Options() []gnomock.Option {
 	p.setDefaults()
 
-	kubeconfigHttpdJSON, err := json.Marshal(kubeconfigHttpd)
-	if err != nil {
-		log.Fatalf("could not marshal kubeconfig-httpd pod: %s", err)
-	}
-
-	httpdManifestB64 := base64.StdEncoding.EncodeToString(kubeconfigHttpdJSON)
+	httpdManifestB64 := base64.StdEncoding.EncodeToString(kubeConfigHttpJSONBytes)
 	httpdManifestPath := filepath.Join(k3sManifestsDir, "kubeconfig-httpd.json")
 	writeHttpdManifestCmd := fmt.Sprintf(
 		`mkdir -p %s && echo "%s" | base64 -d > "%s"`,
