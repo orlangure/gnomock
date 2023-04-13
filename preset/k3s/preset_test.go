@@ -16,6 +16,7 @@ func TestPreset(t *testing.T) {
 	t.Parallel()
 
 	p := k3s.Preset(
+		k3s.WithPort(48448),
 		k3s.WithVersion("v1.19.3-k3s3"),
 	)
 	c, err := gnomock.Start(
@@ -120,4 +121,30 @@ func TestConfigBytes(t *testing.T) {
 		require.Error(t, err)
 		require.Contains(t, err.Error(), "connection refused")
 	})
+}
+
+func TestPreset_WithDynamicPort(t *testing.T) {
+	t.Parallel()
+
+	p := k3s.Preset(
+		k3s.WithDynamicPort(),
+	)
+	c, err := gnomock.Start(p, gnomock.WithContainerName("k3s-dynamic"))
+	require.NoError(t, err)
+
+	defer func() {
+		require.NoError(t, gnomock.Stop(c))
+	}()
+
+	kubeconfig, err := k3s.Config(c)
+	require.NoError(t, err)
+
+	client, err := kubernetes.NewForConfig(kubeconfig)
+	require.NoError(t, err)
+
+	ctx := context.Background()
+
+	pods, err := client.CoreV1().Pods(metav1.NamespaceDefault).List(ctx, metav1.ListOptions{})
+	require.NoError(t, err)
+	require.Empty(t, pods.Items)
 }

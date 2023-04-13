@@ -29,7 +29,6 @@
 package k3s
 
 import (
-	"bytes"
 	"context"
 	"encoding/base64"
 	"encoding/json"
@@ -37,6 +36,7 @@ import (
 	"io"
 	"net/http"
 	"path/filepath"
+	"regexp"
 	"strconv"
 
 	"github.com/orlangure/gnomock"
@@ -48,8 +48,9 @@ import (
 )
 
 const (
-	// apiPort is the port that the K3s HTTPS Kubernetes API gets served over.
-	apiPort = 6443
+	// defaultApiPort is the default port that the K3s HTTPS Kubernetes API gets
+	// served over.
+	defaultApiPort = 48443
 	// defaultVersion is the default k3s version to run.
 	defaultVersion = "v1.19.3-k3s3"
 )
@@ -149,6 +150,12 @@ func Preset(opts ...Option) gnomock.Preset {
 // P is a Gnomock Preset implementation of lightweight kubernetes (k3s).
 type P struct {
 	Version string `json:"version"`
+	// Port is the API port for K3s to listen on.
+	Port int
+
+	// UseDynamicPort instructs the preset to use a dynamic host port instead of
+	// a static one.
+	UseDynamicPort bool
 }
 
 // Image returns an image that should be pulled to create this container.
@@ -158,7 +165,11 @@ func (p *P) Image() string {
 
 // Ports returns ports that should be used to access this container.
 func (p *P) Ports() gnomock.NamedPorts {
-	port := gnomock.TCP(apiPort)
+	port := gnomock.TCP(p.Port)
+
+	if !p.UseDynamicPort {
+		port.HostPort = p.Port
+	}
 
 	return gnomock.NamedPorts{
 		gnomock.DefaultPort: port,
@@ -181,11 +192,10 @@ func (p *P) Options() []gnomock.Option {
 
 	k3sServerCmd := fmt.Sprintf(
 		`/bin/k3s server --disable=traefik --https-listen-port %d`,
-		apiPort,
+		p.Port,
 	)
 
 	opts := []gnomock.Option{
-		gnomock.WithDebugMode(),
 		gnomock.WithHealthCheck(p.healthcheck),
 		gnomock.WithPrivileged(),
 		gnomock.WithEnv("K3S_KUBECONFIG_OUTPUT=/var/gnomock/kubeconfig.yaml"),
@@ -241,6 +251,10 @@ func (p *P) setDefaults() {
 	if p.Version == "" {
 		p.Version = defaultVersion
 	}
+
+	if p.Port == 0 {
+		p.Port = defaultApiPort
+	}
 }
 
 // ConfigBytes returns file contents of kubeconfig file that should be used to
@@ -277,10 +291,8 @@ func ConfigBytes(c *gnomock.Container) (configBytes []byte, err error) {
 		return nil, fmt.Errorf("can't read kubeconfig body: %w", err)
 	}
 
-	configBytes = bytes.ReplaceAll(configBytes,
-		[]byte(fmt.Sprintf("https://127.0.0.1:%d", apiPort)),
-		[]byte("https://"+c.DefaultAddress()),
-	)
+	re := regexp.MustCompile(`https://127.0.0.1:\d+`)
+	configBytes = re.ReplaceAll(configBytes, []byte("https://"+c.DefaultAddress()))
 
 	return configBytes, nil
 }
