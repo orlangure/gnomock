@@ -16,8 +16,7 @@ func TestPreset(t *testing.T) {
 	t.Parallel()
 
 	p := k3s.Preset(
-		k3s.WithPort(48448),
-		k3s.WithVersion("v1.19.12"),
+		k3s.WithVersion("v1.19.3-k3s3"),
 	)
 	c, err := gnomock.Start(
 		p,
@@ -108,7 +107,7 @@ func TestConfigBytes(t *testing.T) {
 
 	t.Run("fails on wrong port", func(t *testing.T) {
 		ports := gnomock.NamedPorts{
-			k3s.KubeconfigPort: gnomock.TCP(1),
+			k3s.KubeConfigPortName: gnomock.TCP(1),
 		}
 
 		c := &gnomock.Container{

@@ -3,22 +3,21 @@
 // presets are supposed to be deployed in it. The goal of this preset is to
 // allow easier testing of Kubernetes automation tools.
 //
-// This preset does not use a well-known docker image like most other presets
-// do. Instead, it uses a custom built and adapted image that runs lightweight
-// Kubernetes (k3s) in a docker container:
-// https://github.com/orlangure/k3s-dind.
+// This preset uses the `docker.io/rancher/k3s` image on Docker Hub as described
+// by the [K3s documentation](https://docs.k3s.io/advanced#running-k3s-in-docker.)
+//
+// > ```bash
+// > $ docker run \
+// > --privileged \
+// > --name k3s-server-1 \
+// > --hostname k3s-server-1 \
+// > -p 6443:6443 \
+// > -d rancher/k3s:v1.24.10-k3s1 \
+// > server
+// > ```
 //
 // Please make sure to pick a version here:
-// https://hub.docker.com/repository/docker/orlangure/k3s.
-//
-// The following versions include important fixes that prevent this preset from
-// working on recent Linux Kernel versions, please make sure to avoid using
-// older versions for each API level:
-//
-//   - v1.18.19
-//   - v1.19.11
-//   - v1.20.7
-//   - v1.21.1
+// https://hub.docker.com/r/rancher/k3s/tags.
 //
 // Keep in mind that k3s runs in a single docker container, meaning it might be
 // limited in memory, CPU and storage. Also remember that this cluster always
@@ -27,16 +26,19 @@
 // To connect to this cluster, use `Config` function that can be used together
 // with Kubernetes client for Go, or `ConfigBytes` that can be saved as
 // `kubeconfig` file and used by `kubectl`.
-//
-// This preset currently doesn't work on arm64 architecture, or on Ubuntu 22.04
-// (latest supported Ubuntu version is 20.04) due to internal cgroup changes.
 package k3s
 
 import (
+	"bytes"
 	"context"
+	"encoding/base64"
+	"encoding/json"
 	"fmt"
 	"io"
+	"log"
 	"net/http"
+	"path/filepath"
+	"strconv"
 
 	"github.com/orlangure/gnomock"
 	"github.com/orlangure/gnomock/internal/registry"
@@ -47,18 +49,74 @@ import (
 )
 
 const (
-	defaultPort     = 48443
-	defaultVersion  = "latest"
-	defaultHostname = "localhost"
+	// apiPort is the port that the K3s HTTPS Kubernetes API gets served over.
+	apiPort = 6443
+	// defaultVersion is the default k3s version to run.
+	defaultVersion = "v1.19.3-k3s3"
 )
 
-// KubeconfigPort is a port that exposes a single `/kubeconfig` endpoint. It
-// can be used to retrieve a configured kubeconfig file to use to connect to
-// this container using kubectl.
 const (
-	KubeconfigPort = "kubeconfig"
-	kubeconfigPort = 80
+	// KubeconfigPort is a port that exposes a single `/kubeconfig.yaml`
+	// endpoint. It can be used to retrieve a configured kubeconfig file to use
+	// to connect to this container using kubectl.
+	kubeconfigPort = 48480
+
+	// KubeConfigPortName is the name of the kubeconfig port that serves the
+	// `kubeconfig.yaml`.
+	KubeConfigPortName = "kubeconfig"
+
+	// k3sManifestsDir is the directory with the K3s container where manifests
+	// get automatically applied from.
+	k3sManifestsDir = "/var/lib/rancher/k3s/server/manifests/"
 )
+
+// kubeconfigHttpd is a representation of the httpd manifest for k3s to
+// automatically apply that will serve the k3s admin kubeconfig at
+// `/kubeconfig.yaml`.
+var kubeconfigHttpd = map[string]interface{}{
+	"apiVersion": "v1",
+	"kind":       "Pod",
+	"metadata": map[string]interface{}{
+		"name":      "kubeconfig-httpd",
+		"namespace": "kube-system",
+	},
+	"spec": map[string]interface{}{
+		"hostNetwork": true,
+		"containers": []map[string]interface{}{
+			{
+				"name":  "web",
+				"image": "docker.io/library/busybox:latest",
+				"command": []string{
+					"httpd", "-f", "-v",
+					"-p", strconv.Itoa(kubeconfigPort),
+				},
+				"workingDir": "/var/gnomock/",
+				"ports": []map[string]interface{}{
+					{
+						"name":          "http",
+						"containerPort": kubeconfigPort,
+						"protocol":      "TCP",
+					},
+				},
+				"volumeMounts": []map[string]interface{}{
+					{
+						"name":      "kubeconfig-dir",
+						"mountPath": "/var/gnomock/",
+					},
+				},
+			},
+		},
+		"volumes": []map[string]interface{}{
+			{
+				"name": "kubeconfig-dir",
+				"hostPath": map[string]interface{}{
+					"path": "/var/gnomock/",
+					"type": "Directory",
+				},
+			},
+		},
+	},
+}
 
 func init() {
 	registry.Register("kubernetes", func() gnomock.Preset { return &P{} })
@@ -82,22 +140,20 @@ func Preset(opts ...Option) gnomock.Preset {
 // P is a Gnomock Preset implementation of lightweight kubernetes (k3s).
 type P struct {
 	Version string `json:"version"`
-	Port    int
 }
 
 // Image returns an image that should be pulled to create this container.
 func (p *P) Image() string {
-	return fmt.Sprintf("docker.io/orlangure/k3s:%s", p.Version)
+	return fmt.Sprintf("docker.io/rancher/k3s:%s", p.Version)
 }
 
 // Ports returns ports that should be used to access this container.
 func (p *P) Ports() gnomock.NamedPorts {
-	port := gnomock.TCP(p.Port)
-	port.HostPort = p.Port
+	port := gnomock.TCP(apiPort)
 
 	return gnomock.NamedPorts{
 		gnomock.DefaultPort: port,
-		KubeconfigPort:      gnomock.TCP(kubeconfigPort),
+		KubeConfigPortName:  gnomock.TCP(kubeconfigPort),
 	}
 }
 
@@ -105,11 +161,35 @@ func (p *P) Ports() gnomock.NamedPorts {
 func (p *P) Options() []gnomock.Option {
 	p.setDefaults()
 
+	kubeconfigHttpdJSON, err := json.Marshal(kubeconfigHttpd)
+	if err != nil {
+		log.Fatalf("could not marshal kubeconfig-httpd pod: %s", err)
+	}
+
+	httpdManifestB64 := base64.StdEncoding.EncodeToString(kubeconfigHttpdJSON)
+	httpdManifestPath := filepath.Join(k3sManifestsDir, "kubeconfig-httpd.json")
+	writeHttpdManifestCmd := fmt.Sprintf(
+		`mkdir -p %s && echo "%s" | base64 -d > "%s"`,
+		filepath.Dir(httpdManifestPath),
+		httpdManifestB64,
+		httpdManifestPath,
+	)
+
+	k3sServerCmd := fmt.Sprintf(
+		`/bin/k3s server --disable=traefik --https-listen-port %d`,
+		apiPort,
+	)
+
 	opts := []gnomock.Option{
+		gnomock.WithDebugMode(),
 		gnomock.WithHealthCheck(p.healthcheck),
 		gnomock.WithPrivileged(),
-		gnomock.WithEnv(fmt.Sprintf("K3S_API_HOST=%s", defaultHostname)),
-		gnomock.WithEnv(fmt.Sprintf("K3S_API_PORT=%d", p.Port)),
+		gnomock.WithEnv("K3S_KUBECONFIG_OUTPUT=/var/gnomock/kubeconfig.yaml"),
+		gnomock.WithEnv("K3S_KUBECONFIG_MODE=644"),
+		gnomock.WithEntrypoint(
+			"/bin/sh", "-c",
+			fmt.Sprintf(`%s && %s`, writeHttpdManifestCmd, k3sServerCmd),
+		),
 	}
 
 	return opts
@@ -157,10 +237,6 @@ func (p *P) setDefaults() {
 	if p.Version == "" {
 		p.Version = defaultVersion
 	}
-
-	if p.Port == 0 {
-		p.Port = defaultPort
-	}
 }
 
 // ConfigBytes returns file contents of kubeconfig file that should be used to
@@ -169,7 +245,7 @@ func ConfigBytes(c *gnomock.Container) (configBytes []byte, err error) {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
-	url := fmt.Sprintf("http://%s/kubeconfig", c.Address(KubeconfigPort))
+	url := fmt.Sprintf("http://%s/kubeconfig.yaml", c.Address(KubeConfigPortName))
 
 	req, err := http.NewRequestWithContext(ctx, http.MethodGet, url, nil)
 	if err != nil {
@@ -196,6 +272,11 @@ func ConfigBytes(c *gnomock.Container) (configBytes []byte, err error) {
 	if err != nil {
 		return nil, fmt.Errorf("can't read kubeconfig body: %w", err)
 	}
+
+	configBytes = bytes.ReplaceAll(configBytes,
+		[]byte(fmt.Sprintf("https://127.0.0.1:%d", apiPort)),
+		[]byte("https://"+c.DefaultAddress()),
+	)
 
 	return configBytes, nil
 }
