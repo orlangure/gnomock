@@ -18,7 +18,7 @@ import (
 )
 
 const (
-	defaultVersion = "7.9.3"
+	defaultVersion = "8.7.0"
 	defaultPort    = 9200
 )
 
