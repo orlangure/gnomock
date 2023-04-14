@@ -53,7 +53,7 @@ const (
 	// served over.
 	defaultAPIPort = 48443
 	// defaultVersion is the default k3s version to run.
-	defaultVersion = "v1.19.3-k3s3"
+	defaultVersion = "v1.26.3-k3s1"
 )
 
 const (
@@ -123,6 +123,10 @@ var kubeconfigHttpd = map[string]interface{}{
 // encoded byte-array.
 var kubeConfigHTTPJSONBytes []byte
 
+// reServerAddress is a compiled regular expression that matches on the K3s
+// API address to replace.
+var reServerAddress *regexp.Regexp
+
 func init() {
 	registry.Register("kubernetes", func() gnomock.Preset { return &P{} })
 
@@ -132,6 +136,8 @@ func init() {
 	}
 
 	kubeConfigHTTPJSONBytes = kubeConfigHTTPJSONBytesLocal
+
+	reServerAddress = regexp.MustCompile(`https://127.0.0.1:\d+`)
 }
 
 // Preset creates a new Gmomock k3s preset. This preset includes a
@@ -297,8 +303,10 @@ func ConfigBytes(c *gnomock.Container) (configBytes []byte, err error) {
 		return nil, fmt.Errorf("can't read kubeconfig body: %w", err)
 	}
 
-	re := regexp.MustCompile(`https://127.0.0.1:\d+`)
-	configBytes = re.ReplaceAll(configBytes, []byte("https://"+c.DefaultAddress()))
+	configBytes = reServerAddress.ReplaceAll(
+		configBytes,
+		[]byte("https://"+c.DefaultAddress()),
+	)
 
 	return configBytes, nil
 }

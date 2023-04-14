@@ -18,7 +18,7 @@ func TestPreset(t *testing.T) {
 
 	p := k3s.Preset(
 		k3s.WithPort(48448),
-		k3s.WithVersion("v1.19.12"),
+		k3s.WithVersion("v1.26.3-k3s1"),
 	)
 	c, err := gnomock.Start(
 		p,
@@ -154,17 +154,10 @@ func TestPreset_Versions(t *testing.T) {
 	tests := []struct {
 		inVersion string
 	}{
-		{"v1.16.7"},
-		{"v1.17.13"},
-		{"v1.18.10"},
-		{"v1.19.12"},
-		{"v1.20.8"},
-		{"v1.21.2"},
-		{"v1.22.17-k3s1"},
-		{"v1.23.17-k3s1"},
 		{"v1.24.12-k3s1"},
 		{"v1.25.8-k3s1"},
 		{"v1.26.3-k3s1"},
+		// k3s v1.27.0 not available yet: (https://github.com/k3s-io/k3s/pull/7271)
 	}
 
 	for _, tt := range tests {
