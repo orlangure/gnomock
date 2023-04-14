@@ -75,7 +75,7 @@ func (p *P) Options() []gnomock.Option {
 	return opts
 }
 
-func (p *P) healthcheck(ctx context.Context, c *gnomock.Container) (err error) {
+func (p *P) healthcheck(_ context.Context, c *gnomock.Container) (err error) {
 	defaultAddr := fmt.Sprintf("http://%s", c.DefaultAddress())
 
 	cfg := elasticsearch.Config{

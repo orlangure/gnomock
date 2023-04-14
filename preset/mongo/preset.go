@@ -103,7 +103,7 @@ func (p *P) initf(ctx context.Context, c *gnomock.Container) error {
 		return fmt.Errorf("can't create mongo client: %w", err)
 	}
 
-	err = client.Connect(context.Background())
+	err = client.Connect(ctx)
 	if err != nil {
 		return fmt.Errorf("can't connect: %w", err)
 	}
@@ -201,10 +201,10 @@ func healthcheck(ctx context.Context, c *gnomock.Container) error {
 		return fmt.Errorf("can't create mongo client: %w", err)
 	}
 
-	err = client.Connect(context.Background())
+	err = client.Connect(ctx)
 	if err != nil {
 		return fmt.Errorf("can't connect: %w", err)
 	}
 
-	return client.Ping(context.Background(), nil)
+	return client.Ping(ctx, nil)
 }
