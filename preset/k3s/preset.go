@@ -38,6 +38,7 @@ import (
 	"path/filepath"
 	"regexp"
 	"strconv"
+	"strings"
 
 	"github.com/orlangure/gnomock"
 	"github.com/orlangure/gnomock/internal/registry"
@@ -48,9 +49,9 @@ import (
 )
 
 const (
-	// defaultApiPort is the default port that the K3s HTTPS Kubernetes API gets
+	// defaultAPIPort is the default port that the K3s HTTPS Kubernetes API gets
 	// served over.
-	defaultApiPort = 48443
+	defaultAPIPort = 48443
 	// defaultVersion is the default k3s version to run.
 	defaultVersion = "v1.19.3-k3s3"
 )
@@ -118,18 +119,19 @@ var kubeconfigHttpd = map[string]interface{}{
 	},
 }
 
-// kubeConfigHttpJSONBytes is a representation of kubeconfigHttpd as a JSON
+// kubeConfigHTTPJSONBytes is a representation of kubeconfigHttpd as a JSON
 // encoded byte-array.
-var kubeConfigHttpJSONBytes []byte
+var kubeConfigHTTPJSONBytes []byte
 
 func init() {
 	registry.Register("kubernetes", func() gnomock.Preset { return &P{} })
 
-	var err error
-	kubeConfigHttpJSONBytes, err = json.Marshal(kubeconfigHttpd)
+	kubeConfigHTTPJSONBytesLocal, err := json.Marshal(kubeconfigHttpd)
 	if err != nil {
 		panic(err)
 	}
+
+	kubeConfigHTTPJSONBytes = kubeConfigHTTPJSONBytesLocal
 }
 
 // Preset creates a new Gmomock k3s preset. This preset includes a
@@ -156,6 +158,9 @@ type P struct {
 	// UseDynamicPort instructs the preset to use a dynamic host port instead of
 	// a static one.
 	UseDynamicPort bool
+
+	// K3sServerFlags are additional k3s server flags added by options.
+	K3sServerFlags []string
 }
 
 // Image returns an image that should be pulled to create this container.
@@ -181,7 +186,7 @@ func (p *P) Ports() gnomock.NamedPorts {
 func (p *P) Options() []gnomock.Option {
 	p.setDefaults()
 
-	httpdManifestB64 := base64.StdEncoding.EncodeToString(kubeConfigHttpJSONBytes)
+	httpdManifestB64 := base64.StdEncoding.EncodeToString(kubeConfigHTTPJSONBytes)
 	httpdManifestPath := filepath.Join(k3sManifestsDir, "kubeconfig-httpd.json")
 	writeHttpdManifestCmd := fmt.Sprintf(
 		`mkdir -p %s && echo "%s" | base64 -d > "%s"`,
@@ -191,8 +196,9 @@ func (p *P) Options() []gnomock.Option {
 	)
 
 	k3sServerCmd := fmt.Sprintf(
-		`/bin/k3s server --disable=traefik --https-listen-port %d`,
+		`/bin/k3s server --https-listen-port %d %s`,
 		p.Port,
+		strings.Join(p.K3sServerFlags, " "),
 	)
 
 	opts := []gnomock.Option{
@@ -253,7 +259,7 @@ func (p *P) setDefaults() {
 	}
 
 	if p.Port == 0 {
-		p.Port = defaultApiPort
+		p.Port = defaultAPIPort
 	}
 }
 

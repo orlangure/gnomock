@@ -4,6 +4,25 @@ Gnomock Lightweight Kubernetes (k3s) is a
 [Gnomock](https://github.com/orlangure/gnomock) preset for running tests
 against a real lightweight kubernetes cluster (k3s), without mocks.
 
+This preset primarily aims to support the currently supported Kubernetes
+versions available via K3s, which at the time of writing are:
+
+ - v1.26.x
+ - v1.25.x
+ - v1.24.x
+
+Additionally, the following previous versions have been tested successfully via
+`preset_test.go/TestPreset_Versions`:
+
+ - v1.23.x
+ - v1.22.x
+ - v1.21.x
+ - v1.20.x
+ - v1.19.x
+ - v1.18.x
+ - v1.17.x
+ - v1.16.x
+
 ```go
 package k3s_test
 
@@ -71,4 +90,3 @@ func TestPreset(t *testing.T) {
 	require.Equal(t, "gnomock", pods.Items[0].Name)
 }
 ```
-

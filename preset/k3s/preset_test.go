@@ -2,6 +2,7 @@ package k3s_test
 
 import (
 	"context"
+	"fmt"
 	"testing"
 
 	"github.com/orlangure/gnomock"
@@ -17,7 +18,7 @@ func TestPreset(t *testing.T) {
 
 	p := k3s.Preset(
 		k3s.WithPort(48448),
-		k3s.WithVersion("v1.19.3-k3s3"),
+		k3s.WithVersion("v1.19.12"),
 	)
 	c, err := gnomock.Start(
 		p,
@@ -147,4 +148,52 @@ func TestPreset_WithDynamicPort(t *testing.T) {
 	pods, err := client.CoreV1().Pods(metav1.NamespaceDefault).List(ctx, metav1.ListOptions{})
 	require.NoError(t, err)
 	require.Empty(t, pods.Items)
+}
+
+func TestPreset_Versions(t *testing.T) {
+	tests := []struct {
+		inVersion string
+	}{
+		{"v1.16.7"},
+		{"v1.17.13"},
+		{"v1.18.10"},
+		{"v1.19.12"},
+		{"v1.20.8"},
+		{"v1.21.2"},
+		{"v1.22.17-k3s1"},
+		{"v1.23.17-k3s1"},
+		{"v1.24.12-k3s1"},
+		{"v1.25.8-k3s1"},
+		{"v1.26.3-k3s1"},
+	}
+
+	for _, tt := range tests {
+		tt := tt
+		t.Run(tt.inVersion, func(t *testing.T) {
+			t.Parallel()
+
+			p := k3s.Preset(
+				k3s.WithDynamicPort(),
+				k3s.WithVersion(tt.inVersion),
+			)
+			c, err := gnomock.Start(p, gnomock.WithContainerName(fmt.Sprintf("k3s-%s", tt.inVersion)))
+			require.NoError(t, err)
+
+			defer func() {
+				require.NoError(t, gnomock.Stop(c))
+			}()
+
+			kubeconfig, err := k3s.Config(c)
+			require.NoError(t, err)
+
+			client, err := kubernetes.NewForConfig(kubeconfig)
+			require.NoError(t, err)
+
+			ctx := context.Background()
+
+			pods, err := client.CoreV1().Pods(metav1.NamespaceDefault).List(ctx, metav1.ListOptions{})
+			require.NoError(t, err)
+			require.Empty(t, pods.Items)
+		})
+	}
 }
