@@ -63,6 +63,7 @@ func (p *P) Options() []gnomock.Option {
 
 	opts := []gnomock.Option{
 		gnomock.WithEnv("discovery.type=single-node"),
+		gnomock.WithEnv("xpack.security.enabled=false"),
 		gnomock.WithEnv("ES_JAVA_OPTS=-Xms256m -Xmx256m"),
 		gnomock.WithHealthCheck(p.healthcheck),
 	}
