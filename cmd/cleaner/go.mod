@@ -2,7 +2,7 @@ module github.com/orlangure/gnomock/cmd/cleaner
 
 go 1.20
 
-require github.com/orlangure/gnomock v0.26.0
+require github.com/orlangure/gnomock v0.27.0
 
 require (
 	github.com/Azure/go-ansiterm v0.0.0-20170929234023-d6e3b3328b78 // indirect
@@ -19,7 +19,7 @@ require (
 	go.uber.org/atomic v1.9.0 // indirect
 	go.uber.org/multierr v1.7.0 // indirect
 	go.uber.org/zap v1.24.0 // indirect
-	golang.org/x/net v0.7.0 // indirect
+	golang.org/x/net v0.8.0 // indirect
 	golang.org/x/sync v0.1.0 // indirect
-	golang.org/x/sys v0.5.0 // indirect
+	golang.org/x/sys v0.6.0 // indirect
 )
