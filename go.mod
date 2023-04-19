@@ -37,6 +37,8 @@ require (
 	k8s.io/client-go v0.27.0
 )
 
+require golang.org/x/mod v0.8.0
+
 require (
 	github.com/cenkalti/backoff/v3 v3.0.0 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
