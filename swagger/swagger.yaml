@@ -1089,7 +1089,7 @@ components:
         version:
           type: string
           description: Elasticsearch version.
-          default: 7.9.2
+          default: 8.7.0
           example: latest
       description: >
         This object describes a Elasticsearch container.
