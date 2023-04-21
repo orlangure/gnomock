@@ -7,7 +7,6 @@ import (
 
 	"github.com/elastic/go-elasticsearch/v7"
 	"github.com/orlangure/gnomock"
-	"github.com/orlangure/gnomock/internal/israce"
 	"github.com/orlangure/gnomock/preset/elastic"
 	"github.com/stretchr/testify/require"
 )
@@ -16,10 +15,6 @@ import (
 // resources
 
 func TestPreset_v7(t *testing.T) {
-	if israce.Enabled {
-		t.Skip("elastic tests can't run with race detector due to https://github.com/elastic/go-elasticsearch/issues/147")
-	}
-
 	p := elastic.Preset(
 		elastic.WithVersion("7.17.9"),
 		elastic.WithInputFile("./testdata/titles"),

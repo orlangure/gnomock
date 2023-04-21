@@ -46,10 +46,10 @@ jobs:
       - setup-for-go-test
       - run:
           name: Test preset
-          command: go test -cover -v ./preset/elastic/...
+          command: go test -race -cover -v ./preset/elastic/...
       - run:
           name: Test server
-          command: go test -v ./internal/gnomockd -run TestElastic
+          command: go test -race -v ./internal/gnomockd -run TestElastic
 
   test-memcached:
     machine: true
@@ -219,7 +219,7 @@ jobs:
       - run:
           name: Test server
           command: go test -race -cover -v ./internal/gnomockd -run TestCassandra
-  
+
   test-vault:
     machine: true
     resource_class: large
