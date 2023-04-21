@@ -1,9 +1,3 @@
-# Gnomock Elasticsearch
-
-Gnomock Elasticsearch is a [Gnomock](https://github.com/orlangure/gnomock)
-preset for running tests against a real Elasticsearch container, without mocks.
-
-```go
 package elastic_test
 
 import (
@@ -11,16 +5,23 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/elastic/go-elasticsearch/v8"
+	"github.com/elastic/go-elasticsearch/v7"
 	"github.com/orlangure/gnomock"
+	"github.com/orlangure/gnomock/internal/israce"
 	"github.com/orlangure/gnomock/preset/elastic"
 	"github.com/stretchr/testify/require"
 )
 
-func TestPreset(t *testing.T) {
-	t.Parallel()
+// these tests have trouble running in parallel, probably due to limited
+// resources
+
+func TestPreset_v7(t *testing.T) {
+	if israce.Enabled {
+		t.Skip("elastic tests can't run with race detector due to https://github.com/elastic/go-elasticsearch/issues/147")
+	}
 
 	p := elastic.Preset(
+		elastic.WithVersion("7.17.9"),
 		elastic.WithInputFile("./testdata/titles"),
 		elastic.WithInputFile("./testdata/names"),
 	)
@@ -31,7 +32,8 @@ func TestPreset(t *testing.T) {
 	defer func() { require.NoError(t, gnomock.Stop(c)) }()
 
 	cfg := elasticsearch.Config{
-		Addresses: []string{fmt.Sprintf("http://%s", c.DefaultAddress())},
+		Addresses:    []string{fmt.Sprintf("http://%s", c.DefaultAddress())},
+		DisableRetry: true,
 	}
 
 	client, err := elasticsearch.NewClient(cfg)
@@ -51,6 +53,7 @@ func TestPreset(t *testing.T) {
 			} `json:"total"`
 		} `json:"hits"`
 	}
+
 	require.NoError(t, json.NewDecoder(res.Body).Decode(&out))
 	require.NoError(t, res.Body.Close())
 	require.Equal(t, 1, out.Hits.Total.Value)
@@ -66,4 +69,3 @@ func TestPreset(t *testing.T) {
 	require.NoError(t, res.Body.Close())
 	require.Equal(t, 0, out.Hits.Total.Value)
 }
-```
