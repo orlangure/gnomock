@@ -3,6 +3,7 @@ module github.com/orlangure/gnomock
 go 1.20
 
 require (
+	github.com/Azure/azure-sdk-for-go/sdk/storage/azblob v1.0.0
 	github.com/Microsoft/go-winio v0.5.2 // indirect
 	github.com/aws/aws-sdk-go v1.44.247
 	github.com/bradfitz/gomemcache v0.0.0-20230124162541-5f7a7d875746
@@ -32,7 +33,6 @@ require (
 	go.uber.org/multierr v1.7.0 // indirect
 	go.uber.org/zap v1.24.0
 	golang.org/x/sync v0.1.0
-	github.com/Azure/azure-sdk-for-go/sdk/storage/azblob v1.0.0
 	k8s.io/api v0.27.1
 	k8s.io/apimachinery v0.27.1
 	k8s.io/client-go v0.27.1
