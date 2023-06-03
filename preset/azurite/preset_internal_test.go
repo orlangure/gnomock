@@ -1,7 +1,7 @@
 package azurite
 
 import (
-	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 	"testing"
 
 	"github.com/orlangure/gnomock"
@@ -43,7 +43,7 @@ func TestHealthCheckAddress(t *testing.T) {
 		t.Run(test.version, func(t *testing.T) {
 			p := P{Version: test.version}
 			actual := p.healthCheckAddress(c)
-			assert.Equal(t, test.expected, actual)
+			require.Equal(t, test.expected, actual)
 		})
 	}
 }

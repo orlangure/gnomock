@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"github.com/Azure/azure-sdk-for-go/sdk/storage/azblob"
 	"github.com/orlangure/gnomock/preset/azurite"
-	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 	"testing"
 
 	"github.com/orlangure/gnomock"
@@ -26,44 +26,44 @@ func testBlobStorage(version string) func(*testing.T) {
 		)
 		c, err := gnomock.Start(p)
 
-		defer func() { assert.NoError(t, gnomock.Stop(c)) }()
+		defer func() { require.NoError(t, gnomock.Stop(c)) }()
 
-		assert.NoError(t, err)
+		require.NoError(t, err)
 
 		connString := fmt.Sprintf(azurite.ConnectionStringFormat, azurite.AccountName, azurite.AccountKey, c.Address(azurite.BlobServicePort), azurite.AccountName)
 
 		ctx := context.Background()
 
 		azblobClient, err := azblob.NewClientFromConnectionString(connString, nil)
-		assert.NoError(t, err)
+		require.NoError(t, err)
 
 		containerName := "foo"
 		_, err = azblobClient.CreateContainer(ctx, containerName, nil)
-		assert.NoError(t, err)
+		require.NoError(t, err)
 
 		pager := azblobClient.NewListBlobsFlatPager(containerName, nil)
 		pages := 0
 		for pager.More() {
 			resp, err := pager.NextPage(context.TODO())
-			assert.NoError(t, err)
-			assert.Equal(t, 0, len(resp.Segment.BlobItems))
+			require.NoError(t, err)
+			require.Equal(t, 0, len(resp.Segment.BlobItems))
 			pages = pages + 1
 		}
-		assert.Equal(t, 1, pages)
+		require.Equal(t, 1, pages)
 
 		blobName := "bar"
 		_, err = azblobClient.UploadBuffer(ctx, containerName, blobName, []byte{15, 16, 17}, nil)
-		assert.NoError(t, err)
+		require.NoError(t, err)
 
 		pager = azblobClient.NewListBlobsFlatPager(containerName, nil)
-		assert.Equal(t, pager.More(), true)
+		require.Equal(t, pager.More(), true)
 
 		for pager.More() {
 			resp, err := pager.NextPage(context.TODO())
-			assert.NoError(t, err)
-			assert.Equal(t, 1, len(resp.Segment.BlobItems))
+			require.NoError(t, err)
+			require.Equal(t, 1, len(resp.Segment.BlobItems))
 			for _, v := range resp.Segment.BlobItems {
-				assert.Equal(t, blobName, *v.Name)
+				require.Equal(t, blobName, *v.Name)
 			}
 		}
 	}
@@ -76,9 +76,9 @@ func TestPreset_wrongBlobstoragePath(t *testing.T) {
 		azurite.WithBlobstorageFiles("./invalid"),
 	)
 	c, err := gnomock.Start(p)
-	assert.Error(t, err)
-	assert.Contains(t, err.Error(), "can't read blobstorage initial files")
-	assert.NoError(t, gnomock.Stop(c))
+	require.Error(t, err)
+	require.Contains(t, err.Error(), "can't read blobstorage initial files")
+	require.NoError(t, gnomock.Stop(c))
 }
 
 func ExamplePresetBlobStorage() {

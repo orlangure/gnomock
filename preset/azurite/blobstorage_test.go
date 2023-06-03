@@ -7,8 +7,7 @@ import (
 	"github.com/Azure/azure-sdk-for-go/sdk/storage/azblob/container"
 	"github.com/orlangure/gnomock"
 	"github.com/orlangure/gnomock/preset/azurite"
-	"github.com/stretchr/testify/assert"
-
+	"github.com/stretchr/testify/require"
 	"strings"
 	"testing"
 )
@@ -21,14 +20,14 @@ func TestWithBlobstorageFiles(t *testing.T) {
 	)
 	c, err := gnomock.Start(p)
 
-	defer func() { assert.NoError(t, gnomock.Stop(c)) }()
+	defer func() { require.NoError(t, gnomock.Stop(c)) }()
 
-	assert.NoError(t, err)
+	require.NoError(t, err)
 
 	connString := fmt.Sprintf(azurite.ConnectionStringFormat, azurite.AccountName, azurite.AccountKey, c.Address(azurite.BlobServicePort), azurite.AccountName)
 
 	azblobClient, err := azblob.NewClientFromConnectionString(connString, nil)
-	assert.NoError(t, err)
+	require.NoError(t, err)
 
 	// some-container is automatically created, and now includes 10 files
 	containerName := "some-container"
@@ -44,10 +43,10 @@ func listAndCheckFiles(t *testing.T, azblobClient *azblob.Client, containerName 
 		MaxResults: &maxResults,
 		Marker:     marker,
 	})
-	assert.Equal(t, pager.More(), true)
+	require.Equal(t, pager.More(), true)
 	resp, err := pager.NextPage(context.Background())
-	assert.NoError(t, err)
-	assert.Equal(t, maxResultsExpected, len(resp.Segment.BlobItems))
+	require.NoError(t, err)
+	require.Equal(t, maxResultsExpected, len(resp.Segment.BlobItems))
 	nextMarker = resp.NextMarker
 	checkFiles(t, resp.Segment.BlobItems)
 	return
@@ -55,6 +54,6 @@ func listAndCheckFiles(t *testing.T, azblobClient *azblob.Client, containerName 
 
 func checkFiles(t *testing.T, blobItems []*container.BlobItem) {
 	for _, f := range blobItems {
-		assert.True(t, strings.HasPrefix(*f.Name, "/dir/f-") || strings.HasPrefix(*f.Name, "dir/f-"))
+		require.True(t, strings.HasPrefix(*f.Name, "/dir/f-") || strings.HasPrefix(*f.Name, "dir/f-"))
 	}
 }
