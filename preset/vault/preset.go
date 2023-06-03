@@ -113,7 +113,7 @@ func (p *P) initf() gnomock.InitFunc {
 	}
 }
 
-func (p *P) healthcheck(ctx context.Context, c *gnomock.Container) error {
+func (p *P) healthcheck(_ context.Context, c *gnomock.Container) error {
 	cli, err := Client(c, p.AuthToken)
 	if err != nil {
 		return err

@@ -84,7 +84,7 @@ func (p *P) setDefaults() {
 	}
 }
 
-func healthcheck(ctx context.Context, c *gnomock.Container) error {
+func healthcheck(_ context.Context, c *gnomock.Container) error {
 	db, err := connect(c, "")
 	if err != nil {
 		return err

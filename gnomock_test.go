@@ -385,6 +385,6 @@ func requireResponse(t *testing.T, url string, expected string) {
 	require.Equal(t, expected, string(body))
 }
 
-func failingHealthcheck(ctx context.Context, c *gnomock.Container) error {
+func failingHealthcheck(_ context.Context, _ *gnomock.Container) error {
 	return fmt.Errorf("this container should not start")
 }

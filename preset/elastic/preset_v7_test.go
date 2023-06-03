@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/elastic/go-elasticsearch/v8"
+	"github.com/elastic/go-elasticsearch/v7"
 	"github.com/orlangure/gnomock"
 	"github.com/orlangure/gnomock/preset/elastic"
 	"github.com/stretchr/testify/require"
@@ -14,9 +14,9 @@ import (
 // these tests have trouble running in parallel, probably due to limited
 // resources
 
-func TestPreset(t *testing.T) {
+func TestPreset_v7(t *testing.T) {
 	p := elastic.Preset(
-		elastic.WithVersion("8.7.0"),
+		elastic.WithVersion("7.17.9"),
 		elastic.WithInputFile("./testdata/titles"),
 		elastic.WithInputFile("./testdata/names"),
 	)
@@ -63,20 +63,4 @@ func TestPreset(t *testing.T) {
 	require.NoError(t, json.NewDecoder(res.Body).Decode(&out))
 	require.NoError(t, res.Body.Close())
 	require.Equal(t, 0, out.Hits.Total.Value)
-}
-
-func TestPreset_withDefaults(t *testing.T) {
-	p := elastic.Preset()
-	c, err := gnomock.Start(p)
-	require.NoError(t, err)
-
-	defer func() { require.NoError(t, gnomock.Stop(c)) }()
-
-	cfg := elasticsearch.Config{
-		Addresses:    []string{fmt.Sprintf("http://%s", c.DefaultAddress())},
-		DisableRetry: true,
-	}
-
-	_, err = elasticsearch.NewClient(cfg)
-	require.NoError(t, err)
 }

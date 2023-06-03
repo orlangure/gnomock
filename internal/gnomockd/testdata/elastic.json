@@ -4,7 +4,7 @@
             "./testdata/elastic/names",
             "./testdata/elastic/titles"
         ],
-        "version": "7.9.2"
+        "version": "8.7.0"
     },
     "options": {
         "container_name": "elastic"

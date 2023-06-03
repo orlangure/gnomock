@@ -116,8 +116,8 @@ Microsoft SQL Server | [Go package](https://github.com/orlangure/gnomock/tree/ma
 MongoDB | [Go package](https://github.com/orlangure/gnomock/tree/master/preset/mongo) | [Reference](https://pkg.go.dev/github.com/orlangure/gnomock/preset/mongo?tab=doc) | `3.6.21`, `4.4` | ✅
 RabbitMQ | [Go package](https://github.com/orlangure/gnomock/tree/master/preset/rabbitmq) | [Reference](https://pkg.go.dev/github.com/orlangure/gnomock/preset/rabbitmq?tab=doc) | `3.8.9-alpine`, `3.8.9-management-alpine` | ✅
 Kafka | [Go package](https://github.com/orlangure/gnomock/tree/master/preset/kafka) | [Reference](https://pkg.go.dev/github.com/orlangure/gnomock/preset/kafka?tab=doc) | `2.5.1-L0` | ❌
-Elasticsearch | [Go package](https://github.com/orlangure/gnomock/tree/master/preset/elastic) | [Reference](https://pkg.go.dev/github.com/orlangure/gnomock/preset/elastic?tab=doc) | `5.6`, `6.8.13`, `7.9.3` | ✅
-Kubernetes | [Go package](https://github.com/orlangure/gnomock/tree/master/preset/k3s) | [Reference](https://pkg.go.dev/github.com/orlangure/gnomock/preset/k3s?tab=doc) | `v1.19.12` | ❌
+Elasticsearch | [Go package](https://github.com/orlangure/gnomock/tree/master/preset/elastic) | [Reference](https://pkg.go.dev/github.com/orlangure/gnomock/preset/elastic?tab=doc) | `8.7.0`, `7.17.9` | ✅
+Kubernetes | [Go package](https://github.com/orlangure/gnomock/tree/master/preset/k3s) | [Reference](https://pkg.go.dev/github.com/orlangure/gnomock/preset/k3s?tab=doc) | `v1.26.3-k3s1` | ✅
 CockroachDB | [Go package](https://github.com/orlangure/gnomock/tree/master/preset/cockroachdb) | [Reference](https://pkg.go.dev/github.com/orlangure/gnomock/preset/cockroachdb?tab=doc) | `v19.2.11`, `v20.1.10` | ✅
 InfluxDB | [Go package](https://github.com/orlangure/gnomock/tree/master/preset/influxdb) | [Reference](https://pkg.go.dev/github.com/orlangure/gnomock/preset/influxdb?tab=doc) | `2.0.4-alpine` | ✅
 Cassandra | [Go package](https://github.com/orlangure/gnomock/tree/master/preset/cassandra) | [Reference](https://pkg.go.dev/github.com/orlangure/gnomock/preset/cassandra?tab=doc) | `4.0`, `3` | ✅

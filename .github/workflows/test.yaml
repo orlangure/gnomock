@@ -143,9 +143,9 @@ jobs:
       - name: Get dependencies
         run: go get -v -t -d ./...
       - name: Test preset
-        run: go test -cover -covermode=atomic -coverprofile=preset-cover.txt -coverpkg=./... -v ./preset/elastic/...
+        run: go test -race -cover -covermode=atomic -coverprofile=preset-cover.txt -coverpkg=./... -v ./preset/elastic/...
       - name: Test server
-        run: go test -cover -covermode=atomic -coverprofile=server-cover.txt -coverpkg=./... -v ./internal/gnomockd -run TestElastic
+        run: go test -race -cover -covermode=atomic -coverprofile=server-cover.txt -coverpkg=./... -v ./internal/gnomockd -run TestElastic
       - name: Report coverage
         run: |
           cat preset-cover.txt server-cover.txt > coverage.txt
@@ -383,7 +383,7 @@ jobs:
 
   test-k3s:
     name: "[preset] k3s"
-    runs-on: ubuntu-20.04 
+    runs-on: ubuntu-latest
     env:
       CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
     steps:

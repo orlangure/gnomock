@@ -12,13 +12,13 @@ import (
 	"path"
 	"time"
 
-	"github.com/elastic/go-elasticsearch/v7"
+	"github.com/elastic/go-elasticsearch/v8"
 	"github.com/orlangure/gnomock"
 	"github.com/orlangure/gnomock/internal/registry"
 )
 
 const (
-	defaultVersion = "7.9.3"
+	defaultVersion = "8.7.0"
 	defaultPort    = 9200
 )
 
@@ -26,11 +26,11 @@ func init() {
 	registry.Register("elastic", func() gnomock.Preset { return &P{} })
 }
 
-// Preset creates a new Gmomock Elasticsearch preset. This preset includes an
+// Preset creates a new Gnomock Elasticsearch preset. This preset includes an
 // Elasticsearch specific healthcheck function and default Elasticsearch image
 // and port.
 //
-// By default, version 7.9.3 is used.
+// By default, version 8.7.0 is used.
 func Preset(opts ...Option) gnomock.Preset {
 	p := &P{}
 
@@ -63,6 +63,7 @@ func (p *P) Options() []gnomock.Option {
 
 	opts := []gnomock.Option{
 		gnomock.WithEnv("discovery.type=single-node"),
+		gnomock.WithEnv("xpack.security.enabled=false"),
 		gnomock.WithEnv("ES_JAVA_OPTS=-Xms256m -Xmx256m"),
 		gnomock.WithHealthCheck(p.healthcheck),
 	}
@@ -74,7 +75,7 @@ func (p *P) Options() []gnomock.Option {
 	return opts
 }
 
-func (p *P) healthcheck(ctx context.Context, c *gnomock.Container) (err error) {
+func (p *P) healthcheck(_ context.Context, c *gnomock.Container) (err error) {
 	defaultAddr := fmt.Sprintf("http://%s", c.DefaultAddress())
 
 	cfg := elasticsearch.Config{

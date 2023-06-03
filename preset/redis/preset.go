@@ -82,7 +82,7 @@ func (p *P) setDefaults() {
 	}
 }
 
-func healthcheck(ctx context.Context, c *gnomock.Container) error {
+func healthcheck(_ context.Context, c *gnomock.Container) error {
 	addr := c.Address(gnomock.DefaultPort)
 	client := redisclient.NewClient(&redisclient.Options{Addr: addr})
 	_, err := client.Ping().Result()
