@@ -44,7 +44,7 @@ func testBlobStorage(version string) func(*testing.T) {
 		pager := azblobClient.NewListBlobsFlatPager(containerName, nil)
 		pages := 0
 		for pager.More() {
-			resp, err := pager.NextPage(context.TODO())
+			resp, err := pager.NextPage(context.Background())
 			require.NoError(t, err)
 			require.Equal(t, 0, len(resp.Segment.BlobItems))
 			pages = pages + 1
@@ -59,7 +59,7 @@ func testBlobStorage(version string) func(*testing.T) {
 		require.Equal(t, pager.More(), true)
 
 		for pager.More() {
-			resp, err := pager.NextPage(context.TODO())
+			resp, err := pager.NextPage(context.Background())
 			require.NoError(t, err)
 			require.Equal(t, 1, len(resp.Segment.BlobItems))
 			for _, v := range resp.Segment.BlobItems {
@@ -112,7 +112,7 @@ func ExamplePresetBlobStorage() {
 	pager := azblobClient.NewListBlobsFlatPager(containerName, nil)
 	pages := 0
 	for pager.More() {
-		resp, _ := pager.NextPage(context.TODO())
+		resp, _ := pager.NextPage(context.Background())
 		fmt.Println("keys before:", len(resp.Segment.BlobItems))
 		pages = pages + 1
 	}
@@ -125,7 +125,7 @@ func ExamplePresetBlobStorage() {
 
 	pages = 0
 	for pager.More() {
-		resp, _ := pager.NextPage(context.TODO())
+		resp, _ := pager.NextPage(context.Background())
 
 		fmt.Println("keys after:", len(resp.Segment.BlobItems))
 		for _, v := range resp.Segment.BlobItems {
