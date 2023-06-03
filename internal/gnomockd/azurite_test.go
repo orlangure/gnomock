@@ -68,7 +68,7 @@ func TestAzurite(t *testing.T) {
 		assert.NoError(t, err)
 		assert.Equal(t, 100, len(resp.Segment.BlobItems))
 		for _, v := range resp.Segment.BlobItems {
-			assert.True(t, strings.HasPrefix(*v.Name, "file-"))
+			assert.True(t, strings.HasPrefix(*v.Name, "/file-"))
 		}
 	}
 
