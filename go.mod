@@ -37,7 +37,7 @@ require (
 	k8s.io/client-go v0.27.1
 )
 
-require golang.org/x/mod v0.8.0
+require golang.org/x/mod v0.11.0
 
 require (
 	github.com/cenkalti/backoff/v3 v3.0.0 // indirect
