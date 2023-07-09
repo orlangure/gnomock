@@ -5,16 +5,17 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"github.com/Azure/azure-sdk-for-go/sdk/storage/azblob"
-	"github.com/Azure/azure-sdk-for-go/sdk/storage/azblob/container"
-	"github.com/orlangure/gnomock/preset/azurite"
-	"github.com/stretchr/testify/assert"
 	"io"
 	"net/http"
 	"net/http/httptest"
 	"os"
 	"strings"
 	"testing"
+
+	"github.com/Azure/azure-sdk-for-go/sdk/storage/azblob"
+	"github.com/Azure/azure-sdk-for-go/sdk/storage/azblob/container"
+	"github.com/orlangure/gnomock/preset/azurite"
+	"github.com/stretchr/testify/assert"
 
 	"github.com/orlangure/gnomock"
 	"github.com/orlangure/gnomock/internal/gnomockd"
@@ -46,10 +47,16 @@ func TestAzurite(t *testing.T) {
 	err = json.Unmarshal(body, &c)
 	require.NoError(t, err)
 
-	connString := fmt.Sprintf(azurite.ConnectionStringFormat, azurite.AccountName, azurite.AccountKey, c.Address(azurite.BlobServicePort), azurite.AccountName)
+	connString := fmt.Sprintf(
+		azurite.ConnectionStringFormat,
+		azurite.AccountName,
+		azurite.AccountKey,
+		c.Address(azurite.BlobServicePort),
+		azurite.AccountName)
 
 	ctx := context.Background()
-	azblobClient, err := azblob.NewClientFromConnectionString(connString, nil)
+	azblobClient, connErr := azblob.NewClientFromConnectionString(connString, nil)
+	require.NoError(t, connErr)
 
 	var maxResults int32 = 200
 	options := azblob.ListBlobsFlatOptions{
@@ -62,11 +69,14 @@ func TestAzurite(t *testing.T) {
 	assert.Equal(t, pager.More(), true)
 
 	pagesScanned := 0
+
 	for pager.More() {
 		pagesScanned++
 		resp, err := pager.NextPage(ctx)
+
 		assert.NoError(t, err)
 		assert.Equal(t, 100, len(resp.Segment.BlobItems))
+
 		for _, v := range resp.Segment.BlobItems {
 			assert.True(t, strings.HasPrefix(*v.Name, "/file-"))
 		}

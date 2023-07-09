@@ -3,11 +3,12 @@ package azurite
 import (
 	"context"
 	"fmt"
-	"github.com/Azure/azure-sdk-for-go/sdk/storage/azblob"
-	"github.com/orlangure/gnomock"
 	"os"
 	"path"
 	"path/filepath"
+
+	"github.com/Azure/azure-sdk-for-go/sdk/storage/azblob"
+	"github.com/orlangure/gnomock"
 )
 
 // WithBlobstorageFiles sets up Blobstorage service running in azurite with the contents of
@@ -79,7 +80,6 @@ func (p *P) createContainer(ctx context.Context, azblobClient *azblob.Client) ([
 }
 
 func (p *P) createContainers(ctx context.Context, azblobClient *azblob.Client, containerName string) error {
-
 	if _, err := azblobClient.CreateContainer(ctx, containerName, nil); err != nil {
 		return fmt.Errorf("can't create containerName '%s': %w", containerName, err)
 	}

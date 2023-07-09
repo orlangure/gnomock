@@ -6,6 +6,7 @@ package azurite
 import (
 	"context"
 	"fmt"
+
 	"github.com/orlangure/gnomock"
 	"github.com/orlangure/gnomock/internal/registry"
 )
@@ -80,8 +81,8 @@ func (p *P) setDefaults() {
 
 func (p *P) healthcheck() gnomock.HealthcheckFunc {
 	return func(ctx context.Context, c *gnomock.Container) (err error) {
-		//needs implementation. unfortunately azurite does not offer a health endpoint
-		//a netcat p.healtCheckAddress(c) -z could help alternatively
+		// needs implementation. unfortunately azurite does not offer a health endpoint
+		// a netcat p.healtCheckAddress(c) -z could help alternatively
 		_ = p.healthCheckAddress(c)
 		return nil
 	}

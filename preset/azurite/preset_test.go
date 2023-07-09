@@ -3,10 +3,11 @@ package azurite_test
 import (
 	"context"
 	"fmt"
+	"testing"
+
 	"github.com/Azure/azure-sdk-for-go/sdk/storage/azblob"
 	"github.com/orlangure/gnomock/preset/azurite"
 	"github.com/stretchr/testify/require"
-	"testing"
 
 	"github.com/orlangure/gnomock"
 )
@@ -30,7 +31,12 @@ func testBlobStorage(version string) func(*testing.T) {
 
 		require.NoError(t, err)
 
-		connString := fmt.Sprintf(azurite.ConnectionStringFormat, azurite.AccountName, azurite.AccountKey, c.Address(azurite.BlobServicePort), azurite.AccountName)
+		connString := fmt.Sprintf(
+			azurite.ConnectionStringFormat,
+			azurite.AccountName,
+			azurite.AccountKey,
+			c.Address(azurite.BlobServicePort),
+			azurite.AccountName)
 
 		ctx := context.Background()
 
@@ -43,11 +49,12 @@ func testBlobStorage(version string) func(*testing.T) {
 
 		pager := azblobClient.NewListBlobsFlatPager(containerName, nil)
 		pages := 0
+
 		for pager.More() {
 			resp, err := pager.NextPage(context.Background())
 			require.NoError(t, err)
 			require.Equal(t, 0, len(resp.Segment.BlobItems))
-			pages = pages + 1
+			pages++
 		}
 		require.Equal(t, 1, pages)
 
@@ -62,6 +69,7 @@ func testBlobStorage(version string) func(*testing.T) {
 			resp, err := pager.NextPage(context.Background())
 			require.NoError(t, err)
 			require.Equal(t, 1, len(resp.Segment.BlobItems))
+
 			for _, v := range resp.Segment.BlobItems {
 				require.Equal(t, blobName, *v.Name)
 			}
@@ -81,10 +89,11 @@ func TestPreset_wrongBlobstoragePath(t *testing.T) {
 	require.NoError(t, gnomock.Stop(c))
 }
 
-func ExamplePresetBlobStorage() {
+func ExamplePreset() {
 	p := azurite.Preset(
 		azurite.WithVersion(azurite.DefaultVersion),
 	)
+
 	c, startErr := gnomock.Start(p)
 	if startErr != nil {
 		fmt.Println("Starting azurite gnomock failed ", startErr)
@@ -93,7 +102,12 @@ func ExamplePresetBlobStorage() {
 
 	defer func() { _ = gnomock.Stop(c) }()
 
-	connString := fmt.Sprintf(azurite.ConnectionStringFormat, azurite.AccountName, azurite.AccountKey, c.Address(azurite.BlobServicePort), azurite.AccountName)
+	connString := fmt.Sprintf(
+		azurite.ConnectionStringFormat,
+		azurite.AccountName,
+		azurite.AccountKey,
+		c.Address(azurite.BlobServicePort),
+		azurite.AccountName)
 	ctx := context.Background()
 
 	azblobClient, connectError := azblob.NewClientFromConnectionString(connString, nil)
@@ -103,27 +117,29 @@ func ExamplePresetBlobStorage() {
 	}
 
 	containerName := "foo"
+
 	_, createContainerError := azblobClient.CreateContainer(ctx, containerName, nil)
 	if createContainerError != nil {
 		fmt.Println("Creating azure container failed ", createContainerError)
 		return
 	}
 
-	pager := azblobClient.NewListBlobsFlatPager(containerName, nil)
 	pages := 0
+
+	pager := azblobClient.NewListBlobsFlatPager(containerName, nil)
 	for pager.More() {
 		resp, _ := pager.NextPage(context.Background())
 		fmt.Println("keys before:", len(resp.Segment.BlobItems))
-		pages = pages + 1
+		pages++
 	}
 	fmt.Println("pages before:", pages)
 
 	blobName := "bar"
 	_, _ = azblobClient.UploadBuffer(ctx, containerName, blobName, []byte{15, 16, 17}, nil)
 
-	pager = azblobClient.NewListBlobsFlatPager(containerName, nil)
-
 	pages = 0
+
+	pager = azblobClient.NewListBlobsFlatPager(containerName, nil)
 	for pager.More() {
 		resp, _ := pager.NextPage(context.Background())
 
@@ -131,14 +147,14 @@ func ExamplePresetBlobStorage() {
 		for _, v := range resp.Segment.BlobItems {
 			fmt.Println("filename:", *v.Name)
 		}
-		pages = pages + 1
+		pages++
 	}
 	fmt.Println("pages after:", 1)
 
-	//Output:
-	//keys before: 0
-	//pages before: 1
-	//keys after: 1
-	//filename: bar
-	//pages after: 1
+	// Output:
+	// keys before: 0
+	// pages before: 1
+	// keys after: 1
+	// filename: bar
+	// pages after: 1
 }
