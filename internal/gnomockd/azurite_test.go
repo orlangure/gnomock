@@ -14,11 +14,9 @@ import (
 
 	"github.com/Azure/azure-sdk-for-go/sdk/storage/azblob"
 	"github.com/Azure/azure-sdk-for-go/sdk/storage/azblob/container"
-	"github.com/orlangure/gnomock/preset/azurite"
-	"github.com/stretchr/testify/assert"
-
 	"github.com/orlangure/gnomock"
 	"github.com/orlangure/gnomock/internal/gnomockd"
+	"github.com/orlangure/gnomock/preset/azurite"
 	"github.com/stretchr/testify/require"
 )
 
@@ -66,7 +64,7 @@ func TestAzurite(t *testing.T) {
 		Prefix:     nil,
 	}
 	pager := azblobClient.NewListBlobsFlatPager("some-bucket", &options)
-	assert.Equal(t, pager.More(), true)
+	require.Equal(t, pager.More(), true)
 
 	pagesScanned := 0
 
@@ -74,15 +72,15 @@ func TestAzurite(t *testing.T) {
 		pagesScanned++
 		resp, err := pager.NextPage(ctx)
 
-		assert.NoError(t, err)
-		assert.Equal(t, 100, len(resp.Segment.BlobItems))
+		require.NoError(t, err)
+		require.Equal(t, 100, len(resp.Segment.BlobItems))
 
 		for _, v := range resp.Segment.BlobItems {
-			assert.True(t, strings.HasPrefix(*v.Name, "/file-"))
+			require.True(t, strings.HasPrefix(*v.Name, "/file-"))
 		}
 	}
 
-	assert.Equal(t, 1, pagesScanned)
+	require.Equal(t, 1, pagesScanned)
 
 	bs, err = json.Marshal(c)
 	require.NoError(t, err)
