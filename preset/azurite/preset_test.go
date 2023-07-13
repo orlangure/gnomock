@@ -144,7 +144,7 @@ func ExamplePreset() {
 		resp, _ := pager.NextPage(context.Background())
 
 		fmt.Println("keys after:", len(resp.Segment.BlobItems))
-		
+
 		for _, v := range resp.Segment.BlobItems {
 			fmt.Println("filename:", *v.Name)
 		}
