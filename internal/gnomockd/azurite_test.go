@@ -70,6 +70,7 @@ func TestAzurite(t *testing.T) {
 
 	for pager.More() {
 		pagesScanned++
+
 		resp, err := pager.NextPage(ctx)
 
 		require.NoError(t, err)
