@@ -45,7 +45,8 @@ func TestWithBlobstorageFiles(t *testing.T) {
 
 func listAndCheckFiles(
 	t *testing.T, azblobClient *azblob.Client, containerName string,
-	maxResults int32, maxResultsExpected int, marker *string) (nextMarker *string) {
+	maxResults int32, maxResultsExpected int, marker *string,
+) (nextMarker *string) {
 	pager := azblobClient.NewListBlobsFlatPager(containerName, &azblob.ListBlobsFlatOptions{
 		MaxResults: &maxResults,
 		Marker:     marker,
