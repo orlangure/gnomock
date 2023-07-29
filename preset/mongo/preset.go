@@ -98,14 +98,9 @@ func (p *P) initf(ctx context.Context, c *gnomock.Container) error {
 
 	clientOptions := mongooptions.Client().ApplyURI(uri)
 
-	client, err := mongodb.NewClient(clientOptions)
+	client, err := mongodb.Connect(ctx, clientOptions)
 	if err != nil {
 		return fmt.Errorf("can't create mongo client: %w", err)
-	}
-
-	err = client.Connect(ctx)
-	if err != nil {
-		return fmt.Errorf("can't connect: %w", err)
 	}
 
 	topLevelDirs, err := os.ReadDir(p.DataPath)
@@ -196,14 +191,9 @@ func healthcheck(ctx context.Context, c *gnomock.Container) error {
 	addr := c.Address(gnomock.DefaultPort)
 	clientOptions := mongooptions.Client().ApplyURI("mongodb://" + addr)
 
-	client, err := mongodb.NewClient(clientOptions)
+	client, err := mongodb.Connect(ctx, clientOptions)
 	if err != nil {
 		return fmt.Errorf("can't create mongo client: %w", err)
-	}
-
-	err = client.Connect(ctx)
-	if err != nil {
-		return fmt.Errorf("can't connect: %w", err)
 	}
 
 	return client.Ping(ctx, nil)
