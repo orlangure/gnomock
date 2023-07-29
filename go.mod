@@ -38,7 +38,7 @@ require (
 	k8s.io/client-go v0.27.4
 )
 
-require golang.org/x/mod v0.8.0
+require golang.org/x/mod v0.12.0
 
 require (
 	github.com/Azure/azure-sdk-for-go/sdk/azcore v1.6.0 // indirect
