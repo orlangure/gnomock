@@ -35,16 +35,12 @@ func testPreset(version string) func(t *testing.T) {
 
 		require.NoError(t, err)
 
+		ctx := context.Background()
 		addr := c.DefaultAddress()
 		uri := fmt.Sprintf("mongodb://%s:%s@%s", "gnomock", "gnomick", addr)
 		clientOptions := mongooptions.Client().ApplyURI(uri)
 
-		client, err := mongodb.NewClient(clientOptions)
-		require.NoError(t, err)
-
-		ctx := context.Background()
-
-		err = client.Connect(ctx)
+		client, err := mongodb.Connect(ctx, clientOptions)
 		require.NoError(t, err)
 
 		// see testdata folder to verify names/numbers
@@ -67,21 +63,16 @@ func TestPreset_withDefaults(t *testing.T) {
 
 	p := mongo.Preset()
 	c, err := gnomock.Start(p)
+	require.NoError(t, err)
 
 	defer func() { require.NoError(t, gnomock.Stop(c)) }()
 
-	require.NoError(t, err)
-
+	ctx := context.Background()
 	addr := c.DefaultAddress()
 	uri := fmt.Sprintf("mongodb://%s:%s@%s", "gnomock", "gnomick", addr)
 	clientOptions := mongooptions.Client().ApplyURI(uri)
 
-	client, err := mongodb.NewClient(clientOptions)
-	require.NoError(t, err)
-
-	ctx := context.Background()
-
-	err = client.Connect(ctx)
+	client, err := mongodb.Connect(ctx, clientOptions)
 	require.NoError(t, err)
 	require.NoError(t, client.Disconnect(ctx))
 }

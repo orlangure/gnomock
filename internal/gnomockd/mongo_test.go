@@ -44,15 +44,12 @@ func TestMongo(t *testing.T) {
 	err = json.Unmarshal(body, &c)
 	require.NoError(t, err)
 
+	ctx := context.Background()
 	uri := fmt.Sprintf("mongodb://gnomock:foobar@%s", c.DefaultAddress())
 	clientOptions := mongooptions.Client().ApplyURI(uri)
 
-	client, err := mongodb.NewClient(clientOptions)
+	client, err := mongodb.Connect(ctx, clientOptions)
 	require.NoError(t, err)
-
-	ctx := context.Background()
-
-	require.NoError(t, client.Connect(ctx))
 
 	count, err := client.Database("db").Collection("data").CountDocuments(ctx, bson.D{})
 	require.NoError(t, err)

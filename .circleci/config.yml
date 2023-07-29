@@ -267,4 +267,6 @@ workflows:
       - test-influxdb
       - test-cassandra
       - test-vault
+      - test-azurite
+
 ### circleci jobs go here
