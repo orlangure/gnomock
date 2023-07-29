@@ -1,0 +1,8 @@
+{
+    "preset": {
+        "blobstore_path": "./testdata/azurite/blobstore",
+        "version": "3.22.0"
+    },
+    "options": {
+    }
+}

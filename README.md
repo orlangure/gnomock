@@ -103,7 +103,6 @@ The power of Gnomock is in the Presets. Existing Presets with their supported<su
 
 <small>*\* **Supported** versions are tested as part of CI pipeline. Other versions might work as well.*</small>
 
-
 | Preset | Go package | Go API | Supported versions | arm64 |
 |--------|------------|--------|--------------------|-------|
 [Localstack](https://github.com/localstack/localstack) (AWS) | [Go package](https://github.com/orlangure/gnomock/tree/master/preset/localstack) | [Reference](https://pkg.go.dev/github.com/orlangure/gnomock/preset/localstack?tab=doc) | `0.12.2`, `0.13.1`, `0.14.0` | ✅
@@ -123,6 +122,7 @@ CockroachDB | [Go package](https://github.com/orlangure/gnomock/tree/master/pres
 InfluxDB | [Go package](https://github.com/orlangure/gnomock/tree/master/preset/influxdb) | [Reference](https://pkg.go.dev/github.com/orlangure/gnomock/preset/influxdb?tab=doc) | `2.0.4-alpine` | ✅
 Cassandra | [Go package](https://github.com/orlangure/gnomock/tree/master/preset/cassandra) | [Reference](https://pkg.go.dev/github.com/orlangure/gnomock/preset/cassandra?tab=doc) | `4.0`, `3` | ✅
 Vault | [Go package](https://github.com/orlangure/gnomock/tree/master/preset/vault) | [Reference](https://pkg.go.dev/github.com/orlangure/gnomock/preset/vault?tab=doc) | `1.10.11`, `1.11.8`, `1.12.4`, `1.13` | ✅
+Azurite | [Go package](https://github.com/orlangure/gnomock/tree/master/preset/azurite) | [Reference](https://pkg.go.dev/github.com/orlangure/gnomock/preset/azurite?tab=doc) | `3.22.0` | ✅
 <!-- new presets go here -->
 
 It is possible to use Gnomock [directly from Go](https://pkg.go.dev/github.com/orlangure/gnomock#StartCustom) code without any presets. HTTP API only allows to setup containers using presets that exist in this repository.

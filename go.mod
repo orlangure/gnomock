@@ -3,6 +3,7 @@ module github.com/orlangure/gnomock
 go 1.20
 
 require (
+	github.com/Azure/azure-sdk-for-go/sdk/storage/azblob v1.0.0
 	github.com/Microsoft/go-winio v0.5.2 // indirect
 	github.com/aws/aws-sdk-go v1.44.247
 	github.com/bradfitz/gomemcache v0.0.0-20230124162541-5f7a7d875746
@@ -40,6 +41,8 @@ require (
 require golang.org/x/mod v0.8.0
 
 require (
+	github.com/Azure/azure-sdk-for-go/sdk/azcore v1.3.0 // indirect
+	github.com/Azure/azure-sdk-for-go/sdk/internal v1.1.1 // indirect
 	github.com/cenkalti/backoff/v3 v3.0.0 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/deepmap/oapi-codegen v1.10.1 // indirect

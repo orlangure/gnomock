@@ -3,6 +3,7 @@ package main
 // all known presets should go right here so that they are available when
 // requested over HTTP.
 import (
+	_ "github.com/orlangure/gnomock/preset/azurite"
 	_ "github.com/orlangure/gnomock/preset/cassandra"
 	_ "github.com/orlangure/gnomock/preset/cockroachdb"
 	_ "github.com/orlangure/gnomock/preset/elastic"
