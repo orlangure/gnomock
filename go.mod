@@ -30,8 +30,8 @@ require (
 	github.com/streadway/amqp v1.1.0
 	github.com/stretchr/testify v1.8.4
 	go.mongodb.org/mongo-driver v1.12.0
-	go.uber.org/multierr v1.7.0 // indirect
-	go.uber.org/zap v1.24.0
+	go.uber.org/multierr v1.10.0 // indirect
+	go.uber.org/zap v1.25.0
 	golang.org/x/sync v0.3.0
 	k8s.io/api v0.27.4
 	k8s.io/apimachinery v0.27.4
@@ -95,8 +95,6 @@ require (
 	github.com/xdg-go/scram v1.1.2 // indirect
 	github.com/xdg-go/stringprep v1.0.4 // indirect
 	github.com/youmark/pkcs8 v0.0.0-20181117223130-1be2e3e5546d // indirect
-	go.uber.org/atomic v1.9.0 // indirect
-	go.uber.org/goleak v1.1.12 // indirect
 	golang.org/x/crypto v0.9.0 // indirect
 	golang.org/x/net v0.10.0 // indirect
 	golang.org/x/oauth2 v0.0.0-20220223155221-ee480838109b // indirect
