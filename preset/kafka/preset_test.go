@@ -31,7 +31,7 @@ func TestPreset(t *testing.T) {
 	p := kafka.Preset(
 		kafka.WithTopics("topic-1", "topic-2"),
 		kafka.WithMessages(messages...),
-		kafka.WithVersion("2.5.1-L0"),
+		kafka.WithVersion("3.3.1-L0"),
 		kafka.WithMessagesFile("./testdata/messages.json"),
 	)
 
