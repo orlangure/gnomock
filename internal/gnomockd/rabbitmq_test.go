@@ -13,7 +13,7 @@ import (
 	"github.com/orlangure/gnomock"
 	"github.com/orlangure/gnomock/internal/gnomockd"
 	_ "github.com/orlangure/gnomock/preset/rabbitmq"
-	"github.com/streadway/amqp"
+	amqp "github.com/rabbitmq/amqp091-go"
 	"github.com/stretchr/testify/require"
 )
 
