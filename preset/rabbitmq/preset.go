@@ -13,7 +13,7 @@ import (
 
 	"github.com/orlangure/gnomock"
 	"github.com/orlangure/gnomock/internal/registry"
-	"github.com/streadway/amqp"
+	amqp "github.com/rabbitmq/amqp091-go"
 )
 
 // ManagementPort is a name of the port exposed by RabbitMQ management plugin.
@@ -150,7 +150,7 @@ func (p *P) setDefaults() {
 	}
 }
 
-func (p *P) initf(_ context.Context, c *gnomock.Container) (err error) {
+func (p *P) initf(ctx context.Context, c *gnomock.Container) (err error) {
 	conn, err := p.connect(c)
 	if err != nil {
 		return fmt.Errorf("can't connect to rabbitmq: %w", err)
@@ -163,10 +163,10 @@ func (p *P) initf(_ context.Context, c *gnomock.Container) (err error) {
 		}
 	}()
 
-	return p.ingestMessages(conn)
+	return p.ingestMessages(ctx, conn)
 }
 
-func (p *P) ingestMessages(conn *amqp.Connection) error {
+func (p *P) ingestMessages(ctx context.Context, conn *amqp.Connection) error {
 	if err := p.loadFiles(); err != nil {
 		return err
 	}
@@ -198,7 +198,7 @@ func (p *P) ingestMessages(conn *amqp.Connection) error {
 	}
 
 	for queue, messages := range messagesByQueue {
-		if err := p.sendMessagesIntoQueue(ch, queue, messages); err != nil {
+		if err := p.sendMessagesIntoQueue(ctx, ch, queue, messages); err != nil {
 			return fmt.Errorf("can't send messages into queue '%s': %w", queue, err)
 		}
 	}
@@ -273,7 +273,7 @@ func (p *P) connect(c *gnomock.Container) (*amqp.Connection, error) {
 	return amqp.Dial(fmt.Sprintf("amqp://%s:%s@%s:%d", p.User, p.Password, c.Host, c.DefaultPort()))
 }
 
-func (p *P) sendMessagesIntoQueue(ch *amqp.Channel, q string, msgs []Message) (err error) {
+func (p *P) sendMessagesIntoQueue(ctx context.Context, ch *amqp.Channel, q string, msgs []Message) (err error) {
 	for _, m := range msgs {
 		var body []byte
 		if m.Body != nil {
@@ -282,7 +282,8 @@ func (p *P) sendMessagesIntoQueue(ch *amqp.Channel, q string, msgs []Message) (e
 			body = []byte(m.StringBody)
 		}
 
-		if err := ch.Publish(
+		if err := ch.PublishWithContext(
+			ctx,
 			"",
 			q,
 			false,

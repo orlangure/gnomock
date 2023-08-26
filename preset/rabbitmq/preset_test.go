@@ -1,6 +1,7 @@
 package rabbitmq_test
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"net/http"
@@ -9,13 +10,14 @@ import (
 
 	"github.com/orlangure/gnomock"
 	"github.com/orlangure/gnomock/preset/rabbitmq"
-	"github.com/streadway/amqp"
+	amqp "github.com/rabbitmq/amqp091-go"
 	"github.com/stretchr/testify/require"
 )
 
 func TestPreset(t *testing.T) {
 	t.Parallel()
 
+	ctx := context.Background()
 	messages := []rabbitmq.Message{
 		{
 			Queue:       "events",
@@ -83,7 +85,8 @@ func TestPreset(t *testing.T) {
 	require.NoError(t, err)
 
 	msgBody := []byte("hello from Gnomock!")
-	err = ch.Publish(
+	err = ch.PublishWithContext(
+		ctx,
 		"",     // exchange
 		q.Name, // routing key
 		false,  // mandatory

@@ -7,12 +7,13 @@ running tests against a real RabbitMQ message queue, without mocks.
 package rabbitmq_test
 
 import (
+    "context"
 	"fmt"
 	"testing"
 
 	"github.com/orlangure/gnomock"
 	"github.com/orlangure/gnomock/preset/rabbitmq"
-	"github.com/streadway/amqp"
+	amqp "github.com/rabbitmq/amqp091-go"
 	"github.com/stretchr/testify/require"
 )
 
@@ -53,7 +54,8 @@ func TestPreset(t *testing.T) {
 	require.NoError(t, err)
 
 	msgBody := []byte("hello from Gnomock!")
-	err = ch.Publish(
+	err = ch.PublishWithContext(
+        context.Background(),
 		"",     // exchange
 		q.Name, // routing key
 		false,  // mandatory
