@@ -20,7 +20,7 @@ import (
 func TestPreset_s3(t *testing.T) {
 	t.Parallel()
 
-	for _, version := range []string{"0.12.2", "0.13.1", "0.14.0"} {
+	for _, version := range []string{"0.12.2", "0.13.1", "0.14.0", "2.3.0"} {
 		t.Run(version, testS3(version))
 	}
 }

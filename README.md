@@ -105,7 +105,7 @@ The power of Gnomock is in the Presets. Existing Presets with their supported<su
 
 | Preset | Go package | Go API | Supported versions                        | arm64 |
 |--------|------------|--------|-------------------------------------------|-------|
-[Localstack](https://github.com/localstack/localstack) (AWS) | [Go package](https://github.com/orlangure/gnomock/tree/master/preset/localstack) | [Reference](https://pkg.go.dev/github.com/orlangure/gnomock/preset/localstack?tab=doc) | `0.12.2`, `0.13.1`, `0.14.0`              | ✅
+[Localstack](https://github.com/localstack/localstack) (AWS) | [Go package](https://github.com/orlangure/gnomock/tree/master/preset/localstack) | [Reference](https://pkg.go.dev/github.com/orlangure/gnomock/preset/localstack?tab=doc) | `0.12.2`, `0.13.1`, `0.14.0`, `2.3.0`              | ✅
 Splunk | [Go package](https://github.com/orlangure/gnomock/tree/master/preset/splunk) | [Reference](https://pkg.go.dev/github.com/orlangure/gnomock/preset/splunk?tab=doc) | `8.0.2`                                   | ❌
 Redis | [Go package](https://github.com/orlangure/gnomock/tree/master/preset/redis) | [Reference](https://pkg.go.dev/github.com/orlangure/gnomock/preset/redis?tab=doc) | `5.0.10`, `6.0.9`                         | ✅
 Memcached | [Go package](https://github.com/orlangure/gnomock/tree/master/preset/memcached) | [Reference](https://pkg.go.dev/github.com/orlangure/gnomock/preset/memcached?tab=doc) | `1.6.9`                                   | ✅

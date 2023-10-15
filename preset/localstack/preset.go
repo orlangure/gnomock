@@ -16,13 +16,11 @@ import (
 )
 
 const (
-	webPort = "web"
-
 	// APIPort should be used to configure AWS SDK endpoint.
 	APIPort = "api"
 )
 
-const defaultVersion = "0.14.0"
+const defaultVersion = "2.3.0"
 
 func init() {
 	registry.Register("localstack", func() gnomock.Preset { return &P{} })
@@ -59,7 +57,6 @@ func (p *P) Image() string {
 // Ports returns ports that should be used to access this container.
 func (p *P) Ports() gnomock.NamedPorts {
 	return gnomock.NamedPorts{
-		webPort: {Protocol: "tcp", Port: 8080},
 		APIPort: {Protocol: "tcp", Port: 4566},
 	}
 }
@@ -144,7 +141,7 @@ func (p *P) healthcheck(services []string) gnomock.HealthcheckFunc {
 // localstack container. Before version 0.11.3, the endpoint was available at
 // port 8080. In 0.11.3, the endpoint was moved to the default port (4566).
 func (p *P) healthCheckAddress(c *gnomock.Container) string {
-	defaultPath := fmt.Sprintf("http://%s/health", c.Address(APIPort))
+	defaultPath := fmt.Sprintf("http://%s/_localstack/health", c.Address(APIPort))
 
 	if p.Version == defaultVersion {
 		return defaultPath
@@ -182,7 +179,7 @@ func (p *P) healthCheckAddress(c *gnomock.Container) string {
 		return defaultPath
 	}
 
-	return fmt.Sprintf("http://%s/health", c.Address(webPort))
+	return fmt.Sprintf("http://%s/_localstack/health", c.Address(APIPort))
 }
 
 type healthResponse struct {
