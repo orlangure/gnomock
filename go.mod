@@ -5,7 +5,7 @@ go 1.21
 require (
 	github.com/Azure/azure-sdk-for-go/sdk/storage/azblob v1.1.0
 	github.com/Microsoft/go-winio v0.5.2 // indirect
-	github.com/aws/aws-sdk-go v1.44.332
+	github.com/aws/aws-sdk-go v1.46.5
 	github.com/bradfitz/gomemcache v0.0.0-20230611145640-acc696258285
 	github.com/denisenkom/go-mssqldb v0.12.3
 	github.com/docker/docker v24.0.5+incompatible
