@@ -16,7 +16,7 @@ import (
 
 func TestPreset_v7(t *testing.T) {
 	p := elastic.Preset(
-		elastic.WithVersion("7.17.9"),
+		elastic.WithVersion("7.17.21"),
 		elastic.WithInputFile("./testdata/titles"),
 		elastic.WithInputFile("./testdata/names"),
 	)

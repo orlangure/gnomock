@@ -15,127 +15,140 @@ import (
 )
 
 func TestPreset(t *testing.T) {
-	t.Parallel()
-
-	ctx := context.Background()
-	messages := []rabbitmq.Message{
-		{
-			Queue:       "events",
-			ContentType: "text/plain",
-			StringBody:  "order: 1",
-		},
-		{
-			Queue:       "alerts",
-			ContentType: "text/plain",
-			StringBody:  "CPU: 92",
-		},
+	versions := []string{
+		"3.8.9-alpine",
+		"3.13-alpine",
 	}
 
-	byteMessages := []rabbitmq.Message{
-		{
-			Queue:       "events",
-			ContentType: "text/binary", // non-existent format for test
-			Body:        []byte{54, 23, 12, 76, 54},
-		},
-		{
-			Queue:       "alerts",
-			ContentType: "text/binary", // non-existent format for test
-			Body:        []byte{75, 12, 8, 42, 12},
-		},
+	for _, version := range versions {
+		t.Run(version, testPreset(version))
 	}
+}
 
-	// gnomock setup
-	p := rabbitmq.Preset(
-		rabbitmq.WithUser("gnomock", "strong-password"),
-		rabbitmq.WithMessages(messages...),
-		rabbitmq.WithMessages(byteMessages...),
-		rabbitmq.WithMessagesFile("./testdata/messages.json"),
-		rabbitmq.WithVersion("3.8.9-alpine"),
-	)
+func testPreset(version string) func(t *testing.T) {
+	return func(t *testing.T) {
+		t.Parallel()
 
-	container, err := gnomock.Start(p)
-	require.NoError(t, err)
+		ctx := context.Background()
+		messages := []rabbitmq.Message{
+			{
+				Queue:       "events",
+				ContentType: "text/plain",
+				StringBody:  "order: 1",
+			},
+			{
+				Queue:       "alerts",
+				ContentType: "text/plain",
+				StringBody:  "CPU: 92",
+			},
+		}
 
-	defer func() { require.NoError(t, gnomock.Stop(container)) }()
+		byteMessages := []rabbitmq.Message{
+			{
+				Queue:       "events",
+				ContentType: "text/binary", // non-existent format for test
+				Body:        []byte{54, 23, 12, 76, 54},
+			},
+			{
+				Queue:       "alerts",
+				ContentType: "text/binary", // non-existent format for test
+				Body:        []byte{75, 12, 8, 42, 12},
+			},
+		}
 
-	// actual test code
-	uri := fmt.Sprintf(
-		"amqp://%s:%s@%s",
-		"gnomock", "strong-password",
-		container.DefaultAddress(),
-	)
-	conn, err := amqp.Dial(uri)
-	require.NoError(t, err)
+		// gnomock setup
+		p := rabbitmq.Preset(
+			rabbitmq.WithUser("gnomock", "strong-password"),
+			rabbitmq.WithMessages(messages...),
+			rabbitmq.WithMessages(byteMessages...),
+			rabbitmq.WithMessagesFile("./testdata/messages.json"),
+			rabbitmq.WithVersion(version),
+		)
 
-	defer func() { require.NoError(t, conn.Close()) }()
+		container, err := gnomock.Start(p)
+		require.NoError(t, err)
 
-	ch, err := conn.Channel()
-	require.NoError(t, err)
+		defer func() { require.NoError(t, gnomock.Stop(container)) }()
 
-	defer func() { require.NoError(t, ch.Close()) }()
+		// actual test code
+		uri := fmt.Sprintf(
+			"amqp://%s:%s@%s",
+			"gnomock", "strong-password",
+			container.DefaultAddress(),
+		)
+		conn, err := amqp.Dial(uri)
+		require.NoError(t, err)
 
-	q, err := ch.QueueDeclare(
-		"gnomock",
-		false, // Durable
-		false, // Delete when unused
-		false, // Exclusive
-		false, // No-wait
-		nil,   // Arguments
-	)
-	require.NoError(t, err)
+		defer func() { require.NoError(t, conn.Close()) }()
 
-	msgBody := []byte("hello from Gnomock!")
-	err = ch.PublishWithContext(
-		ctx,
-		"",     // exchange
-		q.Name, // routing key
-		false,  // mandatory
-		false,  // immediate
-		amqp.Publishing{
-			ContentType: "text/plain",
-			Body:        msgBody,
-		},
-	)
-	require.NoError(t, err)
+		ch, err := conn.Channel()
+		require.NoError(t, err)
 
-	msgs, err := ch.Consume(
-		q.Name, // queue
-		"",     // consumer
-		true,   // auto-ack
-		false,  // exclusive
-		false,  // no-local
-		false,  // no-wait
-		nil,    // args
-	)
-	require.NoError(t, err)
+		defer func() { require.NoError(t, ch.Close()) }()
 
-	m := <-msgs
-	require.Equal(t, msgBody, m.Body)
+		q, err := ch.QueueDeclare(
+			"gnomock",
+			false, // Durable
+			false, // Delete when unused
+			false, // Exclusive
+			false, // No-wait
+			nil,   // Arguments
+		)
+		require.NoError(t, err)
 
-	// ===================================
-	// Test for string and binary messages
-	// ===================================
-	msgs, err = ch.Consume("events", "", true, false, false, false, nil)
-	require.NoError(t, err)
+		msgBody := []byte("hello from Gnomock!")
+		err = ch.PublishWithContext(
+			ctx,
+			"",     // exchange
+			q.Name, // routing key
+			false,  // mandatory
+			false,  // immediate
+			amqp.Publishing{
+				ContentType: "text/plain",
+				Body:        msgBody,
+			},
+		)
+		require.NoError(t, err)
 
-	m, ok := <-msgs
-	require.Equal(t, true, ok)
-	require.Equal(t, []byte(messages[0].StringBody), m.Body)
+		msgs, err := ch.Consume(
+			q.Name, // queue
+			"",     // consumer
+			true,   // auto-ack
+			false,  // exclusive
+			false,  // no-local
+			false,  // no-wait
+			nil,    // args
+		)
+		require.NoError(t, err)
 
-	m, ok = <-msgs
-	require.Equal(t, true, ok)
-	require.Equal(t, byteMessages[0].Body, m.Body)
+		m := <-msgs
+		require.Equal(t, msgBody, m.Body)
 
-	msgs, err = ch.Consume("alerts", "", true, false, false, false, nil)
-	require.NoError(t, err)
+		// ===================================
+		// Test for string and binary messages
+		// ===================================
+		msgs, err = ch.Consume("events", "", true, false, false, false, nil)
+		require.NoError(t, err)
 
-	m, ok = <-msgs
-	require.Equal(t, true, ok)
-	require.Equal(t, []byte(messages[1].StringBody), m.Body)
+		m, ok := <-msgs
+		require.Equal(t, true, ok)
+		require.Equal(t, []byte(messages[0].StringBody), m.Body)
 
-	m, ok = <-msgs
-	require.Equal(t, true, ok)
-	require.Equal(t, byteMessages[1].Body, m.Body)
+		m, ok = <-msgs
+		require.Equal(t, true, ok)
+		require.Equal(t, byteMessages[0].Body, m.Body)
+
+		msgs, err = ch.Consume("alerts", "", true, false, false, false, nil)
+		require.NoError(t, err)
+
+		m, ok = <-msgs
+		require.Equal(t, true, ok)
+		require.Equal(t, []byte(messages[1].StringBody), m.Body)
+
+		m, ok = <-msgs
+		require.Equal(t, true, ok)
+		require.Equal(t, byteMessages[1].Body, m.Body)
+	}
 }
 
 func TestPreset_withManagement(t *testing.T) {

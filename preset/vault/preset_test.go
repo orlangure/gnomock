@@ -13,8 +13,7 @@ import (
 func TestPreset(t *testing.T) {
 	t.Parallel()
 
-	for _, version := range []string{"1.13", "1.12.4", "1.11.8", "1.10.11", "latest"} {
-		// tmpfile, err := os.CreateTemp("", "token")
+	for _, version := range []string{"1.13", "1.12", "1.11", "1.10", "latest"} {
 		t.Run(version, testPreset(version, "root-token"))
 	}
 }
@@ -87,7 +86,7 @@ path "secret/metadata/*" {
 			}
 		}
 
-		require.True(t, found, "kubenetes auth was not created")
+		require.True(t, found, "kubernetes auth was not created")
 
 		policies, err := cli.Sys().ListPolicies()
 		require.NoError(t, err)

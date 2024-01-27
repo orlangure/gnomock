@@ -19,7 +19,7 @@ const (
 	defaultDatabase = "postgres"
 	defaultSSLMode  = "disable"
 	defaultPort     = 5432
-	defaultVersion  = "12.5"
+	defaultVersion  = "16.2"
 )
 
 func init() {
@@ -106,7 +106,7 @@ func (p *P) healthcheck(_ context.Context, c *gnomock.Container) error {
 }
 
 func (p *P) initf() gnomock.InitFunc {
-	return func(ctx context.Context, c *gnomock.Container) error {
+	return func(_ context.Context, c *gnomock.Container) error {
 		if p.DB != defaultDatabase {
 			db, err := connect(c, defaultDatabase)
 			if err != nil {

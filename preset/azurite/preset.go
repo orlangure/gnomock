@@ -21,7 +21,7 @@ const (
 	ConnectionStringFormat = "DefaultEndpointsProtocol=http;AccountName=%s;AccountKey=%s;BlobEndpoint=http://%s/%s;"
 	AccountName            = "devstoreaccount1"
 	AccountKey             = "Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw=="
-	DefaultVersion         = "3.22.0"
+	DefaultVersion         = "3.30.0"
 )
 
 func init() {
@@ -80,7 +80,7 @@ func (p *P) setDefaults() {
 }
 
 func (p *P) healthcheck() gnomock.HealthcheckFunc {
-	return func(ctx context.Context, c *gnomock.Container) (err error) {
+	return func(_ context.Context, c *gnomock.Container) (err error) {
 		// needs implementation. unfortunately azurite does not offer a health endpoint
 		// a netcat p.healtCheckAddress(c) -z could help alternatively
 		_ = p.healthCheckAddress(c)
@@ -97,7 +97,7 @@ func (p *P) healthCheckAddress(c *gnomock.Container) string {
 }
 
 func (p *P) initf() gnomock.InitFunc {
-	return func(ctx context.Context, c *gnomock.Container) error {
+	return func(_ context.Context, c *gnomock.Container) error {
 		err := p.initBlobstorage(c)
 		if err != nil {
 			return fmt.Errorf("can't init blob storage: %w", err)

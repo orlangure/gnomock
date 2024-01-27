@@ -142,9 +142,12 @@ func (p *P) healthcheck(services []string) gnomock.HealthcheckFunc {
 
 // healthCheckAddress returns the address of `/health` endpoint of a running
 // localstack container. Before version 0.11.3, the endpoint was available at
-// port 8080. In 0.11.3, the endpoint was moved to the default port (4566).
+// port 8080. In 0.11.3, the endpoint was moved to the default port (4566). In
+// 1.3.0, the endpoint was moved under `_localstack` prefix.
 func (p *P) healthCheckAddress(c *gnomock.Container) string {
-	defaultPath := fmt.Sprintf("http://%s/health", c.Address(APIPort))
+	defaultPath := fmt.Sprintf("http://%s/_localstack/health", c.Address(APIPort))
+	legacyPath := fmt.Sprintf("http://%s/health", c.Address(webPort))
+	notSoLegacyPath := fmt.Sprintf("http://%s/health", c.Address(APIPort))
 
 	if p.Version == defaultVersion {
 		return defaultPath
@@ -160,16 +163,8 @@ func (p *P) healthCheckAddress(c *gnomock.Container) string {
 		return defaultPath
 	}
 
-	if major > 0 {
-		return defaultPath
-	}
-
 	minor, err := strconv.Atoi(versionParts[1])
 	if err != nil {
-		return defaultPath
-	}
-
-	if minor > 11 {
 		return defaultPath
 	}
 
@@ -178,11 +173,28 @@ func (p *P) healthCheckAddress(c *gnomock.Container) string {
 		return defaultPath
 	}
 
-	if minor == 11 && patch > 2 {
+	switch major {
+	case 0:
+		if minor == 11 && patch >= 3 {
+			return notSoLegacyPath
+		}
+
+		if minor >= 12 {
+			return notSoLegacyPath
+		}
+
+		return legacyPath
+
+	case 1:
+		if minor >= 3 {
+			return defaultPath
+		}
+
+		return notSoLegacyPath
+
+	default:
 		return defaultPath
 	}
-
-	return fmt.Sprintf("http://%s/health", c.Address(webPort))
 }
 
 type healthResponse struct {
@@ -190,7 +202,7 @@ type healthResponse struct {
 }
 
 func (p *P) initf() gnomock.InitFunc {
-	return func(ctx context.Context, c *gnomock.Container) error {
+	return func(_ context.Context, c *gnomock.Container) error {
 		for _, s := range p.Services {
 			if s == S3 {
 				err := p.initS3(c)

@@ -7,7 +7,7 @@ import (
 )
 
 const (
-	defaultTimeout             = time.Second * 300
+	defaultTimeout             = time.Minute * 10
 	defaultHealthcheckInterval = time.Millisecond * 250
 )
 

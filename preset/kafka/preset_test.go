@@ -13,71 +13,81 @@ import (
 )
 
 func TestPreset(t *testing.T) {
-	messages := []kafka.Message{
-		{
-			Topic: "events",
-			Key:   "order",
-			Value: "1",
-			Time:  time.Now().UnixNano(),
-		},
-		{
-			Topic: "alerts",
-			Key:   "CPU",
-			Value: "92",
-			Time:  time.Now().UnixNano(),
-		},
+	versions := []string{"3.3.1-L0", "3.6.1-L0"}
+
+	for _, version := range versions {
+		t.Run(version, testPreset(version))
 	}
+}
 
-	p := kafka.Preset(
-		kafka.WithTopics("topic-1", "topic-2"),
-		kafka.WithMessages(messages...),
-		kafka.WithVersion("3.3.1-L0"),
-		kafka.WithMessagesFile("./testdata/messages.json"),
-	)
+func testPreset(version string) func(t *testing.T) {
+	return func(t *testing.T) {
+		messages := []kafka.Message{
+			{
+				Topic: "events",
+				Key:   "order",
+				Value: "1",
+				Time:  time.Now().UnixNano(),
+			},
+			{
+				Topic: "alerts",
+				Key:   "CPU",
+				Value: "92",
+				Time:  time.Now().UnixNano(),
+			},
+		}
 
-	container, err := gnomock.Start(
-		p,
-		gnomock.WithContainerName("kafka"),
-		gnomock.WithTimeout(time.Minute*10),
-	)
-	require.NoError(t, err)
+		p := kafka.Preset(
+			kafka.WithTopics("topic-1", "topic-2"),
+			kafka.WithMessages(messages...),
+			kafka.WithVersion(version),
+			kafka.WithMessagesFile("./testdata/messages.json"),
+		)
 
-	defer func() { require.NoError(t, gnomock.Stop(container)) }()
+		container, err := gnomock.Start(
+			p,
+			gnomock.WithContainerName("kafka"),
+			gnomock.WithTimeout(time.Minute*10),
+		)
+		require.NoError(t, err)
 
-	ctx, cancel := context.WithTimeout(context.Background(), time.Second*30)
-	defer cancel()
+		defer func() { require.NoError(t, gnomock.Stop(container)) }()
 
-	alertsReader := kafkaclient.NewReader(kafkaclient.ReaderConfig{
-		Brokers: []string{container.Address(kafka.BrokerPort)},
-		Topic:   "alerts",
-	})
+		ctx, cancel := context.WithTimeout(context.Background(), time.Second*30)
+		defer cancel()
 
-	m, err := alertsReader.ReadMessage(ctx)
-	require.NoError(t, err)
-	require.NoError(t, alertsReader.Close())
+		alertsReader := kafkaclient.NewReader(kafkaclient.ReaderConfig{
+			Brokers: []string{container.Address(kafka.BrokerPort)},
+			Topic:   "alerts",
+		})
 
-	require.Equal(t, "CPU", string(m.Key))
-	require.Equal(t, "92", string(m.Value))
+		m, err := alertsReader.ReadMessage(ctx)
+		require.NoError(t, err)
+		require.NoError(t, alertsReader.Close())
 
-	eventsReader := kafkaclient.NewReader(kafkaclient.ReaderConfig{
-		Brokers: []string{container.Address(kafka.BrokerPort)},
-		Topic:   "events",
-	})
+		require.Equal(t, "CPU", string(m.Key))
+		require.Equal(t, "92", string(m.Value))
 
-	m, err = eventsReader.ReadMessage(ctx)
-	require.NoError(t, err)
-	require.NoError(t, eventsReader.Close())
+		eventsReader := kafkaclient.NewReader(kafkaclient.ReaderConfig{
+			Brokers: []string{container.Address(kafka.BrokerPort)},
+			Topic:   "events",
+		})
 
-	require.Equal(t, "order", string(m.Key))
-	require.Equal(t, "1", string(m.Value))
+		m, err = eventsReader.ReadMessage(ctx)
+		require.NoError(t, err)
+		require.NoError(t, eventsReader.Close())
 
-	c, err := kafkaclient.Dial("tcp", container.Address(kafka.BrokerPort))
-	require.NoError(t, err)
+		require.Equal(t, "order", string(m.Key))
+		require.Equal(t, "1", string(m.Value))
 
-	require.NoError(t, c.DeleteTopics("topic-1", "topic-2"))
-	require.Error(t, c.DeleteTopics("unknown-topic"))
+		c, err := kafkaclient.Dial("tcp", container.Address(kafka.BrokerPort))
+		require.NoError(t, err)
 
-	require.NoError(t, c.Close())
+		require.NoError(t, c.DeleteTopics("topic-1", "topic-2"))
+		require.Error(t, c.DeleteTopics("unknown-topic"))
+
+		require.NoError(t, c.Close())
+	}
 }
 
 func TestPreset_withDefaults(t *testing.T) {

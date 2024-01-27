@@ -16,6 +16,7 @@ import (
 	"github.com/docker/docker/api/types"
 	"github.com/docker/docker/api/types/container"
 	"github.com/docker/docker/api/types/filters"
+	dockerimage "github.com/docker/docker/api/types/image"
 	"github.com/docker/docker/api/types/mount"
 	"github.com/docker/docker/client"
 	"github.com/docker/docker/errdefs"
@@ -64,7 +65,7 @@ func (g *g) dockerConnect() (*docker, error) {
 }
 
 func (d *docker) isExistingLocalImage(ctx context.Context, image string) (bool, error) {
-	images, err := d.client.ImageList(ctx, types.ImageListOptions{All: true})
+	images, err := d.client.ImageList(ctx, dockerimage.ListOptions{All: true})
 	if err != nil {
 		return false, fmt.Errorf("can't list image: %w", err)
 	}
@@ -91,7 +92,7 @@ func (d *docker) isExistingLocalImage(ctx context.Context, image string) (bool, 
 func (d *docker) pullImage(ctx context.Context, image string, cfg *Options) error {
 	d.log.Info("pulling image")
 
-	reader, err := d.client.ImagePull(ctx, image, types.ImagePullOptions{
+	reader, err := d.client.ImagePull(ctx, image, dockerimage.PullOptions{
 		RegistryAuth: cfg.Auth,
 	})
 	if err != nil {
@@ -174,7 +175,7 @@ func (d *docker) setupContainerCleanup(id string, cfg *Options) chan string {
 				return health.HTTPGet(ctx, c.DefaultAddress())
 			}),
 			WithInit(func(ctx context.Context, c *Container) error {
-				return cleaner.Notify(context.Background(), c.DefaultAddress(), id)
+				return cleaner.Notify(ctx, c.DefaultAddress(), id)
 			}),
 		}
 		if cfg.UseLocalImagesFirst {

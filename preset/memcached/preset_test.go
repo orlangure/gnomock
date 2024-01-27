@@ -14,54 +14,62 @@ import (
 func TestPreset(t *testing.T) {
 	t.Parallel()
 
-	// Byte Values
-	bvs := make(map[string][]byte)
+	for _, version := range []string{"1.6.9", "1.6.23"} {
+		t.Run(version, testPreset(version))
+	}
+}
 
-	// String
-	bvs["a"] = []byte("foo")
-	// Number as byte slice
-	bvsB := make([]byte, 4)
-	binary.LittleEndian.PutUint32(bvsB, 42)
-	bvs["b"] = bvsB
-	// Number as string
-	bvs["c"] = []byte(strconv.FormatInt(42, 10))
+func testPreset(version string) func(t *testing.T) {
+	return func(t *testing.T) {
+		// Byte Values
+		bvs := make(map[string][]byte)
 
-	// Values (string)
-	vs := make(map[string]string)
+		// String
+		bvs["a"] = []byte("foo")
+		// Number as byte slice
+		bvsB := make([]byte, 4)
+		binary.LittleEndian.PutUint32(bvsB, 42)
+		bvs["b"] = bvsB
+		// Number as string
+		bvs["c"] = []byte(strconv.FormatInt(42, 10))
 
-	vs["d"] = "foo"
+		// Values (string)
+		vs := make(map[string]string)
 
-	p := memcached.Preset(
-		memcached.WithByteValues(bvs),
-		memcached.WithValues(vs),
-		memcached.WithVersion("1.6.9"),
-	)
-	container, err := gnomock.Start(p)
+		vs["d"] = "foo"
 
-	defer func() { require.NoError(t, gnomock.Stop(container)) }()
+		p := memcached.Preset(
+			memcached.WithByteValues(bvs),
+			memcached.WithValues(vs),
+			memcached.WithVersion(version),
+		)
+		container, err := gnomock.Start(p)
 
-	require.NoError(t, err)
+		defer func() { require.NoError(t, gnomock.Stop(container)) }()
 
-	addr := container.DefaultAddress()
-	client := memcachedclient.New(addr)
+		require.NoError(t, err)
 
-	itemA, err := client.Get("a")
-	require.NoError(t, err)
-	require.Equal(t, "foo", string(itemA.Value))
+		addr := container.DefaultAddress()
+		client := memcachedclient.New(addr)
 
-	itemB, err := client.Get("b")
-	require.NoError(t, err)
-	require.Equal(t, 42, int(binary.LittleEndian.Uint32(itemB.Value)))
+		itemA, err := client.Get("a")
+		require.NoError(t, err)
+		require.Equal(t, "foo", string(itemA.Value))
 
-	itemC, err := client.Get("c")
-	require.NoError(t, err)
-	valueC, err := strconv.ParseInt(string(itemC.Value), 10, 32)
-	require.NoError(t, err)
-	require.Equal(t, 42, int(valueC))
+		itemB, err := client.Get("b")
+		require.NoError(t, err)
+		require.Equal(t, 42, int(binary.LittleEndian.Uint32(itemB.Value)))
 
-	itemD, err := client.Get("d")
-	require.NoError(t, err)
-	require.Equal(t, "foo", string(itemD.Value))
+		itemC, err := client.Get("c")
+		require.NoError(t, err)
+		valueC, err := strconv.ParseInt(string(itemC.Value), 10, 32)
+		require.NoError(t, err)
+		require.Equal(t, 42, int(valueC))
+
+		itemD, err := client.Get("d")
+		require.NoError(t, err)
+		require.Equal(t, "foo", string(itemD.Value))
+	}
 }
 
 func TestPreset_withDefaults(t *testing.T) {

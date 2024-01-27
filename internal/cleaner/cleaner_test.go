@@ -32,7 +32,7 @@ func TestCleaner(t *testing.T) {
 		gnomock.WithHealthCheck(func(ctx context.Context, c *gnomock.Container) error {
 			return health.HTTPGet(ctx, c.DefaultAddress())
 		}),
-		gnomock.WithInit(func(ctx context.Context, c *gnomock.Container) error {
+		gnomock.WithInit(func(_ context.Context, c *gnomock.Container) error {
 			return cleaner.Notify(rootCtx, c.DefaultAddress(), targetContainer.ID)
 		}),
 	)

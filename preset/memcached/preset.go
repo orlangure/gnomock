@@ -57,7 +57,7 @@ func (p *P) Options() []gnomock.Option {
 	}
 
 	if p.ByteValues != nil || p.Values != nil {
-		initf := func(ctx context.Context, c *gnomock.Container) error {
+		initf := func(_ context.Context, c *gnomock.Container) error {
 			addr := c.Address(gnomock.DefaultPort)
 			client := memcache.New(addr)
 

@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"testing"
+	"time"
 
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/credentials"
@@ -20,7 +21,7 @@ import (
 func TestPreset_s3(t *testing.T) {
 	t.Parallel()
 
-	for _, version := range []string{"0.12.2", "0.13.1", "0.14.0"} {
+	for _, version := range []string{"0.12.2", "0.13.1", "0.14.0", "2.3.0", "3.1.0"} {
 		t.Run(version, testS3(version))
 	}
 }
@@ -31,7 +32,7 @@ func testS3(version string) func(*testing.T) {
 			localstack.WithServices(localstack.S3),
 			localstack.WithVersion(version),
 		)
-		c, err := gnomock.Start(p)
+		c, err := gnomock.Start(p, gnomock.WithTimeout(time.Minute*10))
 
 		defer func() { require.NoError(t, gnomock.Stop(c)) }()
 
@@ -82,7 +83,7 @@ func TestPreset_wrongS3Path(t *testing.T) {
 		localstack.WithServices(localstack.S3),
 		localstack.WithS3Files("./invalid"),
 	)
-	c, err := gnomock.Start(p)
+	c, err := gnomock.Start(p, gnomock.WithTimeout(time.Minute*10))
 	require.Error(t, err)
 	require.Contains(t, err.Error(), "can't read s3 initial files")
 	require.NoError(t, gnomock.Stop(c))
@@ -93,9 +94,9 @@ func TestPreset_sqs_sns(t *testing.T) {
 
 	p := localstack.Preset(
 		localstack.WithServices(localstack.SNS, localstack.SQS),
-		localstack.WithVersion("0.11.0"),
+		localstack.WithVersion("3.1.0"),
 	)
-	c, err := gnomock.Start(p)
+	c, err := gnomock.Start(p, gnomock.WithTimeout(time.Minute*10))
 
 	defer func() { require.NoError(t, gnomock.Stop(c)) }()
 
@@ -118,6 +119,13 @@ func TestPreset_sqs_sns(t *testing.T) {
 	})
 	require.NoError(t, err)
 
+	attrs, err := sqsService.GetQueueAttributes(&sqs.GetQueueAttributesInput{
+		QueueUrl:       aws.String("my_queue"),
+		AttributeNames: []*string{aws.String("QueueArn")},
+	})
+	require.NoError(t, err)
+	require.Len(t, attrs.Attributes, 1)
+
 	_, err = snsService.CreateTopic(&sns.CreateTopicInput{
 		Name: aws.String("my_topic"),
 	})
@@ -125,9 +133,10 @@ func TestPreset_sqs_sns(t *testing.T) {
 
 	queues, err := sqsService.ListQueues(&sqs.ListQueuesInput{})
 	require.NoError(t, err)
-	require.Equal(t, 1, len(queues.QueueUrls))
+	require.Len(t, queues.QueueUrls, 1)
 
 	queueURL := queues.QueueUrls[0]
+	queueARN := attrs.Attributes["QueueArn"]
 
 	topics, err := snsService.ListTopics(&sns.ListTopicsInput{})
 	require.NoError(t, err)
@@ -137,7 +146,7 @@ func TestPreset_sqs_sns(t *testing.T) {
 
 	_, err = snsService.Subscribe(&sns.SubscribeInput{
 		Protocol: aws.String("sqs"),
-		Endpoint: queueURL,
+		Endpoint: queueARN,
 		TopicArn: topic.TopicArn,
 	})
 	require.NoError(t, err)
@@ -149,7 +158,8 @@ func TestPreset_sqs_sns(t *testing.T) {
 	require.NoError(t, err)
 
 	messages, err := sqsService.ReceiveMessage(&sqs.ReceiveMessageInput{
-		QueueUrl: queueURL,
+		QueueUrl:        queueURL,
+		WaitTimeSeconds: aws.Int64(1),
 	})
 	require.NoError(t, err)
 	require.Equal(t, 1, len(messages.Messages))
