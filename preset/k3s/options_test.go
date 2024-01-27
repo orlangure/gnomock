@@ -57,8 +57,8 @@ func TestWithVersion(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.inVersion, func(t *testing.T) {
 			p := k3s.Preset(k3s.WithVersion(tt.inVersion))
-
 			assert.IsType(t, &k3s.P{}, p)
+
 			if k3sp, ok := p.(*k3s.P); ok {
 				assert.Equal(t, tt.expectedSetVersion, k3sp.Version)
 			}

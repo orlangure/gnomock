@@ -104,7 +104,7 @@ func (p *P) healthcheck(_ context.Context, c *gnomock.Container) error {
 }
 
 func (p *P) initf() gnomock.InitFunc {
-	return func(ctx context.Context, c *gnomock.Container) error {
+	return func(_ context.Context, c *gnomock.Container) error {
 		addr := c.Address(gnomock.DefaultPort)
 
 		db, err := p.connect(addr)

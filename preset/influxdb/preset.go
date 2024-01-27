@@ -17,7 +17,7 @@ import (
 )
 
 const (
-	defaultVersion   = "2.0.4-alpine"
+	defaultVersion   = "2.7.6-alpine"
 	defaultPort      = 8086
 	defaultUsername  = "gnomock"
 	defaultPassword  = "gnomock-password"

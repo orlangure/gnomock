@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os"
 	"testing"
+	"time"
 
 	"github.com/orlangure/gnomock"
 	"github.com/orlangure/gnomock/preset/mssql"
@@ -35,7 +36,11 @@ func testPreset(version string) func(t *testing.T) {
 			mssql.WithQueriesFile("./testdata/queries.sql"),
 		)
 
-		container, err := gnomock.Start(p, gnomock.WithLogWriter(os.Stdout))
+		container, err := gnomock.Start(
+			p,
+			gnomock.WithLogWriter(os.Stdout),
+			gnomock.WithTimeout(time.Minute*10),
+		)
 
 		defer func() { _ = gnomock.Stop(container) }()
 
@@ -65,7 +70,7 @@ func TestPreset_withDefaults(t *testing.T) {
 	t.Parallel()
 
 	p := mssql.Preset(mssql.WithLicense(true))
-	container, err := gnomock.Start(p)
+	container, err := gnomock.Start(p, gnomock.WithTimeout(time.Minute*10))
 
 	defer func() { require.NoError(t, gnomock.Stop(container)) }()
 

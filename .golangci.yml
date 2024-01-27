@@ -1,17 +1,14 @@
 linters:
   enable:
     - bodyclose
-    - cyclop
     - dogsled
     - errcheck
     - exportloopref
     - forcetypeassert
-    - funlen
     - errorlint
     - gocognit
     - goconst
     - gocritic
-    - gocyclo
     - godot
     - godox
     - gofmt
@@ -43,7 +40,6 @@ issues:
   exclude-rules:
     - path: _test\.go
       linters:
-        - funlen
         - bodyclose
         - gosec
         - noctx

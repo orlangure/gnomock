@@ -54,6 +54,7 @@ func testBlobStorage(version string) func(*testing.T) {
 			resp, err := pager.NextPage(context.Background())
 			require.NoError(t, err)
 			require.Equal(t, 0, len(resp.Segment.BlobItems))
+
 			pages++
 		}
 		require.Equal(t, 1, pages)
@@ -130,6 +131,7 @@ func ExamplePreset() {
 	for pager.More() {
 		resp, _ := pager.NextPage(context.Background())
 		fmt.Println("keys before:", len(resp.Segment.BlobItems))
+
 		pages++
 	}
 	fmt.Println("pages before:", pages)
@@ -148,6 +150,7 @@ func ExamplePreset() {
 		for _, v := range resp.Segment.BlobItems {
 			fmt.Println("filename:", *v.Name)
 		}
+
 		pages++
 	}
 	fmt.Println("pages after:", 1)

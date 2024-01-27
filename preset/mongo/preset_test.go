@@ -17,7 +17,7 @@ import (
 func TestPreset(t *testing.T) {
 	t.Parallel()
 
-	for _, version := range []string{"4.4", "3.6.21"} {
+	for _, version := range []string{"4.4", "3.6.21", "5.0"} {
 		t.Run(version, testPreset(version))
 	}
 }

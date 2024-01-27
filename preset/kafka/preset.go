@@ -25,7 +25,7 @@ const (
 )
 
 const (
-	defaultVersion     = "3.3.1-L0"
+	defaultVersion     = "3.6.1-L0"
 	brokerPort         = 49092
 	zookeeperPort      = 2181
 	webPort            = 3030

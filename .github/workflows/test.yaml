@@ -18,7 +18,7 @@ jobs:
       - name: Get dependencies
         run: go get -v -t -d ./...
       - name: Get golangci-lint
-        run: curl -sfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh| sh -s -- -b $(go env GOPATH)/bin v1.51.2
+        run: curl -sfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh| sh -s -- -b $(go env GOPATH)/bin v1.57.2
       - name: Lint
         run: $(go env GOPATH)/bin/golangci-lint run --timeout 10m0s ./...
 
@@ -495,7 +495,7 @@ jobs:
         run: |
           cat preset-cover.txt server-cover.txt > coverage.txt
           bash <(curl -s https://codecov.io/bash)
-          
+
   test-vault:
     name: "[preset] vault"
 

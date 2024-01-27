@@ -9,7 +9,8 @@ import (
 
 func TestHealthCheckAddress(t *testing.T) {
 	legacyPath := "http://127.0.0.1:33333/health"
-	newPath := "http://127.0.0.1:44444/health"
+	notSoLegacyPath := "http://127.0.0.1:44444/health"
+	newPath := "http://127.0.0.1:44444/_localstack/health"
 	tests := []struct {
 		version  string
 		expected string
@@ -28,7 +29,7 @@ func TestHealthCheckAddress(t *testing.T) {
 		},
 		{
 			version:  "0.12.9",
-			expected: newPath,
+			expected: notSoLegacyPath,
 		},
 		{
 			version:  "1.10.0",
@@ -36,7 +37,7 @@ func TestHealthCheckAddress(t *testing.T) {
 		},
 		{
 			version:  "0.12.0",
-			expected: newPath,
+			expected: notSoLegacyPath,
 		},
 		{
 			version:  "0.10.4",
@@ -44,11 +45,11 @@ func TestHealthCheckAddress(t *testing.T) {
 		},
 		{
 			version:  "0.11.3",
-			expected: newPath,
+			expected: notSoLegacyPath,
 		},
 		{
 			version:  "0.11.4",
-			expected: newPath,
+			expected: notSoLegacyPath,
 		},
 		{
 			version:  "foo.11.4",
@@ -60,6 +61,18 @@ func TestHealthCheckAddress(t *testing.T) {
 		},
 		{
 			version:  "0.11.foo",
+			expected: newPath,
+		},
+		{
+			version:  "1.2.0",
+			expected: notSoLegacyPath,
+		},
+		{
+			version:  "3.0.0",
+			expected: newPath,
+		},
+		{
+			version:  defaultVersion,
 			expected: newPath,
 		},
 	}

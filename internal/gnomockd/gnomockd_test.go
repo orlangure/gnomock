@@ -109,6 +109,7 @@ func TestGnomockd(t *testing.T) {
 		h.ServeHTTP(w, r)
 
 		res := w.Result()
+
 		t.Cleanup(func() { require.NoError(t, res.Body.Close()) })
 		require.Equal(t, http.StatusOK, res.StatusCode)
 

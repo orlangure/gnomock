@@ -13,45 +13,55 @@ import (
 func TestPreset(t *testing.T) {
 	t.Parallel()
 
-	queries := `
+	for _, version := range []string{"10.5.8", "11.2.2"} {
+		t.Run(version, testPreset(version))
+	}
+}
+
+func testPreset(version string) func(t *testing.T) {
+	return func(t *testing.T) {
+		t.Parallel()
+
+		queries := `
 		insert into t (a) values (1);
 		insert into t (a) values (2);
 	`
-	query := `insert into t (a) values (3);`
-	p := mariadb.Preset(
-		mariadb.WithUser("Sherlock", "Holmes"),
-		mariadb.WithDatabase("books"),
-		mariadb.WithQueries(queries, query),
-		mariadb.WithQueriesFile("./testdata/queries.sql"),
-		mariadb.WithVersion("10.5.8"),
-	)
+		query := `insert into t (a) values (3);`
+		p := mariadb.Preset(
+			mariadb.WithUser("Sherlock", "Holmes"),
+			mariadb.WithDatabase("books"),
+			mariadb.WithQueries(queries, query),
+			mariadb.WithQueriesFile("./testdata/queries.sql"),
+			mariadb.WithVersion(version),
+		)
 
-	container, err := gnomock.Start(p)
+		container, err := gnomock.Start(p)
 
-	defer func() { _ = gnomock.Stop(container) }()
+		defer func() { _ = gnomock.Stop(container) }()
 
-	require.NoError(t, err)
+		require.NoError(t, err)
 
-	addr := container.DefaultAddress()
-	connStr := fmt.Sprintf(
-		"%s:%s@tcp(%s)/%s",
-		"Sherlock", "Holmes", addr, "books",
-	)
+		addr := container.DefaultAddress()
+		connStr := fmt.Sprintf(
+			"%s:%s@tcp(%s)/%s",
+			"Sherlock", "Holmes", addr, "books",
+		)
 
-	db, err := sql.Open("mysql", connStr)
-	require.NoError(t, err)
+		db, err := sql.Open("mysql", connStr)
+		require.NoError(t, err)
 
-	var max, avg, min, count float64
+		var max, avg, min, count float64
 
-	rows := db.QueryRow("select max(a), avg(a), min(a), count(a) from t")
+		rows := db.QueryRow("select max(a), avg(a), min(a), count(a) from t")
 
-	err = rows.Scan(&max, &avg, &min, &count)
-	require.NoError(t, err)
+		err = rows.Scan(&max, &avg, &min, &count)
+		require.NoError(t, err)
 
-	require.Equal(t, float64(3), max)
-	require.Equal(t, float64(2), avg)
-	require.Equal(t, float64(1), min)
-	require.Equal(t, float64(3), count)
+		require.Equal(t, float64(3), max)
+		require.Equal(t, float64(2), avg)
+		require.Equal(t, float64(1), min)
+		require.Equal(t, float64(3), count)
+	}
 }
 
 func TestPreset_withDefaults(t *testing.T) {
