@@ -365,6 +365,87 @@ func TestGnomock_withExtraHosts(t *testing.T) {
 	require.NoError(t, gnomock.Stop(container))
 }
 
+func TestGnomock_withNetworkID(t *testing.T) {
+	t.Parallel()
+
+	ctx := context.Background()
+
+	nwID, err := gnomock.StartNetwork(ctx, "test-nw")
+	require.NoError(t, err)
+
+	defer func() { require.NoError(t, gnomock.StopNetwork(ctx, nwID)) }()
+
+	namedPorts := gnomock.NamedPorts{
+		"web80":   gnomock.TCP(testutil.GoodPort80),
+		"web8080": gnomock.TCP(testutil.GoodPort8080),
+	}
+
+	c1, err := gnomock.StartCustom(
+		testutil.TestImage, namedPorts,
+		gnomock.WithContainerName("container1"),
+		gnomock.WithHealthCheckInterval(time.Microsecond*500),
+		gnomock.WithHealthCheck(testutil.Healthcheck),
+		gnomock.WithInit(initf),
+		gnomock.WithContext(context.Background()),
+		gnomock.WithTimeout(time.Minute),
+		gnomock.WithEnv("GNOMOCK_TEST_1=foo"),
+		gnomock.WithEnv("GNOMOCK_TEST_2=bar"),
+		gnomock.WithEnv("GNOMOCK_REQUEST_TARGET=http://container2:80"),
+		gnomock.WithNetworkID(nwID),
+		gnomock.WithRegistryAuth(""),
+	)
+	require.NoError(t, err)
+	require.NotNil(t, c1)
+
+	c2, err := gnomock.StartCustom(
+		testutil.TestImage, namedPorts,
+		gnomock.WithContainerName("container2"),
+		gnomock.WithHealthCheckInterval(time.Microsecond*500),
+		gnomock.WithHealthCheck(testutil.Healthcheck),
+		gnomock.WithInit(initf),
+		gnomock.WithContext(context.Background()),
+		gnomock.WithTimeout(time.Minute),
+		gnomock.WithEnv("GNOMOCK_TEST_1=foo"),
+		gnomock.WithEnv("GNOMOCK_TEST_2=bar"),
+		gnomock.WithEnv("GNOMOCK_REQUEST_TARGET=http://container1:80"),
+		gnomock.WithNetworkID(nwID),
+		gnomock.WithRegistryAuth(""),
+	)
+	require.NoError(t, err)
+	require.NotNil(t, c2)
+
+	t.Run("container1 makes request to container2", func(t *testing.T) {
+		// The /request endpoint only forwards the status code so we expect 200 w/ an empty body.
+		addr := fmt.Sprintf("http://%s/request", c1.Address("web80"))
+		requireResponse(t, addr, "")
+	})
+
+	t.Run("container2 makes request to container1", func(t *testing.T) {
+		// The /request endpoint only forwards the status code so we expect 200 w/ an empty body.
+		addr := fmt.Sprintf("http://%s/request", c2.Address("web80"))
+		requireResponse(t, addr, "")
+	})
+
+	t.Run("add non-existent network", func(t *testing.T) {
+		_, err = gnomock.StartCustom(
+			testutil.TestImage, namedPorts,
+			gnomock.WithContainerName("container3"),
+			gnomock.WithHealthCheckInterval(time.Microsecond*500),
+			gnomock.WithHealthCheck(testutil.Healthcheck),
+			gnomock.WithInit(initf),
+			gnomock.WithContext(context.Background()),
+			gnomock.WithTimeout(time.Minute),
+			gnomock.WithEnv("GNOMOCK_TEST_1=foo"),
+			gnomock.WithEnv("GNOMOCK_TEST_2=bar"),
+			gnomock.WithNetworkID("not-a-real-network-id"),
+			gnomock.WithRegistryAuth(""),
+		)
+		require.ErrorContains(t, err, "network 'not-a-real-network-id' does not exist")
+	})
+
+	require.NoError(t, gnomock.Stop(c1, c2))
+}
+
 func initf(context.Context, *gnomock.Container) error {
 	return nil
 }
