@@ -138,7 +138,7 @@ func (d *docker) startContainer(ctx context.Context, image string, ports NamedPo
 
 	sidecarChan := d.setupContainerCleanup(resp.ID, cfg)
 
-	err = d.client.ContainerStart(ctx, resp.ID, types.ContainerStartOptions{})
+	err = d.client.ContainerStart(ctx, resp.ID, container.StartOptions{})
 	if err != nil {
 		return nil, fmt.Errorf("can't start container %s: %w", resp.ID, err)
 	}
@@ -348,7 +348,7 @@ func (d *docker) createContainer(
 	if len(matches) == 2 {
 		d.log.Infow("duplicate container found, stopping", "container", matches[1])
 
-		err = d.client.ContainerRemove(ctx, matches[1], types.ContainerRemoveOptions{
+		err = d.client.ContainerRemove(ctx, matches[1], container.RemoveOptions{
 			Force: true,
 		})
 		if err != nil {
@@ -371,7 +371,7 @@ func (d *docker) findReusableContainer(
 		return nil, false, fmt.Errorf("container name is required when container reuse is enabled")
 	}
 
-	list, err := d.client.ContainerList(ctx, types.ContainerListOptions{
+	list, err := d.client.ContainerList(ctx, container.ListOptions{
 		Filters: filters.NewArgs(
 			filters.Arg("name", cfg.ContainerName),
 			filters.Arg("ancestor", image),
@@ -422,7 +422,7 @@ func (d *docker) boundNamedPorts(json types.ContainerJSON, namedPorts NamedPorts
 func (d *docker) readLogs(ctx context.Context, id string) (io.ReadCloser, error) {
 	d.log.Info("starting container logs forwarder")
 
-	logsOptions := types.ContainerLogsOptions{
+	logsOptions := container.LogsOptions{
 		ShowStderr: true, ShowStdout: true, Follow: true,
 	}
 
@@ -456,7 +456,7 @@ func (d *docker) removeContainer(ctx context.Context, id string) error {
 	d.lock.Lock()
 	defer d.lock.Unlock()
 
-	err := d.client.ContainerRemove(ctx, id, types.ContainerRemoveOptions{Force: true})
+	err := d.client.ContainerRemove(ctx, id, container.RemoveOptions{Force: true})
 	if err != nil && !client.IsErrNotFound(err) && !isDeletionAlreadyInProgessError(err, id) {
 		return fmt.Errorf("can't remove container %s: %w", id, err)
 	}
