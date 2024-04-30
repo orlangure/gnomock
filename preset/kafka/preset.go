@@ -138,6 +138,20 @@ func (p *P) healthcheck(ctx context.Context, c *gnomock.Container) (err error) {
 		return fmt.Errorf("can't create topic: %w", err)
 	}
 
+	group, err := kafka.NewConsumerGroup(kafka.ConsumerGroupConfig{
+		ID:      "gnomock",
+		Brokers: []string{c.Address(BrokerPort)},
+		Topics:  []string{"gnomock"},
+	})
+	if err != nil {
+		return fmt.Errorf("can't create consumer group: %w", err)
+	}
+	defer group.Close()
+
+	if _, err := group.Next(ctx); err != nil {
+		return fmt.Errorf("can't read next consumer group: %w", err)
+	}
+
 	if p.UseSchemaRegistry {
 		url := "http://" + c.Address(SchemaRegistryPort)
 
