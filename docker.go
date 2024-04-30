@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"net/http"
 	"net/url"
 	"os"
 	"regexp"
@@ -20,6 +21,7 @@ import (
 	"github.com/docker/docker/client"
 	"github.com/docker/docker/errdefs"
 	"github.com/docker/go-connections/nat"
+	"github.com/docker/go-connections/sockets"
 	"github.com/orlangure/gnomock/internal/cleaner"
 	"github.com/orlangure/gnomock/internal/health"
 	"go.uber.org/zap"
@@ -50,10 +52,35 @@ type docker struct {
 	lock sync.Mutex
 }
 
+func dockerHTTPClient() (*http.Client, error) {
+	transport := &http.Transport{
+		DisableKeepAlives: true, // this is added to prevent go routine leakage
+	}
+
+	// docker client magic
+	err := sockets.ConfigureTransport(transport, "unix", dockerSockAddr)
+	if err != nil {
+		return nil, fmt.Errorf("can't configure default docker client: %w", err)
+	}
+
+	return &http.Client{
+		Transport:     transport,
+		CheckRedirect: client.CheckRedirect,
+	}, nil
+}
+
 func (g *g) dockerConnect() (*docker, error) {
 	g.log.Info("connecting to docker engine")
 
-	cli, err := client.NewClientWithOpts(client.FromEnv, client.WithAPIVersionNegotiation())
+	cl, err := dockerHTTPClient()
+	if err != nil {
+		return nil, err
+	}
+
+	cli, err := client.NewClientWithOpts(
+		client.WithHTTPClient(cl),
+		client.FromEnv,
+		client.WithAPIVersionNegotiation())
 	if err != nil {
 		return nil, errors.Join(ErrEnvClient, err)
 	}
