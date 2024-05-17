@@ -153,21 +153,29 @@ func (p *P) healthcheck(ctx context.Context, c *gnomock.Container) (err error) {
 	}
 
 	if p.UseSchemaRegistry {
-		url := "http://" + c.Address(SchemaRegistryPort)
-
-		req, err := http.NewRequestWithContext(ctx, http.MethodGet, url, nil)
-		if err != nil {
-			return fmt.Errorf("invalid request: %w", err)
+		if err := p.healthcheckRegistry(ctx, c); err != nil {
+			return err
 		}
+	}
 
-		res, err := http.DefaultClient.Do(req)
-		if err != nil {
-			return fmt.Errorf("schema registry is not available: %w", err)
-		}
+	return nil
+}
 
-		if err := res.Body.Close(); err != nil {
-			return fmt.Errorf("error closing schema registry response body: %w", err)
-		}
+func (p *P) healthcheckRegistry(ctx context.Context, c *gnomock.Container) error {
+	url := "http://" + c.Address(SchemaRegistryPort)
+
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet, url, nil)
+	if err != nil {
+		return fmt.Errorf("invalid request: %w", err)
+	}
+
+	res, err := http.DefaultClient.Do(req)
+	if err != nil {
+		return fmt.Errorf("schema registry is not available: %w", err)
+	}
+
+	if err := res.Body.Close(); err != nil {
+		return fmt.Errorf("error closing schema registry response body: %w", err)
 	}
 
 	return nil
