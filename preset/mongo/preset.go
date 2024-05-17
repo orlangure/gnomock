@@ -103,6 +103,8 @@ func (p *P) initf(ctx context.Context, c *gnomock.Container) error {
 		return fmt.Errorf("can't create mongo client: %w", err)
 	}
 
+	defer func() { _ = client.Disconnect(ctx) }()
+
 	topLevelDirs, err := os.ReadDir(p.DataPath)
 	if err != nil {
 		return fmt.Errorf("can't read test data path: %w", err)
@@ -195,6 +197,8 @@ func healthcheck(ctx context.Context, c *gnomock.Container) error {
 	if err != nil {
 		return fmt.Errorf("can't create mongo client: %w", err)
 	}
+
+	defer func() { _ = client.Disconnect(ctx) }()
 
 	return client.Ping(ctx, nil)
 }

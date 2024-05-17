@@ -12,7 +12,13 @@ import (
 	"go.mongodb.org/mongo-driver/bson"
 	mongodb "go.mongodb.org/mongo-driver/mongo"
 	mongooptions "go.mongodb.org/mongo-driver/mongo/options"
+
+	"go.uber.org/goleak"
 )
+
+func TestMain(m *testing.M) {
+	goleak.VerifyTestMain(m)
+}
 
 func TestPreset(t *testing.T) {
 	t.Parallel()
@@ -55,6 +61,8 @@ func testPreset(version string) func(t *testing.T) {
 		count, err = client.Database("db2").Collection("countries").CountDocuments(ctx, bson.D{})
 		require.NoError(t, err)
 		require.Equal(t, int64(3), count)
+
+		require.NoError(t, client.Disconnect(ctx))
 	}
 }
 

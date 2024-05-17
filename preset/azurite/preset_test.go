@@ -8,9 +8,14 @@ import (
 	"github.com/Azure/azure-sdk-for-go/sdk/storage/azblob"
 	"github.com/orlangure/gnomock/preset/azurite"
 	"github.com/stretchr/testify/require"
+	"go.uber.org/goleak"
 
 	"github.com/orlangure/gnomock"
 )
+
+func TestMain(m *testing.M) {
+	goleak.VerifyTestMain(m)
+}
 
 func TestPreset_Blobstorage(t *testing.T) {
 	t.Parallel()

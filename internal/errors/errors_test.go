@@ -8,7 +8,13 @@ import (
 	"github.com/orlangure/gnomock"
 	"github.com/orlangure/gnomock/internal/errors"
 	"github.com/stretchr/testify/require"
+
+	"go.uber.org/goleak"
 )
+
+func TestMain(m *testing.M) {
+	goleak.VerifyTestMain(m)
+}
 
 func TestPresetNotFoundError(t *testing.T) {
 	err := errors.NewPresetNotFoundError("invalid")

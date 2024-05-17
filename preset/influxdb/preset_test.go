@@ -10,7 +10,13 @@ import (
 	"github.com/orlangure/gnomock"
 	"github.com/orlangure/gnomock/preset/influxdb"
 	"github.com/stretchr/testify/require"
+
+	"go.uber.org/goleak"
 )
+
+func TestMain(m *testing.M) {
+	goleak.VerifyTestMain(m)
+}
 
 func TestPreset(t *testing.T) {
 	for _, version := range []string{"alpine"} {
@@ -96,5 +102,6 @@ func testPreset(version string, useDefaults bool) func(t *testing.T) {
 		}
 
 		require.Contains(t, orgNames, org)
+		client.Close()
 	}
 }

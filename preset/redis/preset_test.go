@@ -7,7 +7,13 @@ import (
 	"github.com/orlangure/gnomock"
 	"github.com/orlangure/gnomock/preset/redis"
 	"github.com/stretchr/testify/require"
+
+	"go.uber.org/goleak"
 )
+
+func TestMain(m *testing.M) {
+	goleak.VerifyTestMain(m)
+}
 
 func TestPreset(t *testing.T) {
 	t.Parallel()
@@ -52,6 +58,8 @@ func testPreset(version string) func(t *testing.T) {
 
 		require.NoError(t, client.Get("c").Scan(&flag))
 		require.True(t, flag)
+
+		require.NoError(t, client.Close())
 	}
 }
 

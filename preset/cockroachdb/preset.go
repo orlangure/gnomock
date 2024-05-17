@@ -87,6 +87,10 @@ func (p *P) setDefaults() {
 func healthcheck(_ context.Context, c *gnomock.Container) error {
 	db, err := connect(c, "")
 	if err != nil {
+		if db != nil {
+			_ = db.Close()
+		}
+
 		return err
 	}
 
@@ -108,6 +112,7 @@ func (p *P) initf() gnomock.InitFunc {
 
 		_, err = db.Exec("create database " + p.DB)
 		if err != nil {
+			_ = db.Close()
 			return err
 		}
 

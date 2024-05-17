@@ -114,6 +114,8 @@ func newContainer(g *g, image string, ports NamedPorts, config *Options) (c *Con
 		return nil, fmt.Errorf("can't create docker client: %w", err)
 	}
 
+	defer func() { _ = cli.stopClient() }()
+
 	c, err = cli.startContainer(ctx, image, ports, config)
 	if err != nil {
 		return nil, fmt.Errorf("can't start container: %w", err)
@@ -230,6 +232,8 @@ func (g *g) stop(c *Container) error {
 		return fmt.Errorf("can't create docker client: %w", err)
 	}
 
+	defer func() { _ = cli.stopClient() }()
+
 	id, sidecar := parseID(c.ID)
 	if sidecar != "" {
 		go func() {
@@ -237,6 +241,7 @@ func (g *g) stop(c *Container) error {
 			// error in this case won't matter, the container has a self-destruct
 			// timer
 			_ = cli.stopContainer(context.Background(), sidecar)
+			_ = cli.stopClient()
 		}()
 	}
 

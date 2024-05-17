@@ -10,7 +10,13 @@ import (
 	"github.com/orlangure/gnomock/preset/kafka"
 	kafkaclient "github.com/segmentio/kafka-go"
 	"github.com/stretchr/testify/require"
+
+	"go.uber.org/goleak"
 )
+
+func TestMain(m *testing.M) {
+	goleak.VerifyTestMain(m)
+}
 
 func TestPreset(t *testing.T) {
 	versions := []string{"3.3.1-L0", "3.6.1-L0"}

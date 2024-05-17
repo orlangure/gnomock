@@ -91,6 +91,10 @@ func (p *P) healthcheck(_ context.Context, c *gnomock.Container) error {
 
 	db, err := p.connect(addr)
 	if err != nil {
+		if db != nil {
+			_ = db.Close()
+		}
+
 		return err
 	}
 

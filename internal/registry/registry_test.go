@@ -6,7 +6,12 @@ import (
 	"github.com/orlangure/gnomock"
 	"github.com/orlangure/gnomock/internal/registry"
 	"github.com/stretchr/testify/require"
+	"go.uber.org/goleak"
 )
+
+func TestMain(m *testing.M) {
+	goleak.VerifyTestMain(m)
+}
 
 var p gnomock.Preset
 

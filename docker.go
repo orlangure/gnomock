@@ -137,15 +137,17 @@ func (d *docker) startContainer(ctx context.Context, image string, ports NamedPo
 		return nil, fmt.Errorf("can't prepare container: %w", err)
 	}
 
-	sidecarChan := d.setupContainerCleanup(resp.ID, cfg)
+	sidecarChan, cleanupCancel := d.setupContainerCleanup(resp.ID, cfg)
 
 	err = d.client.ContainerStart(ctx, resp.ID, container.StartOptions{})
 	if err != nil {
+		cleanupCancel()
 		return nil, fmt.Errorf("can't start container %s: %w", resp.ID, err)
 	}
 
 	container, err := d.waitForContainerNetwork(ctx, resp.ID, ports)
 	if err != nil {
+		cleanupCancel()
 		return nil, fmt.Errorf("container network isn't ready: %w", err)
 	}
 
@@ -158,8 +160,9 @@ func (d *docker) startContainer(ctx context.Context, image string, ports NamedPo
 	return container, nil
 }
 
-func (d *docker) setupContainerCleanup(id string, cfg *Options) chan string {
-	sidecarChan := make(chan string)
+func (d *docker) setupContainerCleanup(id string, cfg *Options) (chan string, context.CancelFunc) {
+	sidecarChan := make(chan string, 1)
+	bctx, bcancel := context.WithCancel(context.Background())
 
 	go func() {
 		defer close(sidecarChan)
@@ -174,9 +177,10 @@ func (d *docker) setupContainerCleanup(id string, cfg *Options) chan string {
 			WithHealthCheck(func(ctx context.Context, c *Container) error {
 				return health.HTTPGet(ctx, c.DefaultAddress())
 			}),
-			WithInit(func(ctx context.Context, c *Container) error {
-				return cleaner.Notify(ctx, c.DefaultAddress(), id)
+			WithInit(func(_ context.Context, c *Container) error {
+				return cleaner.Notify(bctx, c.DefaultAddress(), id)
 			}),
+			WithContext(bctx),
 		}
 		if cfg.UseLocalImagesFirst {
 			opts = append(opts, WithUseLocalImagesFirst())
@@ -190,7 +194,7 @@ func (d *docker) setupContainerCleanup(id string, cfg *Options) chan string {
 		}
 	}()
 
-	return sidecarChan
+	return sidecarChan, bcancel
 }
 
 func (d *docker) prepareContainer(
@@ -451,6 +455,10 @@ func (d *docker) stopContainer(ctx context.Context, id string) error {
 	}
 
 	return nil
+}
+
+func (d *docker) stopClient() error {
+	return d.client.Close()
 }
 
 func (d *docker) removeContainer(ctx context.Context, id string) error {

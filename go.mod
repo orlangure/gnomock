@@ -26,20 +26,18 @@ require (
 	github.com/moby/term v0.0.0-20210619224110-3f7ff695adc6 // indirect
 	github.com/morikuni/aec v1.0.0 // indirect
 	github.com/pkg/errors v0.9.1 // indirect
+	github.com/rabbitmq/amqp091-go v1.9.0
 	github.com/segmentio/kafka-go v0.4.47
 	github.com/stretchr/testify v1.9.0
 	go.mongodb.org/mongo-driver v1.15.0
+	go.uber.org/goleak v1.3.0
 	go.uber.org/multierr v1.10.0 // indirect
 	go.uber.org/zap v1.26.0
+	golang.org/x/mod v0.14.0
 	golang.org/x/sync v0.6.0
 	k8s.io/api v0.29.1
 	k8s.io/apimachinery v0.29.1
 	k8s.io/client-go v0.29.1
-)
-
-require (
-	github.com/rabbitmq/amqp091-go v1.9.0
-	golang.org/x/mod v0.14.0
 )
 
 require (
