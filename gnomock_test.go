@@ -167,6 +167,7 @@ func TestGnomock_withDebugMode(t *testing.T) {
 	containerList, err = testutil.ListContainerByID(cli, container.ID)
 	require.NoError(t, err)
 	require.Len(t, containerList, 0)
+	require.NoError(t, cli.Close())
 }
 
 func TestGnomock_withLogWriter(t *testing.T) {

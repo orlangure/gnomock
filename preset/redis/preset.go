@@ -60,6 +60,8 @@ func (p *P) Options() []gnomock.Option {
 			addr := c.Address(gnomock.DefaultPort)
 			client := redisclient.NewClient(&redisclient.Options{Addr: addr})
 
+			defer func() { _ = client.Close() }()
+
 			for k, v := range p.Values {
 				err := client.Set(k, v, 0).Err()
 				if err != nil {
@@ -85,6 +87,9 @@ func (p *P) setDefaults() {
 func healthcheck(_ context.Context, c *gnomock.Container) error {
 	addr := c.Address(gnomock.DefaultPort)
 	client := redisclient.NewClient(&redisclient.Options{Addr: addr})
+
+	defer func() { _ = client.Close() }()
+
 	_, err := client.Ping().Result()
 
 	return err

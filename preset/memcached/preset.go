@@ -98,5 +98,7 @@ func healthcheck(_ context.Context, c *gnomock.Container) error {
 	addr := c.Address(gnomock.DefaultPort)
 	client := memcache.New(addr)
 
+	defer func() { _ = client.Close() }()
+
 	return client.Ping()
 }

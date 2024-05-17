@@ -144,7 +144,8 @@ func checkHEC(ctx context.Context, c *gnomock.Container) error {
 func insecureClient() http.Client {
 	return http.Client{
 		Transport: &http.Transport{
-			TLSClientConfig: &tls.Config{InsecureSkipVerify: true}, //nolint:gosec
+			TLSClientConfig:   &tls.Config{InsecureSkipVerify: true}, //nolint:gosec
+			DisableKeepAlives: true,
 		},
 	}
 }

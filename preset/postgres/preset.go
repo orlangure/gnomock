@@ -93,6 +93,10 @@ func (p *P) Options() []gnomock.Option {
 func (p *P) healthcheck(_ context.Context, c *gnomock.Container) error {
 	db, err := connect(c, defaultDatabase)
 	if err != nil {
+		if db != nil {
+			_ = db.Close()
+		}
+
 		return err
 	}
 
@@ -113,6 +117,8 @@ func (p *P) initf() gnomock.InitFunc {
 				return err
 			}
 
+			defer func() { _ = db.Close() }()
+
 			_, err = db.Exec("create database " + p.DB)
 			if err != nil {
 				isDuplicateDB := strings.Contains(err.Error(), fmt.Sprintf(`pq: database "%s" already exists`, p.DB))
@@ -120,8 +126,6 @@ func (p *P) initf() gnomock.InitFunc {
 					return err
 				}
 			}
-
-			_ = db.Close()
 		}
 
 		db, err := connect(c, p.DB)

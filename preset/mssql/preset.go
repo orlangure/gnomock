@@ -104,17 +104,20 @@ func (p *P) initf() gnomock.InitFunc {
 			return err
 		}
 
-		defer func() { _ = db.Close() }()
-
 		_, err = db.Exec("create database " + p.DB)
 		if err != nil {
+			_ = db.Close()
 			return fmt.Errorf("can't create database '%s': %w", p.DB, err)
 		}
+
+		_ = db.Close()
 
 		db, err = p.connect(addr, p.DB)
 		if err != nil {
 			return err
 		}
+
+		defer func() { _ = db.Close() }()
 
 		if len(p.QueriesFiles) > 0 {
 			for _, f := range p.QueriesFiles {

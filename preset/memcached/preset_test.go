@@ -9,7 +9,13 @@ import (
 	"github.com/orlangure/gnomock"
 	"github.com/orlangure/gnomock/preset/memcached"
 	"github.com/stretchr/testify/require"
+
+	"go.uber.org/goleak"
 )
+
+func TestMain(m *testing.M) {
+	goleak.VerifyTestMain(m)
+}
 
 func TestPreset(t *testing.T) {
 	t.Parallel()
@@ -69,6 +75,8 @@ func testPreset(version string) func(t *testing.T) {
 		itemD, err := client.Get("d")
 		require.NoError(t, err)
 		require.Equal(t, "foo", string(itemD.Value))
+
+		require.NoError(t, client.Close())
 	}
 }
 
@@ -85,4 +93,6 @@ func TestPreset_withDefaults(t *testing.T) {
 	addr := container.DefaultAddress()
 	client := memcachedclient.New(addr)
 	require.NoError(t, client.Ping())
+
+	require.NoError(t, client.Close())
 }

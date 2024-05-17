@@ -37,6 +37,8 @@ linters:
     - wsl
 
 issues:
+  include:
+    - EXC0001 # require error check on Close()
   exclude-rules:
     - path: _test\.go
       linters:

@@ -11,7 +11,13 @@ import (
 	"github.com/orlangure/gnomock/internal/health"
 	"github.com/orlangure/gnomock/internal/testutil"
 	"github.com/stretchr/testify/require"
+
+	"go.uber.org/goleak"
 )
+
+func TestMain(m *testing.M) {
+	goleak.VerifyTestMain(m)
+}
 
 func TestCleaner(t *testing.T) {
 	t.Parallel()
@@ -53,6 +59,8 @@ func TestCleaner(t *testing.T) {
 	containerList, err = testutil.ListContainerByID(cli, cleanerContainer.ID)
 	require.NoError(t, err)
 	require.Len(t, containerList, 0)
+
+	require.NoError(t, cli.Close())
 }
 
 func TestCleaner_wrongRequest(t *testing.T) {

@@ -8,7 +8,13 @@ import (
 	"github.com/orlangure/gnomock"
 	"github.com/orlangure/gnomock/preset/postgres"
 	"github.com/stretchr/testify/require"
+
+	"go.uber.org/goleak"
 )
+
+func TestMain(m *testing.M) {
+	goleak.VerifyTestMain(m)
+}
 
 func TestPreset(t *testing.T) {
 	t.Parallel()
@@ -63,6 +69,8 @@ func testPreset(version string) func(t *testing.T) {
 		timezoneRow := db.QueryRow("show timezone")
 		require.NoError(t, timezoneRow.Scan(&timezone))
 		require.Equal(t, "Europe/Paris", timezone)
+
+		require.NoError(t, db.Close())
 	}
 }
 

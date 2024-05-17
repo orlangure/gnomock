@@ -8,9 +8,14 @@ import (
 	"time"
 
 	"github.com/stretchr/testify/require"
+	"go.uber.org/goleak"
 )
 
 const testImage = "docker.io/orlangure/gnomock-test-image"
+
+func TestMain(m *testing.M) {
+	goleak.VerifyTestMain(m)
+}
 
 func TestWaitForContainerNetwork(t *testing.T) {
 	t.Parallel()
@@ -36,6 +41,10 @@ func TestWaitForContainerNetwork(t *testing.T) {
 	d, err := gg.dockerConnect()
 	require.NoError(t, err)
 
+	defer func() {
+		require.NoError(t, d.stopClient())
+	}()
+
 	ctx := context.Background()
 
 	t.Run("fails after context cancellation", func(t *testing.T) {
@@ -57,6 +66,8 @@ func TestWaitForContainerNetwork(t *testing.T) {
 		require.Error(t, err)
 		require.True(t, errors.Is(err, ErrPortNotFound), err.Error())
 	})
+
+	require.NoError(t, Stop(container))
 }
 
 func TestEnvAwareClone(t *testing.T) {

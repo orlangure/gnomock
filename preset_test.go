@@ -34,6 +34,10 @@ func TestPreset_parallel(t *testing.T) {
 		require.NoError(t, health.HTTPGet(ctx, c.Address("web80")))
 		require.NoError(t, health.HTTPGet(ctx, c.Address("web8080")))
 	}
+
+	for _, c := range containers {
+		require.NoError(t, gnomock.Stop(c))
+	}
 }
 
 func TestPreset(t *testing.T) {
@@ -77,6 +81,8 @@ func TestPreset_containerRemainsIfDebug(t *testing.T) {
 	containerList, err := testutil.ListContainerByID(cli, container.ID)
 	require.NoError(t, err)
 	require.Len(t, containerList, 0)
+
+	require.NoError(t, cli.Close())
 }
 
 func TestPreset_duplicateContainerName(t *testing.T) {
@@ -106,6 +112,8 @@ func TestPreset_duplicateContainerName(t *testing.T) {
 	require.NoError(t, err)
 	require.Len(t, containerList, 0)
 	require.NoError(t, gnomock.Stop(newContainer))
+
+	require.NoError(t, cli.Close())
 }
 
 func TestPreset_reusableContainerSucceeds(t *testing.T) {

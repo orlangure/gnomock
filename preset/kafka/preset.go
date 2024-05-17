@@ -146,7 +146,8 @@ func (p *P) healthcheck(ctx context.Context, c *gnomock.Container) (err error) {
 	if err != nil {
 		return fmt.Errorf("can't create consumer group: %w", err)
 	}
-	defer group.Close()
+
+	defer func() { _ = group.Close() }()
 
 	if _, err := group.Next(ctx); err != nil {
 		return fmt.Errorf("can't read next consumer group: %w", err)
