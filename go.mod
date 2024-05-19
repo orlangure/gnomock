@@ -28,7 +28,7 @@ require (
 	github.com/pkg/errors v0.9.1 // indirect
 	github.com/segmentio/kafka-go v0.4.47
 	github.com/stretchr/testify v1.9.0
-	go.mongodb.org/mongo-driver v1.13.1
+	go.mongodb.org/mongo-driver v1.15.0
 	go.uber.org/multierr v1.10.0 // indirect
 	go.uber.org/zap v1.26.0
 	golang.org/x/sync v0.6.0
