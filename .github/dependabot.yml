@@ -12,5 +12,3 @@ updates:
     schedule:
       interval: "daily"
       time: "09:00"
-    assignees:
-      - "orlangure"
