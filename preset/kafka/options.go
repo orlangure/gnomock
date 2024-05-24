@@ -13,9 +13,19 @@ func WithVersion(version string) Option {
 
 // WithTopics makes sure that the provided topics are available when Kafka is
 // up and running.
+// Both topics from WithTopics and WithTopicConfigs will be added to Kafka.
 func WithTopics(topics ...string) Option {
 	return func(o *P) {
 		o.Topics = append(o.Topics, topics...)
+	}
+}
+
+// WithTopicConfigs makes sure that the provided topics with the given configs are available when Kafka is
+// up and running. Unlike WithTopics, this allows to also set partition count.
+// Both topics from WithTopics and WithTopicConfigs will be added to Kafka.
+func WithTopicConfigs(topics ...TopicConfig) Option {
+	return func(o *P) {
+		o.TopicConfigs = append(o.TopicConfigs, topics...)
 	}
 }
 

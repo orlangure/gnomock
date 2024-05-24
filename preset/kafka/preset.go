@@ -63,6 +63,11 @@ func Preset(opts ...Option) gnomock.Preset {
 	return p
 }
 
+type TopicConfig struct {
+	Topic         string
+	NumPartitions int
+}
+
 // P is a Gnomock Preset implementation of Kafka.
 type P struct {
 	Version           string    `json:"version"`
@@ -70,6 +75,8 @@ type P struct {
 	Messages          []Message `json:"messages"`
 	MessagesFiles     []string  `json:"messages_files"`
 	UseSchemaRegistry bool      `json:"use_schema_registry"`
+
+	TopicConfigs []TopicConfig `json:"topic_configs"`
 }
 
 // Image returns an image that should be pulled to create this container.
@@ -106,7 +113,7 @@ func (p *P) Options() []gnomock.Option {
 		gnomock.WithEnv("SAMPLEDATA=0"),
 	}
 
-	if len(p.Topics) > 0 || len(p.Messages) > 0 {
+	if len(p.Topics) > 0 || len(p.TopicConfigs) > 0 || len(p.Messages) > 0 {
 		opts = append(opts, gnomock.WithInit(p.initf))
 	}
 
@@ -226,13 +233,21 @@ func (p *P) ingestMessageFiles(ctx context.Context, c *gnomock.Container, conn *
 		p.Topics = append(p.Topics, topic)
 	}
 
-	topics := make([]kafka.TopicConfig, 0, len(p.Topics))
+	topics := make([]kafka.TopicConfig, 0, len(p.Topics)+len(p.TopicConfigs))
 
 	for _, topic := range p.Topics {
 		topics = append(topics, kafka.TopicConfig{
 			Topic:             topic,
 			ReplicationFactor: 1,
 			NumPartitions:     1,
+		})
+	}
+
+	for _, topic := range p.TopicConfigs {
+		topics = append(topics, kafka.TopicConfig{
+			Topic:             topic.Topic,
+			ReplicationFactor: 1, // cannot set more; cluster has just 1 node
+			NumPartitions:     topic.NumPartitions,
 		})
 	}
 

@@ -44,7 +44,11 @@ func testPreset(version string) func(t *testing.T) {
 		}
 
 		p := kafka.Preset(
-			kafka.WithTopics("topic-1", "topic-2"),
+			kafka.WithTopics("topic-1"),
+			kafka.WithTopicConfigs(kafka.TopicConfig{
+				Topic:         "topic-2",
+				NumPartitions: 3,
+			}),
 			kafka.WithMessages(messages...),
 			kafka.WithVersion(version),
 			kafka.WithMessagesFile("./testdata/messages.json"),
@@ -88,6 +92,26 @@ func testPreset(version string) func(t *testing.T) {
 
 		c, err := kafkaclient.Dial("tcp", container.Address(kafka.BrokerPort))
 		require.NoError(t, err)
+
+		// Test that topic-1 exists, and topic-2 has all 3 partitions
+		topicReader := kafkaclient.NewReader(kafkaclient.ReaderConfig{
+			Brokers: []string{container.Address(kafka.BrokerPort)},
+			Topic:   "topic-1",
+		})
+		_, err = topicReader.ReadLag(ctx)
+		require.NoError(t, err)
+		require.NoError(t, topicReader.Close())
+
+		for i := 0; i < 3; i++ {
+			topicReader := kafkaclient.NewReader(kafkaclient.ReaderConfig{
+				Brokers:   []string{container.Address(kafka.BrokerPort)},
+				Topic:     "topic-2",
+				Partition: i,
+			})
+			_, err = topicReader.ReadLag(ctx)
+			require.NoError(t, err)
+			require.NoError(t, topicReader.Close())
+		}
 
 		require.NoError(t, c.DeleteTopics("topic-1", "topic-2"))
 		require.Error(t, c.DeleteTopics("unknown-topic"))
