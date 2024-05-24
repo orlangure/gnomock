@@ -33,7 +33,7 @@ require (
 	go.uber.org/goleak v1.3.0
 	go.uber.org/multierr v1.10.0 // indirect
 	go.uber.org/zap v1.27.0
-	golang.org/x/mod v0.14.0
+	golang.org/x/mod v0.17.0
 	golang.org/x/sync v0.6.0
 	k8s.io/api v0.29.1
 	k8s.io/apimachinery v0.29.1
