@@ -18,6 +18,7 @@ import (
 	"github.com/docker/docker/api/types/filters"
 	dockerimage "github.com/docker/docker/api/types/image"
 	"github.com/docker/docker/api/types/mount"
+	"github.com/docker/docker/api/types/network"
 	"github.com/docker/docker/client"
 	"github.com/docker/docker/errdefs"
 	"github.com/docker/go-connections/nat"
@@ -115,6 +116,19 @@ func (d *docker) pullImage(ctx context.Context, image string, cfg *Options) erro
 	d.log.Info("image pulled")
 
 	return nil
+}
+
+func (d *docker) startNetwork(ctx context.Context, name string) (string, error) {
+	resp, err := d.client.NetworkCreate(ctx, name, types.NetworkCreate{})
+	if err != nil {
+		return "", fmt.Errorf("can't create network: %w", err)
+	}
+
+	return resp.ID, nil
+}
+
+func (d *docker) stopNetwork(ctx context.Context, nwID string) error {
+	return d.client.NetworkRemove(ctx, nwID)
 }
 
 func (d *docker) startContainer(ctx context.Context, image string, ports NamedPorts, cfg *Options) (*Container, error) {
@@ -344,7 +358,12 @@ func (d *docker) createContainer(
 		ExtraHosts:   cfg.ExtraHosts,
 	}
 
-	resp, err := d.client.ContainerCreate(ctx, containerConfig, hostConfig, nil, nil, cfg.ContainerName)
+	nwConfig, err := d.findNetworkingConfig(ctx, cfg)
+	if err != nil {
+		return nil, fmt.Errorf("can't find network: %w", err)
+	}
+
+	resp, err := d.client.ContainerCreate(ctx, containerConfig, hostConfig, nwConfig, nil, cfg.ContainerName)
 	if err == nil {
 		return &resp, nil
 	}
@@ -364,6 +383,35 @@ func (d *docker) createContainer(
 	}
 
 	return &resp, err
+}
+
+// findNetworkingConfig finds the network associated with the network ID and
+// builds a NetworkingConfig with it if a network ID is provided.
+func (d *docker) findNetworkingConfig(ctx context.Context, cfg *Options) (*network.NetworkingConfig, error) {
+	if cfg.NetworkID == "" {
+		return nil, nil
+	}
+
+	nws, err := d.client.NetworkList(ctx, types.NetworkListOptions{})
+	if err != nil {
+		return nil, fmt.Errorf("can't list networks: %w", err)
+	}
+
+	for _, nw := range nws {
+		if cfg.NetworkID == nw.ID {
+			nwConfig := &network.NetworkingConfig{
+				EndpointsConfig: map[string]*network.EndpointSettings{
+					nw.Name: {
+						NetworkID: nw.ID,
+					},
+				},
+			}
+
+			return nwConfig, nil
+		}
+	}
+
+	return nil, fmt.Errorf("network '%s' does not exist", cfg.NetworkID)
 }
 
 func (d *docker) findReusableContainer(

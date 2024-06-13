@@ -346,3 +346,48 @@ func isHostDockerInternalAvailable() bool {
 
 	return err == nil
 }
+
+// StartNetwork creates a new network. The returned string is the ID of the
+// created network.
+func StartNetwork(ctx context.Context, name string) (string, error) {
+	g, err := newG(false)
+	if err != nil {
+		return "", fmt.Errorf("can't create new gnomock session: %w", err)
+	}
+
+	defer func() { _ = g.log.Sync() }()
+
+	cli, err := g.dockerConnect()
+	if err != nil {
+		return "", fmt.Errorf("can't create docker client: %w", err)
+	}
+
+	return cli.startNetwork(ctx, name)
+}
+
+// StopNetwork removes the networks associated with the provided network IDs.
+func StopNetwork(ctx context.Context, nwIDs ...string) (err error) {
+	g, err := newG(false)
+	if err != nil {
+		return fmt.Errorf("can't create new gnomock session: %w", err)
+	}
+
+	defer func() { _ = g.log.Sync() }()
+
+	cli, err := g.dockerConnect()
+	if err != nil {
+		return fmt.Errorf("can't create docker client: %w", err)
+	}
+
+	var eg errgroup.Group
+
+	for _, n := range nwIDs {
+		nwID := n
+
+		eg.Go(func() error {
+			return cli.stopNetwork(ctx, nwID)
+		})
+	}
+
+	return eg.Wait()
+}

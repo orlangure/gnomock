@@ -233,6 +233,15 @@ func nopInit(context.Context, *Container) error {
 	return nil
 }
 
+// WithNetworkID allows to specify a custom network to attach the container to
+// by providing the network ID of a network that has already been created.
+// See StartNetwork and StopNetwork for more details.
+func WithNetworkID(nwID string) Option {
+	return func(o *Options) {
+		o.NetworkID = nwID
+	}
+}
+
 // Options includes Gnomock startup configuration. Functional options
 // (WithSomething) should be used instead of directly initializing objects of
 // this type whenever possible.
@@ -306,6 +315,9 @@ type Options struct {
 	// Reuse prevents the container from being automatically stopped and enables
 	// its re-use in posterior executions.
 	Reuse bool `json:"reuse"`
+
+	// NetworkID is the ID of a custom network the container should attach to.
+	NetworkID string `json:"networkID"`
 
 	ctx                 context.Context
 	init                InitFunc
