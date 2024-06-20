@@ -2,8 +2,10 @@ package gnomockd_test
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
 	"fmt"
+	"github.com/aws/aws-sdk-go-v2/aws"
 	"io"
 	"net/http"
 	"net/http/httptest"
@@ -11,10 +13,8 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/aws/aws-sdk-go/aws"
-	"github.com/aws/aws-sdk-go/aws/credentials"
-	"github.com/aws/aws-sdk-go/aws/session"
-	"github.com/aws/aws-sdk-go/service/s3"
+	"github.com/aws/aws-sdk-go-v2/config"
+	"github.com/aws/aws-sdk-go-v2/service/s3"
 	"github.com/orlangure/gnomock"
 	"github.com/orlangure/gnomock/internal/gnomockd"
 	"github.com/orlangure/gnomock/preset/localstack"
@@ -47,20 +47,27 @@ func TestLocalstack(t *testing.T) {
 	require.NoError(t, err)
 
 	s3Endpoint := fmt.Sprintf("http://%s/", c.Address(localstack.APIPort))
-	config := &aws.Config{
-		Region:           aws.String("us-east-1"),
-		Endpoint:         aws.String(s3Endpoint),
-		S3ForcePathStyle: aws.Bool(true),
-		Credentials:      credentials.NewStaticCredentials("a", "b", "c"),
-	}
 
-	sess, err := session.NewSession(config)
+	cfg, err := config.LoadDefaultConfig(context.TODO(),
+		config.WithRegion("us-east-1"),
+		//config.WithEC2IMDSEndpoint(s3Endpoint),
+		config.WithCredentialsProvider(aws.CredentialsProviderFunc(func(ctx context.Context) (aws.Credentials, error) {
+			return aws.Credentials{
+				AccessKeyID:     "a",
+				SecretAccessKey: "b",
+				SessionToken:    "c",
+			}, nil
+		},
+		)))
+
 	require.NoError(t, err)
 
-	svc := s3.New(sess)
+	svc := s3.NewFromConfig(cfg, func(o *s3.Options) {
+		o.BaseEndpoint = &s3Endpoint
+	})
 
 	listInput := &s3.ListObjectsV2Input{Bucket: aws.String("some-bucket")}
-	files, err := svc.ListObjectsV2(listInput)
+	files, err := svc.ListObjectsV2(context.TODO(), listInput)
 	require.NoError(t, err)
 	require.Len(t, files.Contents, 100)
 	require.False(t, *files.IsTruncated)
