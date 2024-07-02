@@ -72,7 +72,7 @@ func TestLocalstack(t *testing.T) {
 	require.False(t, *files.IsTruncated)
 
 	for _, f := range files.Contents {
-		require.True(t, strings.HasPrefix(*f.Key, "/file-")) //TODO: Confirm prefix is correct after aws-sdk-go-v2 migration added a leading slash.
+		require.True(t, strings.HasPrefix(*f.Key, "/file-"))
 	}
 
 	bs, err = json.Marshal(c)

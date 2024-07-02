@@ -59,7 +59,7 @@ func TestWithS3Files(t *testing.T) {
 	require.True(t, *files.IsTruncated)
 
 	for _, f := range files.Contents {
-		require.True(t, strings.HasPrefix(*f.Key, "/dir/f-")) //TODO: Confirm prefix is correct after aws-sdk-go-v2 migration added a leading slash.
+		require.True(t, strings.HasPrefix(*f.Key, "/dir/f-"))
 	}
 
 	listInput = &s3.ListObjectsV2Input{
@@ -73,7 +73,7 @@ func TestWithS3Files(t *testing.T) {
 	require.True(t, *files.IsTruncated)
 
 	for _, f := range files.Contents {
-		require.True(t, strings.HasPrefix(*f.Key, "/dir/f-")) //TODO: Confirm prefix is correct after aws-sdk-go-v2 migration added a leading slash.
+		require.True(t, strings.HasPrefix(*f.Key, "/dir/f-"))
 	}
 
 	// list last batch of files, only 10 left
@@ -88,6 +88,6 @@ func TestWithS3Files(t *testing.T) {
 	require.False(t, *files.IsTruncated)
 
 	for _, f := range files.Contents {
-		require.True(t, strings.HasPrefix(*f.Key, "/dir/f-")) //TODO: Confirm prefix is correct after aws-sdk-go-v2 migration added a leading slash.
+		require.True(t, strings.HasPrefix(*f.Key, "/dir/f-"))
 	}
 }
