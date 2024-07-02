@@ -1,15 +1,15 @@
 package localstack
 
 import (
+	"context"
 	"fmt"
+	"github.com/aws/aws-sdk-go-v2/config"
+	"github.com/aws/aws-sdk-go-v2/service/s3"
 	"os"
 	"path"
 	"path/filepath"
 
-	"github.com/aws/aws-sdk-go/aws"
-	"github.com/aws/aws-sdk-go/aws/credentials"
-	"github.com/aws/aws-sdk-go/aws/session"
-	"github.com/aws/aws-sdk-go/service/s3"
+	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/orlangure/gnomock"
 )
 
@@ -36,19 +36,23 @@ func (p *P) initS3(c *gnomock.Container) error {
 	}
 
 	s3Endpoint := fmt.Sprintf("http://%s/", c.Address(APIPort))
-	config := &aws.Config{
-		Region:           aws.String("us-east-1"),
-		Endpoint:         aws.String(s3Endpoint),
-		S3ForcePathStyle: aws.Bool(true),
-		Credentials:      credentials.NewStaticCredentials("a", "b", "c"),
-	}
-
-	sess, err := session.NewSession(config)
+	cfg, err := config.LoadDefaultConfig(context.TODO(),
+		config.WithRegion("us-east-1"),
+		config.WithCredentialsProvider(aws.CredentialsProviderFunc(func(ctx context.Context) (aws.Credentials, error) {
+			return aws.Credentials{
+				AccessKeyID:     "a",
+				SecretAccessKey: "b",
+				SessionToken:    "c",
+			}, nil
+		},
+		)))
 	if err != nil {
-		return fmt.Errorf("can't create s3 session: %w", err)
+		return fmt.Errorf("can't create s3 config: %w", err)
 	}
 
-	svc := s3.New(sess)
+	svc := s3.NewFromConfig(cfg, func(o *s3.Options) {
+		o.BaseEndpoint = &s3Endpoint
+	})
 
 	buckets, err := p.createBuckets(svc)
 	if err != nil {
@@ -63,7 +67,7 @@ func (p *P) initS3(c *gnomock.Container) error {
 	return nil
 }
 
-func (p *P) createBuckets(svc *s3.S3) ([]string, error) {
+func (p *P) createBuckets(svc *s3.Client) ([]string, error) {
 	files, err := os.ReadDir(p.S3Path)
 	if err != nil {
 		return nil, fmt.Errorf("can't read s3 initial files: %w", err)
@@ -90,17 +94,17 @@ func (p *P) createBuckets(svc *s3.S3) ([]string, error) {
 	return buckets, nil
 }
 
-func (p *P) createBucket(svc *s3.S3, bucket string) error {
+func (p *P) createBucket(svc *s3.Client, bucket string) error {
 	input := &s3.CreateBucketInput{Bucket: aws.String(bucket)}
 
-	if _, err := svc.CreateBucket(input); err != nil {
+	if _, err := svc.CreateBucket(context.TODO(), input); err != nil {
 		return fmt.Errorf("can't create bucket '%s': %w", bucket, err)
 	}
 
 	return nil
 }
 
-func (p *P) uploadFiles(svc *s3.S3, buckets []string) error {
+func (p *P) uploadFiles(svc *s3.Client, buckets []string) error {
 	for _, bucket := range buckets {
 		bucket := bucket
 
@@ -131,7 +135,7 @@ func (p *P) uploadFiles(svc *s3.S3, buckets []string) error {
 	return nil
 }
 
-func (p *P) uploadFile(svc *s3.S3, bucket, file string) (err error) {
+func (p *P) uploadFile(svc *s3.Client, bucket, file string) (err error) {
 	inputFile, err := os.Open(file) //nolint:gosec
 	if err != nil {
 		return fmt.Errorf("can't open file '%s': %w", file, err)
@@ -153,7 +157,7 @@ func (p *P) uploadFile(svc *s3.S3, bucket, file string) (err error) {
 		Body:   inputFile,
 	}
 
-	_, err = svc.PutObject(input)
+	_, err = svc.PutObject(context.TODO(), input)
 	if err != nil {
 		return fmt.Errorf("can't upload file '%s' to bucket '%s': %w", file, bucket, err)
 	}
