@@ -119,7 +119,7 @@ func TestPreset_sqs_sns(t *testing.T) {
 
 	sqsService := sqs.New(sqs.Options{
 		BaseEndpoint: &endpoint,
-		Credentials: aws.CredentialsProviderFunc(func(ctx context.Context) (aws.Credentials, error) {
+		Credentials: aws.CredentialsProviderFunc(func(_ context.Context) (aws.Credentials, error) {
 			return aws.Credentials{
 				AccessKeyID:     "a",
 				SecretAccessKey: "b",
@@ -130,7 +130,7 @@ func TestPreset_sqs_sns(t *testing.T) {
 	})
 	snsService := sns.New(sns.Options{
 		BaseEndpoint: &endpoint,
-		Credentials: aws.CredentialsProviderFunc(func(ctx context.Context) (aws.Credentials, error) {
+		Credentials: aws.CredentialsProviderFunc(func(_ context.Context) (aws.Credentials, error) {
 			return aws.Credentials{
 				AccessKeyID:     "a",
 				SecretAccessKey: "b",
