@@ -47,7 +47,6 @@ func (p *P) initS3(c *gnomock.Container) error {
 			}, nil
 		},
 		)))
-
 	if err != nil {
 		return fmt.Errorf("can't create s3 config: %w", err)
 	}
