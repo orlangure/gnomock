@@ -92,6 +92,10 @@ func StartCustom(image string, ports NamedPorts, opts ...Option) (*Container, er
 		ports = config.CustomNamedPorts
 	}
 
+	if config.CustomImage != "" {
+		image = config.CustomImage
+	}
+
 	g.log.Infow("starting", "image", image, "ports", ports)
 	g.log.Infow("using config", "image", image, "ports", ports, "config", config)
 

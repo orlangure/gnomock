@@ -366,6 +366,16 @@ func TestGnomock_withExtraHosts(t *testing.T) {
 	require.NoError(t, gnomock.Stop(container))
 }
 
+func TestGnomock_withCustomImage(t *testing.T) {
+	t.Parallel()
+
+	p := &testutil.TestPreset{Img: "docker.io/orlangure/noimage"}
+	container, err := gnomock.Start(p, gnomock.WithCustomImage(testutil.TestImage))
+	require.NoError(t, err)
+	require.NotNil(t, container)
+	require.NoError(t, gnomock.Stop(container))
+}
+
 func initf(context.Context, *gnomock.Container) error {
 	return nil
 }

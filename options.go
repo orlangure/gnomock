@@ -213,6 +213,14 @@ func WithExtraHosts(hosts []string) Option {
 	}
 }
 
+// WithCustomImage allows to define a custom image name. This option should be used to
+// override the image registry and repository defined by presets.
+func WithCustomImage(image string) Option {
+	return func(o *Options) {
+		o.CustomImage = image
+	}
+}
+
 // HealthcheckFunc defines a function to be used to determine container health.
 // It receives a host and a port, and returns an error if the container is not
 // ready, or nil when the container can be used. One example of HealthcheckFunc
@@ -306,6 +314,14 @@ type Options struct {
 	// Reuse prevents the container from being automatically stopped and enables
 	// its re-use in posterior executions.
 	Reuse bool `json:"reuse"`
+
+	// CustomImage allows to override the name of the image set by the presets
+	// with a custom image name. This option is useful for cases where it is
+	// required to pull the preset image from a custom registry and repository.
+	//
+	// Note that when using this option, you are responsible for verifying the
+	// validity of the provided image registry and repository.
+	CustomImage string `json:"customImage"`
 
 	ctx                 context.Context
 	init                InitFunc
