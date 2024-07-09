@@ -2,17 +2,18 @@ package localstack_test
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
 	"fmt"
 	"testing"
 	"time"
 
-	"github.com/aws/aws-sdk-go/aws"
-	"github.com/aws/aws-sdk-go/aws/credentials"
-	"github.com/aws/aws-sdk-go/aws/session"
-	"github.com/aws/aws-sdk-go/service/s3"
-	"github.com/aws/aws-sdk-go/service/sns"
-	"github.com/aws/aws-sdk-go/service/sqs"
+	"github.com/aws/aws-sdk-go-v2/aws"
+	"github.com/aws/aws-sdk-go-v2/config"
+	"github.com/aws/aws-sdk-go-v2/service/s3"
+	"github.com/aws/aws-sdk-go-v2/service/sns"
+	"github.com/aws/aws-sdk-go-v2/service/sqs"
+	"github.com/aws/aws-sdk-go-v2/service/sqs/types"
 	"github.com/orlangure/gnomock"
 	"github.com/orlangure/gnomock/preset/localstack"
 	"github.com/stretchr/testify/require"
@@ -45,36 +46,42 @@ func testS3(version string) func(*testing.T) {
 		require.NoError(t, err)
 
 		s3Endpoint := fmt.Sprintf("http://%s/", c.Address(localstack.APIPort))
-		config := &aws.Config{
-			Region:           aws.String("us-east-1"),
-			Endpoint:         aws.String(s3Endpoint),
-			S3ForcePathStyle: aws.Bool(true),
-			Credentials:      credentials.NewStaticCredentials("a", "b", "c"),
-		}
-		sess, err := session.NewSession(config)
+		cfg, err := config.LoadDefaultConfig(context.TODO(),
+			config.WithRegion("us-east-1"),
+			config.WithCredentialsProvider(aws.CredentialsProviderFunc(func(_ context.Context) (aws.Credentials, error) {
+				return aws.Credentials{
+					AccessKeyID:     "a",
+					SecretAccessKey: "b",
+					SessionToken:    "c",
+				}, nil
+			},
+			)))
+
 		require.NoError(t, err)
 
-		svc := s3.New(sess)
+		svc := s3.NewFromConfig(cfg, func(o *s3.Options) {
+			o.BaseEndpoint = &s3Endpoint
+		})
 
-		_, err = svc.CreateBucket(&s3.CreateBucketInput{
+		_, err = svc.CreateBucket(context.TODO(), &s3.CreateBucketInput{
 			Bucket: aws.String("foo"),
 		})
 		require.NoError(t, err)
 
-		out, err := svc.ListObjectsV2(&s3.ListObjectsV2Input{
+		out, err := svc.ListObjectsV2(context.TODO(), &s3.ListObjectsV2Input{
 			Bucket: aws.String("foo"),
 		})
 		require.NoError(t, err)
 		require.Empty(t, out.Contents)
 
-		_, err = svc.PutObject(&s3.PutObjectInput{
+		_, err = svc.PutObject(context.TODO(), &s3.PutObjectInput{
 			Body:   bytes.NewReader([]byte("this is a file")),
 			Key:    aws.String("file"),
 			Bucket: aws.String("foo"),
 		})
 		require.NoError(t, err)
 
-		out, err = svc.ListObjectsV2(&s3.ListObjectsV2Input{
+		out, err = svc.ListObjectsV2(context.TODO(), &s3.ListObjectsV2Input{
 			Bucket: aws.String("foo"),
 		})
 		require.NoError(t, err)
@@ -110,62 +117,75 @@ func TestPreset_sqs_sns(t *testing.T) {
 
 	endpoint := fmt.Sprintf("http://%s", c.Address(localstack.APIPort))
 
-	sess, err := session.NewSession(&aws.Config{
-		Region:      aws.String("us-east-1"),
-		Endpoint:    aws.String(endpoint),
-		Credentials: credentials.NewStaticCredentials("a", "b", "c"),
+	sqsService := sqs.New(sqs.Options{
+		BaseEndpoint: &endpoint,
+		Credentials: aws.CredentialsProviderFunc(func(_ context.Context) (aws.Credentials, error) {
+			return aws.Credentials{
+				AccessKeyID:     "a",
+				SecretAccessKey: "b",
+				SessionToken:    "c",
+			}, nil
+		}),
+		Region: "us-east-1",
 	})
-	require.NoError(t, err)
+	snsService := sns.New(sns.Options{
+		BaseEndpoint: &endpoint,
+		Credentials: aws.CredentialsProviderFunc(func(_ context.Context) (aws.Credentials, error) {
+			return aws.Credentials{
+				AccessKeyID:     "a",
+				SecretAccessKey: "b",
+				SessionToken:    "c",
+			}, nil
+		}),
+		Region: "us-east-1",
+	})
 
-	sqsService := sqs.New(sess)
-	snsService := sns.New(sess)
-
-	_, err = sqsService.CreateQueue(&sqs.CreateQueueInput{
+	_, err = sqsService.CreateQueue(context.TODO(), &sqs.CreateQueueInput{
 		QueueName: aws.String("my_queue"),
 	})
 	require.NoError(t, err)
 
-	attrs, err := sqsService.GetQueueAttributes(&sqs.GetQueueAttributesInput{
+	attrs, err := sqsService.GetQueueAttributes(context.TODO(), &sqs.GetQueueAttributesInput{
 		QueueUrl:       aws.String("my_queue"),
-		AttributeNames: []*string{aws.String("QueueArn")},
+		AttributeNames: []types.QueueAttributeName{types.QueueAttributeNameQueueArn},
 	})
 	require.NoError(t, err)
 	require.Len(t, attrs.Attributes, 1)
 
-	_, err = snsService.CreateTopic(&sns.CreateTopicInput{
+	_, err = snsService.CreateTopic(context.TODO(), &sns.CreateTopicInput{
 		Name: aws.String("my_topic"),
 	})
 	require.NoError(t, err)
 
-	queues, err := sqsService.ListQueues(&sqs.ListQueuesInput{})
+	queues, err := sqsService.ListQueues(context.TODO(), &sqs.ListQueuesInput{})
 	require.NoError(t, err)
 	require.Len(t, queues.QueueUrls, 1)
 
 	queueURL := queues.QueueUrls[0]
 	queueARN := attrs.Attributes["QueueArn"]
 
-	topics, err := snsService.ListTopics(&sns.ListTopicsInput{})
+	topics, err := snsService.ListTopics(context.TODO(), &sns.ListTopicsInput{})
 	require.NoError(t, err)
 	require.Equal(t, 1, len(topics.Topics))
 
 	topic := topics.Topics[0]
 
-	_, err = snsService.Subscribe(&sns.SubscribeInput{
+	_, err = snsService.Subscribe(context.TODO(), &sns.SubscribeInput{
 		Protocol: aws.String("sqs"),
-		Endpoint: queueARN,
+		Endpoint: &queueARN,
 		TopicArn: topic.TopicArn,
 	})
 	require.NoError(t, err)
 
-	_, err = snsService.Publish(&sns.PublishInput{
+	_, err = snsService.Publish(context.TODO(), &sns.PublishInput{
 		TopicArn: topic.TopicArn,
 		Message:  aws.String("foobar"),
 	})
 	require.NoError(t, err)
 
-	messages, err := sqsService.ReceiveMessage(&sqs.ReceiveMessageInput{
-		QueueUrl:        queueURL,
-		WaitTimeSeconds: aws.Int64(1),
+	messages, err := sqsService.ReceiveMessage(context.TODO(), &sqs.ReceiveMessageInput{
+		QueueUrl:        &queueURL,
+		WaitTimeSeconds: *aws.Int32(1),
 	})
 	require.NoError(t, err)
 	require.Equal(t, 1, len(messages.Messages))
