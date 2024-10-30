@@ -7,7 +7,7 @@ import (
 	"fmt"
 	"os"
 
-	_ "github.com/denisenkom/go-mssqldb" // mssql driver
+	_ "github.com/microsoft/go-mssqldb" // mssql driver
 	"github.com/orlangure/gnomock"
 	"github.com/orlangure/gnomock/internal/registry"
 )
