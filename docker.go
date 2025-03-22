@@ -316,6 +316,7 @@ func (d *docker) createContainer(
 		Image:        image,
 		ExposedPorts: exposedPorts,
 		Env:          cfg.Env,
+		User:         cfg.User,
 	}
 
 	if len(cfg.Cmd) > 0 {

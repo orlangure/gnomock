@@ -195,7 +195,7 @@ func WithRegistryAuth(auth string) Option {
 	}
 }
 
-// WithContainerReuse disables Gnomock default behaviour of automatic container
+// WithContainerReuse disables Gnomock default behavior of automatic container
 // cleanup and also disables the automatic replacement at startup of an existing
 // container with the same name and image. Effectively this makes Gnomock reuse
 // a container from a previous Gnomock execution.
@@ -218,6 +218,15 @@ func WithExtraHosts(hosts []string) Option {
 func WithCustomImage(image string) Option {
 	return func(o *Options) {
 		o.CustomImage = image
+	}
+}
+
+// WithUser sets the user that the container should run as. It accepts a string
+// value that can be a username/group or UID/GID, in the format accepted by the
+// docker run --user flag (e.g., "1000", "1000:1000", "user:group").
+func WithUser(user string) Option {
+	return func(o *Options) {
+		o.User = user
 	}
 }
 
@@ -322,6 +331,10 @@ type Options struct {
 	// Note that when using this option, you are responsible for verifying the
 	// validity of the provided image registry and repository.
 	CustomImage string `json:"customImage"`
+
+	// User specifies the user:group or UID:GID that the container should run as.
+	// This is equivalent to the --user flag in docker run.
+	User string `json:"user"`
 
 	ctx                 context.Context
 	init                InitFunc

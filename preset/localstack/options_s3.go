@@ -7,10 +7,9 @@ import (
 	"path"
 	"path/filepath"
 
+	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/config"
 	"github.com/aws/aws-sdk-go-v2/service/s3"
-
-	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/orlangure/gnomock"
 )
 
@@ -37,6 +36,7 @@ func (p *P) initS3(c *gnomock.Container) error {
 	}
 
 	s3Endpoint := fmt.Sprintf("http://%s/", c.Address(APIPort))
+
 	cfg, err := config.LoadDefaultConfig(context.TODO(),
 		config.WithRegion("us-east-1"),
 		config.WithCredentialsProvider(aws.CredentialsProviderFunc(func(_ context.Context) (aws.Credentials, error) {
