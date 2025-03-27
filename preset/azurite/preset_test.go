@@ -62,6 +62,7 @@ func testBlobStorage(version string) func(*testing.T) {
 
 			pages++
 		}
+
 		require.Equal(t, 1, pages)
 
 		blobName := "bar"
@@ -139,6 +140,7 @@ func ExamplePreset() {
 
 		pages++
 	}
+
 	fmt.Println("pages before:", pages)
 
 	blobName := "bar"
@@ -158,6 +160,7 @@ func ExamplePreset() {
 
 		pages++
 	}
+
 	fmt.Println("pages after:", 1)
 
 	// Output:
