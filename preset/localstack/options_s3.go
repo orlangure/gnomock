@@ -107,8 +107,6 @@ func (p *P) createBucket(svc *s3.Client, bucket string) error {
 
 func (p *P) uploadFiles(svc *s3.Client, buckets []string) error {
 	for _, bucket := range buckets {
-		bucket := bucket
-
 		err := filepath.Walk(
 			path.Join(p.S3Path, bucket),
 			func(fPath string, file os.FileInfo, err error) error {

@@ -21,7 +21,7 @@ const (
 	ConnectionStringFormat = "DefaultEndpointsProtocol=http;AccountName=%s;AccountKey=%s;BlobEndpoint=http://%s/%s;"
 	AccountName            = "devstoreaccount1"
 	AccountKey             = "Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw=="
-	DefaultVersion         = "3.30.0"
+	DefaultVersion         = "3.33.0"
 )
 
 func init() {

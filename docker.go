@@ -13,7 +13,6 @@ import (
 	"sync"
 	"time"
 
-	"github.com/docker/docker/api/types"
 	"github.com/docker/docker/api/types/container"
 	"github.com/docker/docker/api/types/filters"
 	dockerimage "github.com/docker/docker/api/types/image"
@@ -396,7 +395,7 @@ func (d *docker) findReusableContainer(
 	return container, true, nil
 }
 
-func (d *docker) boundNamedPorts(json types.ContainerJSON, namedPorts NamedPorts) (NamedPorts, error) {
+func (d *docker) boundNamedPorts(json container.InspectResponse, namedPorts NamedPorts) (NamedPorts, error) {
 	boundNamedPorts := make(NamedPorts)
 
 	for containerPort, bindings := range json.NetworkSettings.Ports {

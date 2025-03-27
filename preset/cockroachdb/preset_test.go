@@ -8,7 +8,6 @@ import (
 	"github.com/orlangure/gnomock"
 	"github.com/orlangure/gnomock/preset/cockroachdb"
 	"github.com/stretchr/testify/require"
-
 	"go.uber.org/goleak"
 )
 
@@ -51,14 +50,14 @@ func testPreset(version string) func(t *testing.T) {
 		db, err := sql.Open("postgres", connStr)
 		require.NoError(t, err)
 
-		var max, avg, min, count float64
+		var maximum, avg, minimum, count float64
 
 		rows := db.QueryRow("select max(a), avg(a), min(a), count(a) from t")
-		require.NoError(t, rows.Scan(&max, &avg, &min, &count))
+		require.NoError(t, rows.Scan(&maximum, &avg, &minimum, &count))
 
-		require.Equal(t, float64(3), max)
+		require.Equal(t, float64(3), maximum)
 		require.Equal(t, float64(2), avg)
-		require.Equal(t, float64(1), min)
+		require.Equal(t, float64(1), minimum)
 		require.Equal(t, float64(3), count)
 		require.NoError(t, db.Close())
 	}

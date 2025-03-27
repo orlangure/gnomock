@@ -89,8 +89,6 @@ func (p *P) createContainers(ctx context.Context, azblobClient *azblob.Client, c
 
 func (p *P) uploadFiles(ctx context.Context, azblobClient *azblob.Client, containerNames []string) error {
 	for _, containerName := range containerNames {
-		containerName := containerName
-
 		err := filepath.Walk(
 			path.Join(p.BlobstorePath, containerName),
 			func(fPath string, file os.FileInfo, err error) error {
