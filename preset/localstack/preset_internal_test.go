@@ -92,8 +92,6 @@ func TestHealthCheckAddress(t *testing.T) {
 	}
 
 	for _, test := range tests {
-		test := test
-
 		t.Run(test.version, func(t *testing.T) {
 			p := P{Version: test.version}
 			actual := p.healthCheckAddress(c)

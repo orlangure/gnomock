@@ -3,7 +3,6 @@ linters:
     - bodyclose
     - dogsled
     - errcheck
-    - exportloopref
     - forcetypeassert
     - errorlint
     - gocognit
@@ -35,6 +34,7 @@ linters:
     - unused
     - whitespace
     - wsl
+    - copyloopvar
 
 issues:
   include:

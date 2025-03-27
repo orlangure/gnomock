@@ -56,16 +56,16 @@ func testPreset(version string) func(t *testing.T) {
 		db, err := sql.Open("mysql", connStr)
 		require.NoError(t, err)
 
-		var max, avg, min, count float64
+		var maximum, avg, minimum, count float64
 
 		rows := db.QueryRow("select max(a), avg(a), min(a), count(a) from t")
 
-		err = rows.Scan(&max, &avg, &min, &count)
+		err = rows.Scan(&maximum, &avg, &minimum, &count)
 		require.NoError(t, err)
 
-		require.Equal(t, float64(3), max)
+		require.Equal(t, float64(3), maximum)
 		require.Equal(t, float64(2), avg)
-		require.Equal(t, float64(1), min)
+		require.Equal(t, float64(1), minimum)
 		require.Equal(t, float64(3), count)
 
 		require.NoError(t, db.Close())
