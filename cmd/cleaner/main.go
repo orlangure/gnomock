@@ -36,10 +36,10 @@ func main() {
 		}
 	}()
 
-	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+	http.HandleFunc("/", func(w http.ResponseWriter, _ *http.Request) {
 		w.WriteHeader(http.StatusOK)
 	})
-	http.HandleFunc("/sync/", func(w http.ResponseWriter, r *http.Request) {
+	http.HandleFunc("/sync/", func(_ http.ResponseWriter, r *http.Request) {
 		once.Do(func() { connected <- true })
 
 		id := strings.TrimPrefix(r.URL.Path, "/sync/")
