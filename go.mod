@@ -44,7 +44,7 @@ require (
 	github.com/aws/aws-sdk-go-v2/config v1.29.13
 	github.com/aws/aws-sdk-go-v2/service/s3 v1.79.1
 	github.com/aws/aws-sdk-go-v2/service/sns v1.34.3
-	github.com/aws/aws-sdk-go-v2/service/sqs v1.38.4
+	github.com/aws/aws-sdk-go-v2/service/sqs v1.38.5
 )
 
 require (
