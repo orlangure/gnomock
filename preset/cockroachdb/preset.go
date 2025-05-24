@@ -22,7 +22,7 @@ import (
 )
 
 const (
-	defaultVersion  = "v23.1.20"
+	defaultVersion  = "v25.1.6"
 	defaultPort     = 26257
 	defaultDatabase = "mydb"
 )
