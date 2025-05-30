@@ -13,12 +13,12 @@ import (
 	"sync"
 	"time"
 
+	cerrdefs "github.com/containerd/errdefs"
 	"github.com/docker/docker/api/types/container"
 	"github.com/docker/docker/api/types/filters"
 	dockerimage "github.com/docker/docker/api/types/image"
 	"github.com/docker/docker/api/types/mount"
 	"github.com/docker/docker/client"
-	"github.com/docker/docker/errdefs"
 	"github.com/docker/go-connections/nat"
 	"github.com/orlangure/gnomock/internal/cleaner"
 	"github.com/orlangure/gnomock/internal/health"
@@ -450,7 +450,7 @@ func (d *docker) stopContainer(ctx context.Context, id string) error {
 	err := d.client.ContainerStop(ctx, id, container.StopOptions{
 		Timeout: &stopTimeout,
 	})
-	if err != nil && !client.IsErrNotFound(err) {
+	if err != nil && !cerrdefs.IsNotFound(err) {
 		return fmt.Errorf("can't stop container %s: %w", id, err)
 	}
 
@@ -466,7 +466,7 @@ func (d *docker) removeContainer(ctx context.Context, id string) error {
 	defer d.lock.Unlock()
 
 	err := d.client.ContainerRemove(ctx, id, container.RemoveOptions{Force: true})
-	if err != nil && !client.IsErrNotFound(err) && !isDeletionAlreadyInProgessError(err, id) {
+	if err != nil && !cerrdefs.IsNotFound(err) && !isDeletionAlreadyInProgessError(err, id) {
 		return fmt.Errorf("can't remove container %s: %w", id, err)
 	}
 
@@ -490,12 +490,5 @@ func (d *docker) hostAddr() string {
 }
 
 func isDeletionAlreadyInProgessError(err error, id string) bool {
-	var e errdefs.ErrConflict
-	if errors.As(err, &e) {
-		if err.Error() == fmt.Sprintf("Error response from daemon: removal of container %s is already in progress", id) {
-			return true
-		}
-	}
-
-	return false
+	return err.Error() == fmt.Sprintf("Error response from daemon: removal of container %s is already in progress", id)
 }
