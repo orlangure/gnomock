@@ -172,8 +172,7 @@ jobs:
           command: go test -race -cover -v ./internal/gnomockd -run TestMongo
 
   test-k3s:
-    machine:
-      image: ubuntu-2004:2022.04.2
+    machine: true
     resource_class: large
     steps:
       - setup-for-go-test
