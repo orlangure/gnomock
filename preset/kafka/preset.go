@@ -1,4 +1,8 @@
 // Package kafka provides a Gnomock Preset for Kafka.
+//
+// This preset cannot be used in parallel tests due to Kafka's port binding
+// limitations. See https://github.com/orlangure/gnomock/issues/1038 for more
+// details.
 package kafka
 
 import (

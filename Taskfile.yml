@@ -137,13 +137,21 @@ tasks:
       - docker manifest create --amend orlangure/gnomock-cleaner:latest orlangure/gnomock-cleaner:amd64 orlangure/gnomock-cleaner:arm64
       - docker manifest push orlangure/gnomock-cleaner:latest
 
-        # version manifest
+        # version manifest - remove existing manifest if it exists, then create from specific platform digests
+      - docker manifest rm orlangure/gnomock-cleaner:{{.version}} || true
+      - |
+        AMD64_DIGEST=$(docker manifest inspect orlangure/gnomock-cleaner:amd64 | jq -r '.manifests[] | select(.platform.architecture=="amd64") | .digest')
+        ARM64_DIGEST=$(docker manifest inspect orlangure/gnomock-cleaner:arm64 | jq -r '.manifests[] | select(.platform.architecture=="arm64") | .digest')
+        docker manifest create orlangure/gnomock-cleaner:{{.version}} \
+          orlangure/gnomock-cleaner@$AMD64_DIGEST \
+          orlangure/gnomock-cleaner@$ARM64_DIGEST
+      - docker manifest push orlangure/gnomock-cleaner:{{.version}}
+      
+        # create and push versioned platform-specific tags for reference
       - docker tag orlangure/gnomock-cleaner:amd64 orlangure/gnomock-cleaner:{{.version}}-amd64
       - docker tag orlangure/gnomock-cleaner:arm64 orlangure/gnomock-cleaner:{{.version}}-arm64
       - docker push orlangure/gnomock-cleaner:{{.version}}-amd64
       - docker push orlangure/gnomock-cleaner:{{.version}}-arm64
-      - docker manifest create --amend orlangure/gnomock-cleaner:{{.version}} orlangure/gnomock-cleaner:{{.version}}-amd64 orlangure/gnomock-cleaner:{{.version}}-arm64
-      - docker manifest push orlangure/gnomock-cleaner:{{.version}}
     preconditions:
       - sh: test $version
         msg: version is not set
@@ -164,13 +172,21 @@ tasks:
       - docker manifest create --amend orlangure/gnomock:latest orlangure/gnomock:amd64 orlangure/gnomock:arm64
       - docker manifest push orlangure/gnomock:latest
 
-        # version manifest
+        # version manifest - remove existing manifest if it exists, then create from specific platform digests
+      - docker manifest rm orlangure/gnomock:{{.version}} || true
+      - |
+        AMD64_DIGEST=$(docker manifest inspect orlangure/gnomock:amd64 | jq -r '.manifests[] | select(.platform.architecture=="amd64") | .digest')
+        ARM64_DIGEST=$(docker manifest inspect orlangure/gnomock:arm64 | jq -r '.manifests[] | select(.platform.architecture=="arm64") | .digest')
+        docker manifest create orlangure/gnomock:{{.version}} \
+          orlangure/gnomock@$AMD64_DIGEST \
+          orlangure/gnomock@$ARM64_DIGEST
+      - docker manifest push orlangure/gnomock:{{.version}}
+      
+        # create and push versioned platform-specific tags for reference
       - docker tag orlangure/gnomock:amd64 orlangure/gnomock:{{.version}}-amd64
       - docker tag orlangure/gnomock:arm64 orlangure/gnomock:{{.version}}-arm64
       - docker push orlangure/gnomock:{{.version}}-amd64
       - docker push orlangure/gnomock:{{.version}}-arm64
-      - docker manifest create --amend orlangure/gnomock:{{.version}} orlangure/gnomock:{{.version}}-amd64 orlangure/gnomock:{{.version}}-arm64
-      - docker manifest push orlangure/gnomock:{{.version}}
     preconditions:
       - sh: test $version
         msg: version is not set
