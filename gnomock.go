@@ -217,14 +217,37 @@ func Stop(cs ...*Container) error {
 		container := c
 
 		eg.Go(func() error {
-			return g.stop(container)
+			return g.stop(context.Background(), container)
 		})
 	}
 
 	return eg.Wait()
 }
 
-func (g *g) stop(c *Container) error {
+// StopCtx is the same as Stop, but it allows to provide a context to stop
+// containers.
+func StopCtx(ctx context.Context, cs ...*Container) error {
+	g, err := newG(isInDocker())
+	if err != nil {
+		return err
+	}
+
+	defer func() { _ = g.log.Sync() }()
+
+	eg, eCtx := errgroup.WithContext(ctx)
+
+	for _, c := range cs {
+		container := c
+
+		eg.Go(func() error {
+			return g.stop(eCtx, container)
+		})
+	}
+
+	return eg.Wait()
+}
+
+func (g *g) stop(ctx context.Context, c *Container) error {
 	if c == nil {
 		return nil
 	}
@@ -244,12 +267,12 @@ func (g *g) stop(c *Container) error {
 			// stop sidecar container when the main one is requested to stop;
 			// error in this case won't matter, the container has a self-destruct
 			// timer
-			_ = cli.stopContainer(context.Background(), sidecar)
+			_ = cli.stopContainer(ctx, sidecar)
 			_ = cli.stopClient()
 		}()
 	}
 
-	err = cli.stopContainer(context.Background(), id)
+	err = cli.stopContainer(ctx, id)
 	if err != nil {
 		return fmt.Errorf("can't stop container: %w", err)
 	}
@@ -261,7 +284,7 @@ func (g *g) stop(c *Container) error {
 		}
 	}
 
-	return cli.removeContainer(context.Background(), id)
+	return cli.removeContainer(ctx, id)
 }
 
 func buildImage(image string) string {
