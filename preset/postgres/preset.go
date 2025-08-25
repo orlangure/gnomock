@@ -20,6 +20,7 @@ const (
 	defaultSSLMode  = "disable"
 	defaultPort     = 5432
 	defaultVersion  = "16.2"
+	defaultImage    = "docker.io/library/postgres"
 )
 
 func init() {
@@ -51,11 +52,12 @@ type P struct {
 	Password     string   `json:"password"`
 	Timezone     string   `json:"timezone"`
 	Version      string   `json:"version"`
+	ImageName    string   `json:"image_name"`
 }
 
 // Image returns an image that should be pulled to create this container.
 func (p *P) Image() string {
-	return fmt.Sprintf("docker.io/library/postgres:%s", p.Version)
+	return fmt.Sprintf("%s:%s", p.ImageName, p.Version)
 }
 
 // Ports returns ports that should be used to access this container.
@@ -150,6 +152,10 @@ func (p *P) setDefaults() {
 
 	if p.Version == "" {
 		p.Version = defaultVersion
+	}
+
+	if p.ImageName == "" {
+		p.ImageName = defaultImage
 	}
 }
 

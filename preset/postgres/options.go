@@ -44,6 +44,13 @@ func WithVersion(version string) Option {
 	}
 }
 
+// WithImage sets image name
+func WithImage(name string) Option {
+	return func(o *P) {
+		o.ImageName = name
+	}
+}
+
 // WithTimezone sets the timezone in this container.
 func WithTimezone(timezone string) Option {
 	return func(p *P) {
