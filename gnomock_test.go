@@ -381,7 +381,6 @@ func TestGnomock_withShmSize(t *testing.T) {
 
 	cli, err := client.NewClientWithOpts(client.FromEnv, client.WithAPIVersionNegotiation())
 	require.NoError(t, err)
-	defer cli.Close()
 
 	const expectedShmSize = int64(256 * 1024 * 1024) // 256MB
 
@@ -392,14 +391,14 @@ func TestGnomock_withShmSize(t *testing.T) {
 	)
 	require.NoError(t, err)
 	require.NotNil(t, container)
-	defer func() {
-		require.NoError(t, gnomock.Stop(container))
-	}()
 
 	// Inspect the container to verify ShmSize was set correctly
 	containerJSON, err := cli.ContainerInspect(context.Background(), container.DockerID())
 	require.NoError(t, err)
 	require.Equal(t, expectedShmSize, containerJSON.HostConfig.ShmSize)
+
+	require.NoError(t, gnomock.Stop(container))
+	require.NoError(t, cli.Close())
 }
 
 func initf(context.Context, *gnomock.Container) error {
