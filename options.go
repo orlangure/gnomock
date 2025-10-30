@@ -230,6 +230,16 @@ func WithUser(user string) Option {
 	}
 }
 
+// WithShmSize sets the size of the shared memory (/dev/shm) in bytes. This is
+// equivalent to the --shm-size flag in docker run. Useful for applications that
+// need more shared memory than the default 64MB, such as PostgreSQL when using
+// large shared_buffers.
+func WithShmSize(size int64) Option {
+	return func(o *Options) {
+		o.ShmSize = size
+	}
+}
+
 // HealthcheckFunc defines a function to be used to determine container health.
 // It receives a host and a port, and returns an error if the container is not
 // ready, or nil when the container can be used. One example of HealthcheckFunc
@@ -335,6 +345,10 @@ type Options struct {
 	// User specifies the user:group or UID:GID that the container should run as.
 	// This is equivalent to the --user flag in docker run.
 	User string `json:"user"`
+
+	// ShmSize specifies the size of the shared memory (/dev/shm) in bytes.
+	// This is equivalent to the --shm-size flag in docker run.
+	ShmSize int64 `json:"shm_size"`
 
 	ctx                 context.Context
 	init                InitFunc
