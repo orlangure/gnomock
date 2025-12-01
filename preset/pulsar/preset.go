@@ -2,7 +2,9 @@
 package pulsar
 
 import (
+	"bytes"
 	"context"
+	"encoding/json"
 	"fmt"
 	"net/http"
 	"time"
@@ -193,15 +195,26 @@ func (p *P) sendMessages(ctx context.Context, c *gnomock.Container) error {
 }
 
 func (p *P) sendMessage(ctx context.Context, c *gnomock.Container, msg Message) error {
-	// Use Pulsar producer API to send messages
-	produceURL := fmt.Sprintf("http://%s/admin/v2/persistent/public/default/%s/producer",
+	// Use Pulsar REST API to send messages
+	// https://pulsar.apache.org/docs/next/client-libraries-rest/
+	produceURL := fmt.Sprintf("http://%s/topics/persistent/public/default/%s",
 		c.Address(WebServicePort), msg.Topic)
 
-	// Simple message payload - in a real implementation, you'd use the Pulsar client
-	// library, but for this minimal preset, we'll use the admin REST API
-	_ = fmt.Sprintf(`{"payload": "%s", "key": "%s"}`, msg.Payload, msg.Key)
+	payload := map[string]interface{}{
+		"messages": []map[string]string{
+			{
+				"key":     msg.Key,
+				"payload": msg.Payload,
+			},
+		},
+	}
 
-	req, err := http.NewRequestWithContext(ctx, http.MethodPost, produceURL, nil)
+	bs, err := json.Marshal(payload)
+	if err != nil {
+		return fmt.Errorf("failed to marshal message payload: %w", err)
+	}
+
+	req, err := http.NewRequestWithContext(ctx, http.MethodPost, produceURL, bytes.NewBuffer(bs))
 	if err != nil {
 		return err
 	}
@@ -214,7 +227,7 @@ func (p *P) sendMessage(ctx context.Context, c *gnomock.Container, msg Message) 
 	}
 	defer resp.Body.Close()
 
-	if resp.StatusCode != http.StatusOK {
+	if resp.StatusCode != http.StatusOK && resp.StatusCode != http.StatusNoContent {
 		return fmt.Errorf("failed to send message, status: %d", resp.StatusCode)
 	}
 
