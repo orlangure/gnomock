@@ -44,7 +44,7 @@ func TestPreset(t *testing.T) {
 
 	// actual test code
 	brokerURL := fmt.Sprintf("pulsar://%s", container.Address(pulsar.BrokerPort))
-	
+
 	// Use the broker URL with your Pulsar client to produce/consume messages
 	// Example: Check web service is accessible
 	webURL := fmt.Sprintf("http://%s/metrics", container.Address(pulsar.WebServicePort))
@@ -57,7 +57,7 @@ func TestPreset(t *testing.T) {
 	for _, topic := range []string{"test-topic-1", "test-topic-2"} {
 		adminURL := fmt.Sprintf("http://%s/admin/v2/persistent/public/default/%s", 
 			container.Address(pulsar.WebServicePort), topic)
-		
+
 		resp, err := http.Get(adminURL)
 		require.NoError(t, err)
 		defer resp.Body.Close()
