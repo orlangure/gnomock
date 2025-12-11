@@ -233,7 +233,7 @@ func WithUser(user string) Option {
 // WithShmSize sets the size of the shared memory (/dev/shm) in bytes. This is
 // equivalent to the --shm-size flag in docker run. Useful for applications that
 // need more shared memory than the default 64MB, such as PostgreSQL when using
-// large shared_buffers.
+// large shared_buffers. If size is 0 or negative, the Docker default of 64MB will be used.
 func WithShmSize(size int64) Option {
 	return func(o *Options) {
 		o.ShmSize = size
