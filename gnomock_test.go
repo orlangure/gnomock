@@ -376,6 +376,31 @@ func TestGnomock_withCustomImage(t *testing.T) {
 	require.NoError(t, gnomock.Stop(container))
 }
 
+func TestGnomock_withShmSize(t *testing.T) {
+	t.Parallel()
+
+	cli, err := client.NewClientWithOpts(client.FromEnv, client.WithAPIVersionNegotiation())
+	require.NoError(t, err)
+
+	const expectedShmSize = int64(256 * 1024 * 1024) // 256MB
+
+	container, err := gnomock.StartCustom(
+		testutil.TestImage,
+		gnomock.DefaultTCP(testutil.GoodPort80),
+		gnomock.WithShmSize(expectedShmSize),
+	)
+	require.NoError(t, err)
+	require.NotNil(t, container)
+
+	// Inspect the container to verify ShmSize was set correctly
+	containerJSON, err := cli.ContainerInspect(context.Background(), container.DockerID())
+	require.NoError(t, err)
+	require.Equal(t, expectedShmSize, containerJSON.HostConfig.ShmSize)
+
+	require.NoError(t, gnomock.Stop(container))
+	require.NoError(t, cli.Close())
+}
+
 func initf(context.Context, *gnomock.Container) error {
 	return nil
 }

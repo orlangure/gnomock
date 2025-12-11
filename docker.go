@@ -344,6 +344,10 @@ func (d *docker) createContainer(
 		ExtraHosts:   cfg.ExtraHosts,
 	}
 
+	if cfg.ShmSize > 0 {
+		hostConfig.ShmSize = cfg.ShmSize
+	}
+
 	resp, err := d.client.ContainerCreate(ctx, containerConfig, hostConfig, nil, nil, cfg.ContainerName)
 	if err == nil {
 		return &resp, nil
