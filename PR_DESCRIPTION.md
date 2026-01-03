@@ -45,7 +45,6 @@ func TestSomething(t *testing.T) {
 -   [x] Added `WithVersion` option.
 -   [x] Implemented health check using Jaeger's native health endpoint.
 -   [x] Added unit tests (`preset_test.go`).
--   [x] Added documentation (`README.md`).
 
 ## Verification
 
