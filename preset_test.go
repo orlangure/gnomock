@@ -5,7 +5,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/docker/docker/client"
+	"github.com/moby/moby/client"
 	"github.com/orlangure/gnomock"
 	"github.com/orlangure/gnomock/internal/health"
 	"github.com/orlangure/gnomock/internal/testutil"
