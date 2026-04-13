@@ -302,7 +302,10 @@ func (d *docker) portBindings(exposedPorts network.PortSet, ports NamedPorts) ne
 		hostAddr = "0.0.0.0"
 	}
 
-	hostIP := netip.MustParseAddr(hostAddr)
+	hostIP, err := netip.ParseAddr(hostAddr)
+	if err != nil {
+		hostIP = netip.MustParseAddr(localhostAddr)
+	}
 
 	for port := range exposedPorts {
 		binding := network.PortBinding{
