@@ -154,7 +154,7 @@ func newContainer(g *g, image string, ports NamedPorts, config *Options) (c *Con
 func copyf(dst io.Writer, src io.Reader) func() error {
 	return func() error {
 		_, err := stdcopy.StdCopy(dst, dst, src)
-		if err != nil && !errors.Is(err, io.EOF) {
+		if err != nil && !errors.Is(err, io.EOF) && !errors.Is(err, net.ErrClosed) {
 			return err
 		}
 
@@ -165,7 +165,7 @@ func copyf(dst io.Writer, src io.Reader) func() error {
 func closeLogReader(logReader io.ReadCloser, g *errgroup.Group) func() error {
 	return func() error {
 		err := logReader.Close()
-		if err != nil {
+		if err != nil && !errors.Is(err, net.ErrClosed) {
 			return err
 		}
 
@@ -239,13 +239,14 @@ func (g *g) stop(c *Container) error {
 	defer func() { _ = cli.stopClient() }()
 
 	id, sidecar := parseID(c.ID)
+
+	// Stop the sidecar container (best-effort) before returning, even if
+	// stopping the main container fails. Sidecar stop errors are intentionally
+	// ignored because sidecar containers have a self-destruct timer and will
+	// be cleaned up automatically.
 	if sidecar != "" {
-		go func() {
-			// stop sidecar container when the main one is requested to stop;
-			// error in this case won't matter, the container has a self-destruct
-			// timer
+		defer func() {
 			_ = cli.stopContainer(context.Background(), sidecar)
-			_ = cli.stopClient()
 		}()
 	}
 
@@ -275,6 +276,10 @@ func buildImage(image string) string {
 }
 
 func (g *g) setupLogForwarding(c *Container, cli *docker, config *Options) error {
+	if config.logWriter == io.Discard {
+		return nil
+	}
+
 	logReader, err := cli.readLogs(context.Background(), c.DockerID())
 	if err != nil {
 		return fmt.Errorf("can't create log reader: %w", err)
