@@ -75,7 +75,7 @@ func TestPreset_containerRemainsIfDebug(t *testing.T) {
 	time.Sleep(time.Second)
 
 	// confirm it doesn't exist anymore
-	cli, err := client.NewClientWithOpts(client.FromEnv, client.WithAPIVersionNegotiation())
+	cli, err := client.New(client.FromEnv)
 	require.NoError(t, err)
 
 	containerList, err := testutil.ListContainerByID(cli, container.ID)
@@ -88,7 +88,7 @@ func TestPreset_containerRemainsIfDebug(t *testing.T) {
 func TestPreset_duplicateContainerName(t *testing.T) {
 	t.Parallel()
 
-	cli, err := client.NewClientWithOpts(client.FromEnv, client.WithAPIVersionNegotiation())
+	cli, err := client.New(client.FromEnv)
 	require.NoError(t, err)
 
 	p := &testutil.TestPreset{Img: testutil.TestImage}

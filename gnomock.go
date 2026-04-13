@@ -33,8 +33,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/moby/moby/api/pkg/stdcopy"
 	"github.com/google/uuid"
+	"github.com/moby/moby/api/pkg/stdcopy"
 	"go.uber.org/zap"
 	"golang.org/x/sync/errgroup"
 )

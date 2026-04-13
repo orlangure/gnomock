@@ -52,7 +52,7 @@ type docker struct {
 func (g *g) dockerConnect() (*docker, error) {
 	g.log.Info("connecting to docker engine")
 
-	cli, err := client.New(client.FromEnv, client.WithAPIVersionNegotiation())
+	cli, err := client.New(client.FromEnv)
 	if err != nil {
 		return nil, errors.Join(ErrEnvClient, err)
 	}
@@ -253,6 +253,7 @@ func (d *docker) waitForContainerNetwork(ctx context.Context, id string, ports N
 
 			if len(boundNamedPorts) == len(ports) {
 				var gateway string
+
 				for _, ep := range inspectResult.Container.NetworkSettings.Networks {
 					if ep != nil && ep.Gateway.IsValid() {
 						gateway = ep.Gateway.String()
@@ -275,10 +276,15 @@ func (d *docker) exposedPorts(namedPorts NamedPorts) network.PortSet {
 	exposedPorts := make(network.PortSet)
 
 	for _, port := range namedPorts {
+		if port.Port < 0 || port.Port > 65535 {
+			continue
+		}
+
 		np, ok := network.PortFrom(uint16(port.Port), network.IPProtocol(port.Protocol))
 		if !ok {
 			continue
 		}
+
 		exposedPorts[np] = struct{}{}
 	}
 

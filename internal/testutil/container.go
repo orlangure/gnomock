@@ -17,5 +17,6 @@ func ListContainerByID(cli *client.Client, id string) ([]container.Summary, erro
 	if err != nil {
 		return nil, err
 	}
+
 	return result.Items, nil
 }
