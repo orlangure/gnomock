@@ -9,7 +9,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/docker/docker/client"
+	"github.com/moby/moby/client"
 	"github.com/orlangure/gnomock"
 	"github.com/orlangure/gnomock/internal/testutil"
 	"github.com/stretchr/testify/require"
@@ -138,7 +138,7 @@ func TestGnomock_cantStart(t *testing.T) {
 func TestGnomock_withDebugMode(t *testing.T) {
 	t.Parallel()
 
-	cli, err := client.NewClientWithOpts(client.FromEnv, client.WithAPIVersionNegotiation())
+	cli, err := client.New(client.FromEnv)
 	require.NoError(t, err)
 
 	container, err := gnomock.StartCustom(

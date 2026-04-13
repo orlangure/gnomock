@@ -4,18 +4,19 @@ package testutil
 import (
 	"context"
 
-	"github.com/docker/docker/api/types/container"
-	"github.com/docker/docker/api/types/filters"
-	"github.com/docker/docker/client"
+	"github.com/moby/moby/api/types/container"
+	"github.com/moby/moby/client"
 )
 
 // ListContainerByID returns a list of Containers for the given container id.
 func ListContainerByID(cli *client.Client, id string) ([]container.Summary, error) {
-	return cli.ContainerList(context.Background(), container.ListOptions{
-		All: true,
-		Filters: filters.NewArgs(filters.KeyValuePair{
-			Key:   "id",
-			Value: id,
-		}),
+	result, err := cli.ContainerList(context.Background(), client.ContainerListOptions{
+		All:     true,
+		Filters: make(client.Filters).Add("id", id),
 	})
+	if err != nil {
+		return nil, err
+	}
+
+	return result.Items, nil
 }

@@ -5,7 +5,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/docker/docker/client"
+	"github.com/moby/moby/client"
 	"github.com/orlangure/gnomock"
 	"github.com/orlangure/gnomock/internal/cleaner"
 	"github.com/orlangure/gnomock/internal/health"
@@ -22,7 +22,7 @@ func TestMain(m *testing.M) {
 func TestCleaner(t *testing.T) {
 	t.Parallel()
 
-	cli, err := client.NewClientWithOpts(client.FromEnv, client.WithAPIVersionNegotiation())
+	cli, err := client.New(client.FromEnv)
 	require.NoError(t, err)
 
 	p := &testutil.TestPreset{Img: testutil.TestImage}
